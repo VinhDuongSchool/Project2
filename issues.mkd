@@ -1,0 +1,13 @@
+## Resolved Issues ##
+
+- **[1]** Need a skeletal, executable game
+- **[2]** Add a bouncing ball
+- **[3]** Add initial eyecandy, score tracking and bounce counter
+- **[4]** Add keyboard controls for ball
+- **[5]** Add StartUp and GameOver states
+- **[6]** Add explosion sound
+- **[7]** Use a proper Slick StateBasedGame.
+- **[8]** Use fully specified resource path, preload resources if possible
+
+## Open Issues ##
+ 
