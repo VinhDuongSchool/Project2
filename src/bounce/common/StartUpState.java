@@ -1,7 +1,8 @@
-package bounce;
+package bounce.common;
 
 import java.util.Iterator;
 
+import bounce.client.ExplorerGameClient;
 import jig.ResourceManager;
 
 import org.newdawn.slick.GameContainer;
@@ -16,18 +17,18 @@ import org.newdawn.slick.state.StateBasedGame;
  * turned off, and the bounce counter shows '?'. The user can only interact with
  * the game by pressing the SPACE key which transitions to the Playing State.
  * Otherwise, all game objects are rendered and updated normally.
- * 
+ *
  * Transitions From (Initialization), GameOverState
- * 
+ *
  * Transitions To PlayingState
  */
-class StartUpState extends BasicGameState {
+public class StartUpState extends BasicGameState {
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
 	}
-	
+
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
 		container.setSoundOn(false);
@@ -37,14 +38,14 @@ class StartUpState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		BounceGame bg = (BounceGame)game;
-		
+		ExplorerGameClient bg = (ExplorerGameClient)game;
+
 		bg.ball.render(g);
 		g.drawString("Bounces: ?", 10, 30);
 		for (Bang b : bg.explosions)
 			b.render(g);
-		g.drawImage(ResourceManager.getImage(BounceGame.STARTUP_BANNER_RSC),
-				225, 270);		
+		g.drawImage(ResourceManager.getImage(ExplorerGameClient.STARTUP_BANNER_RSC),
+				225, 270);
 	}
 
 	@Override
@@ -52,11 +53,11 @@ class StartUpState extends BasicGameState {
 			int delta) throws SlickException {
 
 		Input input = container.getInput();
-		BounceGame bg = (BounceGame)game;
+		ExplorerGameClient bg = (ExplorerGameClient)game;
 
 		if (input.isKeyDown(Input.KEY_SPACE))
-			bg.enterState(BounceGame.PLAYINGSTATE);	
-		
+			bg.enterState(ExplorerGameClient.PLAYINGSTATE);
+
 		// bounce the ball...
 		boolean bounced = false;
 		if (bg.ball.getCoarseGrainedMaxX() > bg.ScreenWidth
@@ -84,7 +85,7 @@ class StartUpState extends BasicGameState {
 
 	@Override
 	public int getID() {
-		return BounceGame.STARTUPSTATE;
+		return ExplorerGameClient.STARTUPSTATE;
 	}
-	
+
 }
