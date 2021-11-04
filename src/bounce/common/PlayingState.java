@@ -1,7 +1,8 @@
-package bounce;
+package bounce.common;
 
 import java.util.Iterator;
 
+import bounce.client.ExplorerGameClient;
 import jig.Vector;
 
 import org.newdawn.slick.GameContainer;
@@ -17,14 +18,14 @@ import org.newdawn.slick.state.StateBasedGame;
  * turned on, the bounce counter begins at 0 and increases until 10 at which
  * point a transition to the Game Over state is initiated. The user can also
  * control the ball using the WAS & D keys.
- * 
+ *
  * Transitions From StartUpState
- * 
+ *
  * Transitions To GameOverState
  */
-class PlayingState extends BasicGameState {
+public class PlayingState extends BasicGameState {
 	int bounces;
-	
+
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -38,8 +39,8 @@ class PlayingState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		BounceGame bg = (BounceGame)game;
-		
+		ExplorerGameClient bg = (ExplorerGameClient)game;
+
 		bg.ball.render(g);
 		g.drawString("Bounces: " + bounces, 10, 30);
 		for (Bang b : bg.explosions)
@@ -51,8 +52,8 @@ class PlayingState extends BasicGameState {
 			int delta) throws SlickException {
 
 		Input input = container.getInput();
-		BounceGame bg = (BounceGame)game;
-		
+		ExplorerGameClient bg = (ExplorerGameClient)game;
+
 		if (input.isKeyDown(Input.KEY_W)) {
 			bg.ball.setVelocity(bg.ball.getVelocity().add(new Vector(0f, -.001f)));
 		}
@@ -90,14 +91,14 @@ class PlayingState extends BasicGameState {
 		}
 
 		if (bounces >= 10) {
-			((GameOverState)game.getState(BounceGame.GAMEOVERSTATE)).setUserScore(bounces);
-			game.enterState(BounceGame.GAMEOVERSTATE);
+			((GameOverState)game.getState(ExplorerGameClient.GAMEOVERSTATE)).setUserScore(bounces);
+			game.enterState(ExplorerGameClient.GAMEOVERSTATE);
 		}
 	}
 
 	@Override
 	public int getID() {
-		return BounceGame.PLAYINGSTATE;
+		return ExplorerGameClient.PLAYINGSTATE;
 	}
-	
+
 }
