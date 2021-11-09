@@ -1,5 +1,16 @@
 ## Resolved Issues ##
-Riley made a push
+
 ## Open Issues ##
+1 render a background
+2 render a character
+3 character key board movement (use screen offsets)
+10 networking
+4 Enemy class
+5 melee attacks
+6 projectile attacks
+7 attacks can collide
+8 wall collisions
+9 enemy path finding
+
 
 

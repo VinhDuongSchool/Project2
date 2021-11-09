@@ -1,8 +1,6 @@
 package bounce.common;
 
-import bounce.client.ExplorerGameClient;
 import jig.Entity;
-import jig.ResourceManager;
 import jig.Vector;
 
 /**
@@ -18,8 +16,8 @@ public class Ball extends Entity {
 
 	public Ball(final float x, final float y, final float vx, final float vy) {
 		super(x, y);
-		addImageWithBoundingBox(ResourceManager
-				.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
+//		addImageWithBoundingBox(ResourceManager
+//				.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
 		velocity = new Vector(vx, vy);
 		countdown = 0;
 	}
@@ -41,9 +39,9 @@ public class Ball extends Entity {
 	 * @param surfaceTangent
 	 */
 	public void bounce(float surfaceTangent) {
-		removeImage(ResourceManager.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
-		addImageWithBoundingBox(ResourceManager
-				.getImage(ExplorerGameClient.BALL_BROKENIMG_RSC));
+//		removeImage(ResourceManager.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
+//		addImageWithBoundingBox(ResourceManager
+//				.getImage(ExplorerGameClient.BALL_BROKENIMG_RSC));
 		countdown = 500;
 		velocity = velocity.bounce(surfaceTangent);
 	}
@@ -59,10 +57,10 @@ public class Ball extends Entity {
 		if (countdown > 0) {
 			countdown -= delta;
 			if (countdown <= 0) {
-				addImageWithBoundingBox(ResourceManager
-						.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
-				removeImage(ResourceManager
-						.getImage(ExplorerGameClient.BALL_BROKENIMG_RSC));
+//				addImageWithBoundingBox(ResourceManager
+//						.getImage(ExplorerGameClient.BALL_BALLIMG_RSC));
+//				removeImage(ResourceManager
+//						.getImage(ExplorerGameClient.BALL_BROKENIMG_RSC));
 			}
 		}
 	}

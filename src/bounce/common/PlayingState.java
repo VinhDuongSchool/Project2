@@ -1,10 +1,7 @@
 package bounce.common;
 
-import java.util.Iterator;
-
 import bounce.client.ExplorerGameClient;
 import jig.Vector;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -24,7 +21,7 @@ import org.newdawn.slick.state.StateBasedGame;
  * Transitions To GameOverState
  */
 public class PlayingState extends BasicGameState {
-	int bounces;
+
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -33,67 +30,57 @@ public class PlayingState extends BasicGameState {
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
-		bounces = 0;
 		container.setSoundOn(true);
 	}
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
-		ExplorerGameClient bg = (ExplorerGameClient)game;
+        ExplorerGameClient egc = (ExplorerGameClient)game;
 
-		bg.ball.render(g);
-		g.drawString("Bounces: " + bounces, 10, 30);
-		for (Bang b : bg.explosions)
-			b.render(g);
+
+        var s1 = egc.game_sprites.getSprite(10, 4);
+        var s2 = egc.game_sprites.getSprite(2, 4);
+        var s3 = egc.game_sprites.getSprite(0, 2);
+
+        Vector cords;
+        for (float x = 0; x<10; x++){
+            for (float y = 0; y<5; y++){
+                cords =  lib.to_screen(x*32,y*32, new Vector(egc.screenox, egc.screenoy));
+                g.drawImage(s1,cords.getX(), cords.getY());
+            }
+        }
+
+        cords =  lib.to_screen(0,0, new Vector(egc.screenox, egc.screenoy));
+        g.drawImage(s3, cords.getX(), cords.getY());
+
+        cords =  lib.to_screen(0,32, new Vector(egc.screenox, egc.screenoy));
+        g.drawImage(s2, cords.getX(), cords.getY());
+
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
+        Input input = container.getInput();
+        ExplorerGameClient egc = (ExplorerGameClient) game;
 
-		Input input = container.getInput();
-		ExplorerGameClient bg = (ExplorerGameClient)game;
+        if (egc.is_connected){
 
-		if (input.isKeyDown(Input.KEY_W)) {
-			bg.ball.setVelocity(bg.ball.getVelocity().add(new Vector(0f, -.001f)));
-		}
-		if (input.isKeyDown(Input.KEY_S)) {
-			bg.ball.setVelocity(bg.ball.getVelocity().add(new Vector(0f, +.001f)));
-		}
-		if (input.isKeyDown(Input.KEY_A)) {
-			bg.ball.setVelocity(bg.ball.getVelocity().add(new Vector(-.001f, 0)));
-		}
-		if (input.isKeyDown(Input.KEY_D)) {
-			bg.ball.setVelocity(bg.ball.getVelocity().add(new Vector(+.001f, 0f)));
-		}
-		// bounce the ball...
-		boolean bounced = false;
-		if (bg.ball.getCoarseGrainedMaxX() > bg.ScreenWidth
-				|| bg.ball.getCoarseGrainedMinX() < 0) {
-			bg.ball.bounce(90);
-			bounced = true;
-		} else if (bg.ball.getCoarseGrainedMaxY() > bg.ScreenHeight
-				|| bg.ball.getCoarseGrainedMinY() < 0) {
-			bg.ball.bounce(0);
-			bounced = true;
-		}
-		if (bounced) {
-			bg.explosions.add(new Bang(bg.ball.getX(), bg.ball.getY()));
-			bounces++;
-		}
-		bg.ball.update(delta);
+        } else {
+            if (input.isKeyDown(Input.KEY_UP)){
+                egc.screenoy += 5;
+            }
+            if (input.isKeyDown(Input.KEY_DOWN)){
+                egc.screenoy -= 5;
+            }
+            if (input.isKeyDown(Input.KEY_LEFT)){
+                egc.screenox += 5;
+            }
+            if (input.isKeyDown(Input.KEY_RIGHT)){
+                egc.screenox -= 5;
+            }
+        }
 
-		// check if there are any finished explosions, if so remove them
-		for (Iterator<Bang> i = bg.explosions.iterator(); i.hasNext();) {
-			if (!i.next().isActive()) {
-				i.remove();
-			}
-		}
-
-		if (bounces >= 10) {
-			((GameOverState)game.getState(ExplorerGameClient.GAMEOVERSTATE)).setUserScore(bounces);
-			game.enterState(ExplorerGameClient.GAMEOVERSTATE);
-		}
 	}
 
 	@Override
