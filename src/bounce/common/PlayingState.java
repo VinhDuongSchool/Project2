@@ -56,6 +56,8 @@ public class PlayingState extends BasicGameState {
         cords =  lib.to_screen(0,32, new Vector(egc.screenox, egc.screenoy));
         g.drawImage(s2, cords.getX(), cords.getY());
 
+        egc.character.render(g); //Render the character onto the screen.
+
 	}
 
 	@Override
@@ -79,6 +81,21 @@ public class PlayingState extends BasicGameState {
             if (input.isKeyDown(Input.KEY_RIGHT)){
                 egc.screenox -= 5;
             }
+
+
+            if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
+                egc.character.setVelocity(new Vector(0f,-0.1f));
+            } else if (input.isKeyDown(Input.KEY_A)){
+                egc.character.setVelocity(new Vector(-0.1f,0f));
+            } else if (input.isKeyDown(Input.KEY_S)){
+                egc.character.setVelocity(new Vector(0f,0.1f));
+            } else if (input.isKeyDown(Input.KEY_D)){
+                egc.character.setVelocity(new Vector(0.1f,0f));
+            } else {
+                egc.character.setVelocity(new Vector(0f,0f));
+            }
+
+            egc.character.update(delta); //Update the position of the player
         }
 
 	}

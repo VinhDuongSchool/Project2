@@ -3,6 +3,7 @@ package bounce.client;
 import bounce.common.GameOverState;
 import bounce.common.PlayingState;
 import bounce.common.StartUpState;
+import bounce.common.CharacterClass;
 import jig.Entity;
 import jig.ResourceManager;
 import org.newdawn.slick.AppGameContainer;
@@ -40,6 +41,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public float screenox;
     public float screenoy;
     public boolean is_connected;
+	public CharacterClass character; //The character class.
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -84,6 +86,7 @@ public class ExplorerGameClient extends StateBasedGame {
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;
+        character = new CharacterClass(400,300, 0, 0, game_sprites.getSprite(0, 10));  //Set up the character.
 
 	}
 
