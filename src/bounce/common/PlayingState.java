@@ -92,18 +92,27 @@ public class PlayingState extends BasicGameState {
 
 
             if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
-                egc.character.setVelocity(new Vector(0f,-0.1f));
+                egc.character.setVelocity(new Vector(-0.2f,-0.1f));
             } else if (input.isKeyDown(Input.KEY_A)){
-                egc.character.setVelocity(new Vector(-0.1f,0f));
+                egc.character.setVelocity(new Vector(-0.1f,0.05f));
             } else if (input.isKeyDown(Input.KEY_S)){
-                egc.character.setVelocity(new Vector(0f,0.1f));
+                egc.character.setVelocity(new Vector(0.2f,0.1f));
             } else if (input.isKeyDown(Input.KEY_D)){
-                egc.character.setVelocity(new Vector(0.1f,0f));
+                egc.character.setVelocity(new Vector(0.1f,-0.05f));
             } else {
                 egc.character.setVelocity(new Vector(0f,0f));
             }
 
+            float beforeX = egc.character.getX(); //Get the cordinates value before updating
+            float beforeY = egc.character.getY();
             egc.character.update(delta); //Update the position of the player
+            float afterX = egc.character.getX();
+            float afterY = egc.character.getY(); //Get the current position
+            egc.character.setX(beforeX);
+            egc.character.setY(beforeY); //Set the character position to before it was changed.
+            egc.screenox += (beforeX - afterX); //Update the window.
+            egc.screenoy += (beforeY - afterY);
+
         }
 
 	}
