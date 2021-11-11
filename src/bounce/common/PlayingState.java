@@ -44,7 +44,7 @@ public class PlayingState extends BasicGameState {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
 
-        var pos = lib.to_screen(egc.character.gamepos, egc.screen_center);
+        var pos = lib.to_screen(new Vector( -egc.character.gamepos.getX(), -egc.character.gamepos.getY()), egc.screen_center);
         egc.screenox = pos.getX();
         egc.screenoy = pos.getY();
 
@@ -67,6 +67,8 @@ public class PlayingState extends BasicGameState {
         // testing stuff
 //        g.drawLine(0,0, egc.screenox, egc.screenoy);
 //        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
+        System.out.print(egc.character.gamepos + " ");
+        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 
         cords =  lib.to_screen(0,0, new Vector(0, 100 ));
         g.drawImage(s3, cords.getX(), cords.getY());
@@ -109,8 +111,7 @@ public class PlayingState extends BasicGameState {
                v = v.add( LEFT_V.scale(-1));
             }
 
-            // invert velocity again (not sure why tbh)
-            egc.character.setVelocity(v.scale(-1));
+            egc.character.setVelocity(v);
             egc.character.update(delta); //Update the position of the player
 
         }
