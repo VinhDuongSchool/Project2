@@ -1,10 +1,8 @@
 package bounce.client;
 
-import bounce.common.GameOverState;
-import bounce.common.PlayingState;
-import bounce.common.StartUpState;
-import bounce.common.CharacterClass;
+import bounce.common.*;
 import jig.Entity;
+import java.util.ArrayList;
 import jig.ResourceManager;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -42,6 +40,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public float screenoy;
     public boolean is_connected;
 	public CharacterClass character; //The character class.
+	public ArrayList<EnemyClass> enemies; //Enemies
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -59,6 +58,7 @@ public class ExplorerGameClient extends StateBasedGame {
 		ScreenWidth = width;
         is_connected = connected;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+		enemies = new ArrayList<EnemyClass>(10); // Initialize the arrayList
 	}
 
 

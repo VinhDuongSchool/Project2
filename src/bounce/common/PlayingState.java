@@ -30,7 +30,12 @@ public class PlayingState extends BasicGameState {
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
-		container.setSoundOn(true);
+        ExplorerGameClient egc = (ExplorerGameClient)game;
+
+        egc.enemies.add(new EnemyClass(350,300, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new EnemyClass(450,300, 0, 0, egc.game_sprites.getSprite(0, 9)));
+	    container.setSoundOn(true);
+
 	}
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
@@ -55,6 +60,9 @@ public class PlayingState extends BasicGameState {
 
         cords =  lib.to_screen(0,32, new Vector(egc.screenox, egc.screenoy));
         g.drawImage(s2, cords.getX(), cords.getY());
+
+        for (EnemyClass e : egc.enemies) //Render all the enemies.
+            e.render(g);
 
         egc.character.render(g); //Render the character onto the screen.
 
