@@ -5,15 +5,17 @@ import jig.Vector;
 import org.newdawn.slick.Image;
 
 
-public class EnemyClass extends Entity {
+public class Enemy extends Entity {
 
     private Vector velocity; //Velocity vectore.
+    public Vector gamepos;
 
-
-    public EnemyClass(final float x, final float y, final float vx, final float vy, Image img) {
+    public Enemy(final float x, final float y, final float vx, final float vy, Image img) {
         super(x,y);
-
+        gamepos = new Vector(x,y);
         velocity = new Vector(vx, vy);
+
+        // add image with offset to it renders from top left corner
         addImageWithBoundingBox(img);
     }
 

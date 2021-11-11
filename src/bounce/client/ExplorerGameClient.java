@@ -1,14 +1,17 @@
 package bounce.client;
 
+import bounce.common.Character;
 import bounce.common.*;
 import jig.Entity;
-import java.util.ArrayList;
 import jig.ResourceManager;
+import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.state.StateBasedGame;
+
+import java.util.ArrayList;
 
 
 /**
@@ -34,13 +37,13 @@ public class ExplorerGameClient extends StateBasedGame {
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 
-
+    public final Vector screen_center;
     public SpriteSheet game_sprites;
     public float screenox;
     public float screenoy;
     public boolean is_connected;
-	public CharacterClass character; //The character class.
-	public ArrayList<EnemyClass> enemies; //Enemies
+	public Character character; //The character class.
+	public ArrayList<Enemy> enemies; //Enemies
 
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -58,7 +61,8 @@ public class ExplorerGameClient extends StateBasedGame {
 		ScreenWidth = width;
         is_connected = connected;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
-		enemies = new ArrayList<EnemyClass>(10); // Initialize the arrayList
+		enemies = new ArrayList<Enemy>(10); // Initialize the arrayList
+        screen_center = new Vector(ScreenWidth/2,ScreenHeight/2);
 	}
 
 
@@ -67,6 +71,7 @@ public class ExplorerGameClient extends StateBasedGame {
         addState(new PlayingState());
 		addState(new StartUpState());
 		addState(new GameOverState());
+
 
 
 		// the sound resource takes a particularly long time to load,
@@ -86,7 +91,9 @@ public class ExplorerGameClient extends StateBasedGame {
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;
-        character = new CharacterClass(400,300, 0, 0, game_sprites.getSprite(0, 10));  //Set up the character.
+
+        // character will always render in the center of the screen
+        character = new Character( screen_center.getX(), screen_center.getY(), 0,0, game_sprites.getSprite(0, 10));  //Set up the character.
 
 	}
 

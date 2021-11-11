@@ -32,8 +32,9 @@ public class PlayingState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
-        egc.enemies.add(new EnemyClass(350,300, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
-        egc.enemies.add(new EnemyClass(450,300, 0, 0, egc.game_sprites.getSprite(0, 9)));
+        egc.enemies.add(new Enemy(0,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
+        egc.enemies.add(new Enemy(0,0, 0, 0, egc.game_sprites.getSprite(1, 8)));
 	    container.setSoundOn(true);
 
 	}
@@ -43,29 +44,43 @@ public class PlayingState extends BasicGameState {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
 
+        var pos = lib.to_screen(egc.character.gamepos, egc.screen_center);
+        egc.screenox = pos.getX();
+        egc.screenoy = pos.getY();
+
         var s1 = egc.game_sprites.getSprite(10, 4);
         var s2 = egc.game_sprites.getSprite(2, 4);
         var s3 = egc.game_sprites.getSprite(0, 2);
 
+
+        // for sprites drawn directly from image they are drawn from the top left corner
+        // for entities the image is drawn form their center
+        // because the entity case will be mor common for testing these tiles subtract 32 from the render step
         Vector cords;
         for (float x = 0; x<10; x++){
             for (float y = 0; y<5; y++){
-                cords =  lib.to_screen(x*32,y*32, new Vector(egc.screenox, egc.screenoy));
-                g.drawImage(s1,cords.getX(), cords.getY());
+                cords =  lib.to_screen(x*32,y*32, new Vector(egc.screenox, egc.screenoy), -16);
+                g.drawImage(s1,cords.getX()-32, cords.getY()-32);
             }
         }
 
-        cords =  lib.to_screen(0,0, new Vector(egc.screenox, egc.screenoy));
+        // testing stuff
+//        g.drawLine(0,0, egc.screenox, egc.screenoy);
+//        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
+
+        cords =  lib.to_screen(0,0, new Vector(0, 100 ));
         g.drawImage(s3, cords.getX(), cords.getY());
 
         cords =  lib.to_screen(0,32, new Vector(egc.screenox, egc.screenoy));
         g.drawImage(s2, cords.getX(), cords.getY());
 
-        for (EnemyClass e : egc.enemies) //Render all the enemies.
+        for (Enemy e : egc.enemies) {//Render all the enemies.
+            e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
             e.render(g);
+        }
+
 
         egc.character.render(g); //Render the character onto the screen.
-
 	}
 
 	@Override
@@ -77,41 +92,26 @@ public class PlayingState extends BasicGameState {
         if (egc.is_connected){
 
         } else {
-            if (input.isKeyDown(Input.KEY_UP)){
-                egc.screenoy += 5;
-            }
-            if (input.isKeyDown(Input.KEY_DOWN)){
-                egc.screenoy -= 5;
-            }
-            if (input.isKeyDown(Input.KEY_LEFT)){
-                egc.screenox += 5;
-            }
-            if (input.isKeyDown(Input.KEY_RIGHT)){
-                egc.screenox -= 5;
-            }
-
-
+            // will need to change movement stuff to make it easier to do different sprites for different directions
+            Vector v = new Vector(0,0);
+            var UP_V = new Vector(0.2f,-0.2f);
+            var LEFT_V = new Vector(-0.1f,-0.1f);
             if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
-                egc.character.setVelocity(new Vector(-0.2f,-0.1f));
-            } else if (input.isKeyDown(Input.KEY_A)){
-                egc.character.setVelocity(new Vector(-0.1f,0.05f));
-            } else if (input.isKeyDown(Input.KEY_S)){
-                egc.character.setVelocity(new Vector(0.2f,0.1f));
-            } else if (input.isKeyDown(Input.KEY_D)){
-                egc.character.setVelocity(new Vector(0.1f,-0.05f));
-            } else {
-                egc.character.setVelocity(new Vector(0f,0f));
+                v = v.add(UP_V);
+            }
+            if (input.isKeyDown(Input.KEY_A)){
+                v = v.add( LEFT_V);
+            }
+            if (input.isKeyDown(Input.KEY_S)){
+                v = v.add( UP_V.scale(-1));
+            }
+            if (input.isKeyDown(Input.KEY_D)){
+               v = v.add( LEFT_V.scale(-1));
             }
 
-            float beforeX = egc.character.getX(); //Get the cordinates value before updating
-            float beforeY = egc.character.getY();
+            // invert velocity again (not sure why tbh)
+            egc.character.setVelocity(v.scale(-1));
             egc.character.update(delta); //Update the position of the player
-            float afterX = egc.character.getX();
-            float afterY = egc.character.getY(); //Get the current position
-            egc.character.setX(beforeX);
-            egc.character.setY(beforeY); //Set the character position to before it was changed.
-            egc.screenox += (beforeX - afterX); //Update the window.
-            egc.screenoy += (beforeY - afterY);
 
         }
 
