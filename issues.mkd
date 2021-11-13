@@ -1,13 +1,11 @@
 ## Resolved Issues ##
 2 render a character
 4 Enemy class
+10 networking framework
+3 character key board movement (use screen offsets)
 
 ## Open Issues ##
-1 render a background
-
-3 character key board movement (use screen offsets)
-10 networking
-
+1 tile map
 5 melee attacks
 6 projectile attacks
 7 attacks can collide

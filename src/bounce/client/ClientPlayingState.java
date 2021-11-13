@@ -1,6 +1,8 @@
-package bounce.common;
+package bounce.client;
 
-import bounce.client.ExplorerGameClient;
+import bounce.common.Enemy;
+import bounce.common.Message;
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -8,6 +10,8 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+
+import java.io.IOException;
 
 
 /**
@@ -20,7 +24,7 @@ import org.newdawn.slick.state.StateBasedGame;
  *
  * Transitions To GameOverState
  */
-public class PlayingState extends BasicGameState {
+public class ClientPlayingState extends BasicGameState {
 
 
 	@Override
@@ -67,8 +71,8 @@ public class PlayingState extends BasicGameState {
         // testing stuff
 //        g.drawLine(0,0, egc.screenox, egc.screenoy);
 //        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
-        System.out.print(egc.character.gamepos + " ");
-        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
+//        System.out.print(egc.character.gamepos + " ");
+//        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 
         cords =  lib.to_screen(0,0, new Vector(0, 100 ));
         g.drawImage(s3, cords.getX(), cords.getY());
@@ -80,8 +84,14 @@ public class PlayingState extends BasicGameState {
             e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
             e.render(g);
         }
-
-
+        if(egc.is_connected){
+            for (var c : egc.allies.values()){
+                if (c.client_id != egc.ID){
+                    c.setPosition(lib.to_screen(c.gamepos, new Vector(egc.screenox, egc.screenoy)));
+                    c.render(g);
+                }
+            }
+        }
         egc.character.render(g); //Render the character onto the screen.
 	}
 
@@ -91,29 +101,38 @@ public class PlayingState extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
+        // will need to change movement stuff to make it easier to do different sprites for different directions
+        Vector v = new Vector(0,0);
+        var UP_V = new Vector(0.2f,-0.2f);
+        var LEFT_V = new Vector(-0.1f,-0.1f);
+        if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
+            v = v.add(UP_V);
+        }
+        if (input.isKeyDown(Input.KEY_A)){
+            v = v.add( LEFT_V);
+        }
+        if (input.isKeyDown(Input.KEY_S)){
+            v = v.add( UP_V.scale(-1));
+        }
+        if (input.isKeyDown(Input.KEY_D)){
+            v = v.add( LEFT_V.scale(-1));
+        }
         if (egc.is_connected){
+            if (!egc.character.getVelocity().equals(v)){
+                try {
+                    egc.out_stream.writeObject(new Message(Message.MSG_TYPE.SET_VELOCITY, v, egc.ID));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                egc.character.setVelocity(v);
+            }
+            for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
+                egc.handle_message(m);
+            }
 
         } else {
-            // will need to change movement stuff to make it easier to do different sprites for different directions
-            Vector v = new Vector(0,0);
-            var UP_V = new Vector(0.2f,-0.2f);
-            var LEFT_V = new Vector(-0.1f,-0.1f);
-            if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
-                v = v.add(UP_V);
-            }
-            if (input.isKeyDown(Input.KEY_A)){
-                v = v.add( LEFT_V);
-            }
-            if (input.isKeyDown(Input.KEY_S)){
-                v = v.add( UP_V.scale(-1));
-            }
-            if (input.isKeyDown(Input.KEY_D)){
-               v = v.add( LEFT_V.scale(-1));
-            }
-
             egc.character.setVelocity(v);
             egc.character.update(delta); //Update the position of the player
-
         }
 
 	}
