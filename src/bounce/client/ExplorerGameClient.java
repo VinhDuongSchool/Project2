@@ -33,6 +33,7 @@ public class ExplorerGameClient extends StateBasedGame {
 	public static final int GAMEOVERSTATE = 2;
 
     public static final String SPRITES = "bounce/resource/sprites.png";
+    public static final String PROJECTILE = "bounce/resource/projectile.png";
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -44,6 +45,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public boolean is_connected;
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
+    public Projectile projectile;
 
     private Thread msg_reader;
     private Thread msg_writer;
@@ -143,6 +145,7 @@ public class ExplorerGameClient extends StateBasedGame {
 		// preload all the resources to avoid warnings & minimize latency...
 
         ResourceManager.loadImage(SPRITES);
+        ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;

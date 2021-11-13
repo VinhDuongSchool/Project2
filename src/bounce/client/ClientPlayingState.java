@@ -2,6 +2,7 @@ package bounce.client;
 
 import bounce.common.Enemy;
 import bounce.common.Message;
+import bounce.common.Projectile;
 import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
@@ -40,6 +41,8 @@ public class ClientPlayingState extends BasicGameState {
         egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
         egc.enemies.add(new Enemy(0,0, 0, 0, egc.game_sprites.getSprite(1, 8)));
 	    container.setSoundOn(true);
+        egc.projectile = new Projectile(0,0, 0,0); //Make a new projectile object.
+
 
 	}
 	@Override
@@ -74,15 +77,18 @@ public class ClientPlayingState extends BasicGameState {
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 
-        cords =  lib.to_screen(0,0, new Vector(0, 100 ));
+        cords =  lib.to_screen(0,0, new Vector(egc.screenox, egc.screenoy ));
         g.drawImage(s3, cords.getX(), cords.getY());
 
         cords =  lib.to_screen(0,32, new Vector(egc.screenox, egc.screenoy));
         g.drawImage(s2, cords.getX(), cords.getY());
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
-            e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
-            e.render(g);
+            if (e.getDead() != true) { //Only render the enemy if they are alive.
+                e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
+                e.render(g);
+            }
+
         }
         if(egc.is_connected){
             for (var c : egc.allies.values()){
@@ -93,6 +99,11 @@ public class ClientPlayingState extends BasicGameState {
             }
         }
         egc.character.render(g); //Render the character onto the screen.
+
+        if (egc.projectile.getFired() == true) { //To render the projectile.
+            egc.projectile.setPosition(lib.to_screen(egc.projectile.gamepos, new Vector(egc.screenox, egc.screenoy)));
+            egc.projectile.render(g);
+        }
 	}
 
 	@Override
@@ -135,6 +146,25 @@ public class ClientPlayingState extends BasicGameState {
             egc.character.update(delta); //Update the position of the player
         }
 
+
+        if (input.isKeyDown(Input.KEY_F)){ //Use the f key to fire a projectile.
+            egc.projectile.gamepos = egc.character.gamepos; //Set the initial location to the player.
+            egc.projectile.setFired(true); //Say the projectile is fired.
+            egc.projectile.setVelocity(new Vector(0.1f, 0.1f));
+        }
+
+        for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
+            if (egc.projectile.collides(e) != null && egc.projectile.getFired() == true && e.getDead() == false) {
+                egc.projectile.setFired(false);
+                egc.projectile.rotate(90);
+                egc.projectile.setVelocity(new Vector(0f, 0f));
+                e.setHealth(e.getHealth() - 1);
+                if (e.getHealth() <= 0) {
+                    e.setDead(true);
+                }
+            }
+        }
+        egc.projectile.update(delta);
 	}
 
 	@Override
