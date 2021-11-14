@@ -3,14 +3,17 @@
 4 Enemy class
 10 networking framework
 3 character key board movement (use screen offsets)
+6 projectile attacks
+1 tile map
 
 ## Open Issues ##
-1 tile map
 5 melee attacks
-6 projectile attacks
 7 attacks can collide
-8 wall collisions
+8 tile functionality (wall collision/doors)
 9 enemy path finding
+11 server entity creation/deletion
+12 server projectiles
+14 rooms
 
 
 

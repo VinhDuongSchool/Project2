@@ -50,6 +50,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public ConcurrentLinkedQueue<Message> in_messages;
     public ObjectOutputStream out_stream;
     public int ID;
+    public TileMap grid;
     public HashMap< Integer, Character> allies;
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
@@ -158,6 +159,7 @@ public class ExplorerGameClient extends StateBasedGame {
                 game_sprites.getSprite(sprite_x, sprite_y),
                 ID);  //Set up the character.
 
+        grid = new TileMap(100,100, game_sprites);
         //(Kevin) send this clients character to everyone else
         if (is_connected) {
             allies.put(ID, character);
@@ -172,6 +174,7 @@ public class ExplorerGameClient extends StateBasedGame {
                 e.printStackTrace();
             }
         }
+
     }
 
 	public static void main(String[] args) {
