@@ -13,6 +13,8 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 
 /**
@@ -41,7 +43,6 @@ public class ClientPlayingState extends BasicGameState {
         egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
         egc.enemies.add(new Enemy(0,0, 0, 0, egc.game_sprites.getSprite(1, 8)));
 	    container.setSoundOn(true);
-        egc.projectile = new Projectile(0,0, 0,0); //Make a new projectile object.
 
 
 	}
@@ -76,6 +77,20 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
+//        var p = new Polygon();
+//        var v = new Vector(0,0);
+//        var v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
+//        p.addPoint(v2.getX(), v2.getY());
+//        v = new Vector(32,32);
+//        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
+//        p.addPoint(v2.getX(), v2.getY());
+//        v = new Vector(0,32);
+//        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
+//        p.addPoint(v2.getX(), v2.getY());
+//        v = new Vector(32,0);
+//        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
+//        p.addPoint(v2.getX(), v2.getY());
+//        g.draw(p);
 
         cords =  lib.to_screen(0,0, new Vector(egc.screenox, egc.screenoy ));
         g.drawImage(s3, cords.getX(), cords.getY());
@@ -84,12 +99,16 @@ public class ClientPlayingState extends BasicGameState {
         g.drawImage(s2, cords.getX(), cords.getY());
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
-            if (e.getDead() != true) { //Only render the enemy if they are alive.
-                e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
-                e.render(g);
-            }
-
+            e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
+            e.render(g);
         }
+        egc.character.render(g); //Render the character onto the screen.
+
+        egc.projectiles.stream().forEach(p -> {
+            p.setPosition(lib.to_screen(p.gamepos, new Vector(egc.screenox, egc.screenoy)));
+            p.render(g);
+        });
+
         if(egc.is_connected){
             for (var c : egc.allies.values()){
                 if (c.client_id != egc.ID){
@@ -97,12 +116,6 @@ public class ClientPlayingState extends BasicGameState {
                     c.render(g);
                 }
             }
-        }
-        egc.character.render(g); //Render the character onto the screen.
-
-        if (egc.projectile.getFired() == true) { //To render the projectile.
-            egc.projectile.setPosition(lib.to_screen(egc.projectile.gamepos, new Vector(egc.screenox, egc.screenoy)));
-            egc.projectile.render(g);
         }
 	}
 
@@ -141,30 +154,42 @@ public class ClientPlayingState extends BasicGameState {
                 egc.handle_message(m);
             }
 
-        } else {
-            egc.character.setVelocity(v);
-            egc.character.update(delta); //Update the position of the player
+            return;
         }
 
+        egc.character.setVelocity(v);
+        egc.character.update(delta); //Update the position of the player
 
-        if (input.isKeyDown(Input.KEY_F)){ //Use the f key to fire a projectile.
-            egc.projectile.gamepos = egc.character.gamepos; //Set the initial location to the player.
-            egc.projectile.setFired(true); //Say the projectile is fired.
-            egc.projectile.setVelocity(new Vector(0.1f, 0.1f));
+
+        if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
+            egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
         }
 
+        egc.projectiles.stream().forEach(p -> p.update(delta));
+
+        var toremove = new ArrayList<Enemy>();
         for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
-            if (egc.projectile.collides(e) != null && egc.projectile.getFired() == true && e.getDead() == false) {
-                egc.projectile.setFired(false);
-                egc.projectile.rotate(90);
-                egc.projectile.setVelocity(new Vector(0f, 0f));
-                e.setHealth(e.getHealth() - 1);
-                if (e.getHealth() <= 0) {
-                    e.setDead(true);
+            if (e.getHealth() <= 0) {
+                toremove.add(e);
+            }
+            for (Projectile p : egc.projectiles){
+                if (p.collides(e) != null){
+                    e.setHealth(e.getHealth() - p.damage);
+                    p.setHit(true);
                 }
             }
+//            if (egc.projectile.collides(e) != null && egc.projectile.getFired() == true && e.getDead() == false) {
+//                egc.projectile.setFired(false);
+//                egc.projectile.rotate(90);
+//                egc.projectile.setVelocity(new Vector(0f, 0f));
+//                e.setHealth(e.getHealth() - 1);
+//                if (e.getHealth() <= 0) {
+//                    e.setDead(true);
+//                }
+//            }
         }
-        egc.projectile.update(delta);
+        egc.enemies.removeAll(toremove);
+        egc.projectiles.removeAll(egc.projectiles.stream().filter(Projectile::getHit).collect(Collectors.toList()) ) ;
 	}
 
 	@Override

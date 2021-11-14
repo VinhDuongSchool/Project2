@@ -45,12 +45,9 @@ public class ExplorerGameClient extends StateBasedGame {
     public boolean is_connected;
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
-    public Projectile projectile;
+    public ArrayList<Projectile> projectiles;
 
-    private Thread msg_reader;
-    private Thread msg_writer;
     public ConcurrentLinkedQueue<Message> in_messages;
-//    public ConcurrentLinkedQueue<Message> out_messages;
     public ObjectOutputStream out_stream;
     public int ID;
     public HashMap< Integer, Character> allies;
@@ -76,7 +73,9 @@ public class ExplorerGameClient extends StateBasedGame {
 		ScreenHeight = height;
 		ScreenWidth = width;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        Entity.setDebug(true);
 		enemies = new ArrayList<>(10); // Initialize the arrayList
+        projectiles = new ArrayList<>();
         screen_center = new Vector(ScreenWidth/2.0f,ScreenHeight/2.0f);
         System.out.println(ID);
 	}
@@ -94,7 +93,7 @@ public class ExplorerGameClient extends StateBasedGame {
 
         //(Kevin) protocol is first communication with server is retrieving the client ID number
         ID = ois.readInt();
-        msg_reader = lib.make_and_start_reader(in_messages, ois);
+        lib.make_and_start_reader(in_messages, ois);
 
         System.out.println("running");
     }
@@ -177,10 +176,8 @@ public class ExplorerGameClient extends StateBasedGame {
 
 	public static void main(String[] args) {
 		AppGameContainer app;
-
         //(Kevin) is_connected may be passed through program args
         boolean connected;
-        System.out.println(args.length);
         if (args.length > 0){
             connected = Boolean.parseBoolean(args[0].toLowerCase());
         } else {
