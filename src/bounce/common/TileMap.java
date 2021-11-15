@@ -38,8 +38,8 @@ public class TileMap {
         int midx = (int)Math.floor(character_pos.getX()/32.0f);
         int midy = (int)Math.floor(character_pos.getY()/32.0f);
         int dist = 18;
-        for (int y = Math.max(0, midy - dist); y < tiles[0].length && y < midy + dist; y++){
-            for (int x = Math.min( tiles.length, midx +dist); x >= Math.max(0, midx-dist);  x--){
+        for (int y = Math.max(0, midy - dist); y < Math.min( tiles[0].length, midy + dist); y++){
+            for (int x = Math.min( tiles.length-1, midx +dist); x >= Math.max(0, midx-dist);  x--){
                 Tile t = tiles[x][y];
                 t.setPosition(lib.to_screen(t.gamepos, screen_offset, -16));
                 t.render(g);
