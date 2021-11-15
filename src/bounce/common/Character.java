@@ -30,6 +30,18 @@ public class Character extends Entity {
         return velocity;
     } //Get the velocity
 
+
+    public void playermelee(int dir){//todo figure out the area that the  weapon of choice
+        /**
+         * looking at the grid we can asume that if this is a wariior
+         */
+        Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+
+    }
+
+
+
+
     public void update(final int delta) {
         gamepos = gamepos.add(velocity.scale(delta));
     } //Update base off of the velocity
