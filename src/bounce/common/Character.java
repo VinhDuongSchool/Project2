@@ -1,8 +1,15 @@
 package bounce.common;
 
+import jig.ConvexPolygon;
 import jig.Entity;
+import jig.Shape;
 import jig.Vector;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Transform;
+
+import javax.crypto.EncryptedPrivateKeyInfo;
 
 
 public class Character extends Entity {
@@ -10,6 +17,7 @@ public class Character extends Entity {
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
     public final int client_id;
+    public Entity testentitiy;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, int id) {
@@ -20,7 +28,24 @@ public class Character extends Entity {
 
         // add image with offset to it renders from top left corner
         addImageWithBoundingBox(img);
+
+
+        testentitiy = new Entity(x,y);
+
+
+
+        Vector[] one = new Vector[]{
+           new Vector(- 32.0f, 0.0f),
+                    new Vector(0.0f,  16.0f),
+                   new Vector( 32.0f, 0.0f),
+                    new Vector(0.0f, - 16.0f)
+        };
+        ConvexPolygon test = new ConvexPolygon(one);
+        testentitiy.addShape(test,new Vector(0.0f, 32.0f),Color.transparent, Color.red);
+
     }
+
+
 
     public void setVelocity(final Vector v) {
         velocity = v;
@@ -35,7 +60,7 @@ public class Character extends Entity {
         /**
          * looking at the grid we can asume that if this is a wariior
          */
-        Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        ;
 
     }
 

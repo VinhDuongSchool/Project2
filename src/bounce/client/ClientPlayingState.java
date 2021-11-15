@@ -84,6 +84,7 @@ public class ClientPlayingState extends BasicGameState {
             e.render(g);
         }
         egc.character.render(g); //Render the character onto the screen.
+        egc.character.testentitiy.render(g);
 
         egc.projectiles.stream().forEach(p -> {
             p.setPosition(lib.to_screen(p.gamepos, new Vector(egc.screenox, egc.screenoy)));
