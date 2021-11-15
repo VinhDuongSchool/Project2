@@ -84,7 +84,6 @@ public class ClientPlayingState extends BasicGameState {
             e.render(g);
         }
         egc.character.render(g); //Render the character onto the screen.
-        egc.character.testentitiy.render(g);
 
         egc.projectiles.stream().forEach(p -> {
             p.setPosition(lib.to_screen(p.gamepos, new Vector(egc.screenox, egc.screenoy)));
@@ -99,7 +98,7 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
-        System.out.println(egc.character.gamepos);
+        //System.out.println(egc.character.gamepos);
 	}
 
 	@Override
@@ -130,6 +129,13 @@ public class ClientPlayingState extends BasicGameState {
         }
 
 
+        for(Enemy e : egc.enemies){
+            if(egc.character.collides(e)!= null){
+                System.out.println("character collided with an enemy");
+            }
+        }
+
+
         if (egc.is_connected){
             if (!egc.character.getVelocity().equals(v)){
                 try {
@@ -145,6 +151,7 @@ public class ClientPlayingState extends BasicGameState {
 
             return;
         }
+
 
         egc.character.setVelocity(v);
         egc.character.update(delta); //Update the position of the player

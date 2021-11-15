@@ -27,12 +27,7 @@ public class Character extends Entity {
         client_id = id;
 
         // add image with offset to it renders from top left corner
-        addImageWithBoundingBox(img);
-
-
-        testentitiy = new Entity(x,y);
-
-
+        addImage(img);
 
         Vector[] one = new Vector[]{
            new Vector(- 32.0f, 0.0f),
@@ -41,7 +36,7 @@ public class Character extends Entity {
                     new Vector(0.0f, - 16.0f)
         };
         ConvexPolygon test = new ConvexPolygon(one);
-        testentitiy.addShape(test,new Vector(0.0f, 32.0f),Color.transparent, Color.red);
+        addShape(test,new Vector(0.0f, 32.0f));
 
     }
 

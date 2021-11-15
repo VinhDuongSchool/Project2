@@ -1,7 +1,9 @@
 package bounce.common;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Vector;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 
 
@@ -18,7 +20,15 @@ public class Enemy extends Entity {
         health = 1;
 
         // add image with offset to it renders from top left corner
-        addImageWithBoundingBox(img);
+        addImage(img);
+        Vector[] one = new Vector[]{
+                new Vector(- 32.0f, 0.0f),
+                new Vector(0.0f,  16.0f),
+                new Vector( 32.0f, 0.0f),
+                new Vector(0.0f, - 16.0f)
+        };
+        ConvexPolygon test = new ConvexPolygon(one);
+        addShape(test,new Vector(0.0f, 32.0f));
     }
 
     public void setVelocity(final Vector v) {
