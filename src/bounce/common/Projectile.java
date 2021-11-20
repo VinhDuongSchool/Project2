@@ -4,6 +4,7 @@ import bounce.client.ExplorerGameClient;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
+import org.newdawn.slick.Image;
 
 
 public class Projectile extends Entity {
@@ -22,6 +23,15 @@ public class Projectile extends Entity {
 
         // add image with offset to it renders from top left corner
         addImageWithBoundingBox(ResourceManager.getImage(ExplorerGameClient.PROJECTILE));
+    }
+
+
+    public Projectile(Vector pos, Vector vel, Image img){
+        super(pos.getX(), pos.getY());
+        gamepos = pos;
+        velocity = vel;
+        addImage(img);
+
     }
 
     public void setVelocity(final Vector v) {

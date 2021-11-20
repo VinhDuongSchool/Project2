@@ -35,6 +35,7 @@ public class ExplorerGameServer extends StateBasedGame {
 
 
     public static final String SPRITES = "bounce/resource/sprites.png";
+    public static final String PROJECTILE = "bounce/resource/projectile.png";
     public final int ScreenWidth;
     public final int ScreenHeight;
 
@@ -45,6 +46,7 @@ public class ExplorerGameServer extends StateBasedGame {
     public SpriteSheet game_sprites;
     public Character[] characters; //The character class.
     public ArrayList<Enemy> enemies; //Enemies
+    public ArrayList<Projectile> projectiles;
     /**
      * Create the BounceGame frame, saving the width and height for later use.
      *
@@ -63,8 +65,11 @@ public class ExplorerGameServer extends StateBasedGame {
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
 
         //(Kevin) initialize data structures
+        enemies = new ArrayList<>();
+        projectiles = new ArrayList<>();
         in_messages = new ConcurrentLinkedQueue<>();
         out_messages = new ConcurrentLinkedQueue<>();
+        characters = new Character[n_players];
         final ArrayList<ObjectOutputStream> out_streams = new ArrayList<>();
         int client_id = 0;
 
@@ -85,7 +90,6 @@ public class ExplorerGameServer extends StateBasedGame {
             oos.flush();
             out_streams.add(oos);
         }
-        characters = new Character[client_id];
 
         //(Kevin) Handle output streams to each client
         new Thread(() -> {
@@ -117,6 +121,7 @@ public class ExplorerGameServer extends StateBasedGame {
 
             //(Kevin) read a character from one client and broadcast it to all the others
             case INIT_CHARACTER:
+            {
                 var character_data_arr = (Object[]) m.data;
                 var pos = (Vector) character_data_arr[0];
                 var velocity = (Vector) character_data_arr[1];
@@ -131,6 +136,26 @@ public class ExplorerGameServer extends StateBasedGame {
                 ));
                 out_messages.add(m);
                 break;
+            }
+            case ADD_ENTITY:
+            {
+                var e_data_arr = (Object[]) m.data;
+                var spritex = (int) e_data_arr[0];
+                var spritey = (int) e_data_arr[1];
+                switch (m.etype){
+                    case ENEMY:
+                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
+                        break;
+                    case PROJECTILE:
+                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE)));
+                        break;
+
+                }
+
+                out_messages.add(m);
+
+                break;
+            }
         }
     }
 
@@ -148,6 +173,7 @@ public class ExplorerGameServer extends StateBasedGame {
         // attempt to do in the startUp() method.
 
         ResourceManager.loadImage(SPRITES);
+        ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
 
         //(Kevin) dont start run server until all clients are connected

@@ -18,7 +18,15 @@ public class Enemy extends Entity {
         health = 1;
 
         // add image with offset to it renders from top left corner
-        addImageWithBoundingBox(img);
+        addImage(img);
+    }
+    public Enemy(Vector pos, Vector vel, Image img){
+        super(pos.getX(), pos.getY());
+        gamepos = pos;
+        velocity = vel;
+        health = 1;
+        addImage(img);
+
     }
 
     public void setVelocity(final Vector v) {

@@ -2,6 +2,7 @@ package bounce.client;
 
 import bounce.common.Character;
 import bounce.common.*;
+import bounce.server.ExplorerGameServer;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
@@ -52,6 +53,9 @@ public class ExplorerGameClient extends StateBasedGame {
     public int ID;
     public TileMap grid;
     public HashMap< Integer, Character> allies;
+
+
+
 	/**
 	 * Create the BounceGame frame, saving the width and height for later use.
 	 *
@@ -62,6 +66,7 @@ public class ExplorerGameClient extends StateBasedGame {
 	 * @param height
 	 *            the window's height
 	 */
+
 	public ExplorerGameClient(String title, int width, int height, boolean connected) throws IOException {
 		super(title);
 
@@ -104,6 +109,7 @@ public class ExplorerGameClient extends StateBasedGame {
 
         switch (m.type){
             case INIT_CHARACTER:
+            {
                 //(Kevin) retrieve a character initialization object from the server
                 //(might be some better way to do this, but cant send entities directly they arnt serializable)
                 if(m.id != ID){
@@ -121,14 +127,40 @@ public class ExplorerGameClient extends StateBasedGame {
                     ));
                 }
                 break;
-
+            }
             case NEW_POSITION:
-                allies.get(m.id).gamepos = (Vector) m.data;
+//                if(m.etype == null){
+//                    allies.get(m.id).gamepos = (Vector) m.data;
+//                }
+//                switch (m.etype){
+//                    case PROJECTILE:
+//
+//                        break;
+//                    case
+//
+//                }
+                break;
+            case ADD_ENTITY:
+            {
+                var e_data_arr = (Object[]) m.data;
+                var spritex = (int) e_data_arr[0];
+                var spritey = (int) e_data_arr[1];
+                switch (m.etype){
+                    case ENEMY:
+                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
+                        break;
+                    case PROJECTILE:
+                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE)));
+                        break;
+                }
+                break;
+            }
+
         }
     }
 
-	@Override
-	public void initStatesList(GameContainer container) throws SlickException {
+    @Override
+    public void initStatesList(GameContainer container) throws SlickException {
         System.out.println("init states list");
         addState(new ClientPlayingState());
 		addState(new StartUpState());
