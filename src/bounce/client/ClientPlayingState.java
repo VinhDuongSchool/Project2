@@ -4,6 +4,7 @@ import bounce.common.Enemy;
 import bounce.common.Message;
 import bounce.common.Projectile;
 import bounce.common.lib;
+import bounce.common.TileMap;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -98,7 +99,7 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
-        System.out.println(egc.character.gamepos);
+        //System.out.println(egc.character.gamepos);
 	}
 
 	@Override

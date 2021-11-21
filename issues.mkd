@@ -5,6 +5,7 @@
 3 character key board movement (use screen offsets)
 6 projectile attacks
 1 tile map
+15 Dijkstra algorithm.
 
 ## Open Issues ##
 5 melee attacks
