@@ -4,6 +4,10 @@ import jig.Vector;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class TileMap {
@@ -13,22 +17,45 @@ public class TileMap {
     private int[][] d;
     private int[][] pi;
 
+    private int[][] costs;
+    private Vector[][] DirToNext;
+
+
+    public enum TYPE{
+        FLOOR,
+        WALL,
+        DOOR
+    }
+
+    private final int maxx;
+    private final int maxy;
+
     PriorityQueue<int[]> Q = new PriorityQueue<>(100, (a,b) -> Integer.compare(a[2],b[2])); //Priority queue for the dijkstra algorithm.
 
     public TileMap(int tilesx, int tilesy, SpriteSheet ss) {
-        this.tiles = new Tile[tilesx][tilesy];
+        maxx = tilesx;
+        maxy = tilesy;
+
+        tiles = new Tile[tilesx][tilesy];
+        costs = new int[tilesx][tilesy];
+        DirToNext = new Vector[tilesx][tilesy];
+
         for (int x = 0; x < tiles.length; x++){
             for (int y = 0; y < tiles[0].length; y++){
                 Image i;
                 String tileType;
+                TYPE t;
                 if(y == 0 || x == 0){
                     i = ss.getSprite(0,2);
                     tileType = "Wall";
+                    t = TYPE.WALL;
                 } else {
                     i = ss.getSprite(10, 4);
                     tileType = "Floor";
+                    t= TYPE.FLOOR;
                 }
                 tiles[x][y] = new Tile(0,0, new Vector(x*32, y*32),i,tileType);
+                tiles[x][y].type = t;
             }
         }
         S = new int[tiles.length][tiles[0].length];
@@ -59,6 +86,59 @@ public class TileMap {
             }
         }
 
+    }
+
+    public void MakePath(ArrayList<Vector> goals){
+        for(var arr : costs){
+            Arrays.fill(arr, Integer.MAX_VALUE);
+        }
+        PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingInt(v -> costs[v[0]][v[1]]));
+        //(Kevin) assuming goals are some game position
+        goals.stream()
+                .filter(g -> // filter positions outside of the map (should be turned into an assertion later)
+                        (0 <= g.getX() && g.getX() < maxx*32) &&
+                        (0 <= g.getY() && g.getY() < maxy*32))
+                .forEach(g -> { // initialize goal tiles to 0 and add them to queue
+                        int x = (int)Math.floor(g.getX()/32.0f);
+                        int y = (int)Math.floor(g.getY()/32.0f);
+                        costs[x][y] = 0;
+                        tocheck.add(new int[]{x,y});
+                });
+
+        while (!tocheck.isEmpty()){
+            var cur = tocheck.poll();
+            var curcost = costs[cur[0]][cur[1]];
+            getNeighbors(cur)
+                    .stream()
+                    .forEach(t -> {
+                        // (Kevin) ignore walls and set cost to +1
+                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE : costs[t[0]][t[1]];
+                        if (cost != Integer.MAX_VALUE && curcost + 1 < cost){
+                            costs[t[0]][t[1]] = curcost + 1;
+                            DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
+                            tocheck.add(t);
+                        }
+                    });
+        }
+    }
+
+    private ArrayList<int[]> getNeighbors(int[] t) {
+        var neighbors = new ArrayList<int[]>();
+        //(Kevin) go in all 8 dirs
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                int gpx = t[0] + x;
+                int gpy = t[1] + y;
+
+                //(Kevin) make sure neighbor exists
+                if(0 <= gpy && gpy < maxy){
+                    if(0 <= gpx && gpx < maxy){
+                        neighbors.add(new int[]{gpx, gpy});
+                    }
+                }
+            }
+        }
+        return neighbors;
     }
 
     public void DijkstraAlgorithm(int[] startingPoint) { //Logic for the

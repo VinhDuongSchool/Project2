@@ -6,15 +6,12 @@ import org.newdawn.slick.Image;
 
 
 public class Tile extends Entity {
-    public enum type{
-        FLOOR,
-        WALL,
-        DOOR
-    }
+
     //(Kevin) index of this in the tilemap
     public int gridx;
     public int gridy;
     public String tileType;
+    public TileMap.TYPE type;
 
     public Vector gamepos;
 

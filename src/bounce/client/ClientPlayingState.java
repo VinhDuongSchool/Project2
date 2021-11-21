@@ -4,7 +4,6 @@ import bounce.common.Enemy;
 import bounce.common.Message;
 import bounce.common.Projectile;
 import bounce.common.lib;
-import bounce.common.TileMap;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -14,6 +13,8 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -105,8 +106,11 @@ public class ClientPlayingState extends BasicGameState {
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
+
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
+
+        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
