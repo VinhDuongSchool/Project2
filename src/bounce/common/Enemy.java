@@ -4,12 +4,19 @@ import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 
 public class Enemy extends Entity {
+
+    //(Kevin) identification stuff
+    private static final AtomicLong ID_COUNTER = new AtomicLong(0);
+    public final long id;
 
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
     private int health;
+
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img) {
         super(x,y);
@@ -18,15 +25,24 @@ public class Enemy extends Entity {
         health = 1;
 
         // add image with offset to it renders from top left corner
-        addImage(img);
+        addImageWithBoundingBox(img);
+        id = ID_COUNTER.getAndIncrement();
+    }
+    public Enemy(Vector pos, Vector vel, Image img, long _id){
+        super(pos.getX(), pos.getY());
+        gamepos = pos;
+        velocity = vel;
+        health = 1;
+        addImageWithBoundingBox(img);
+        id = _id;
     }
     public Enemy(Vector pos, Vector vel, Image img){
         super(pos.getX(), pos.getY());
         gamepos = pos;
         velocity = vel;
         health = 1;
-        addImage(img);
-
+        addImageWithBoundingBox(img);
+        id = ID_COUNTER.getAndIncrement();
     }
 
     public void setVelocity(final Vector v) {

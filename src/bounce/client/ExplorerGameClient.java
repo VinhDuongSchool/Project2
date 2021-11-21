@@ -50,9 +50,9 @@ public class ExplorerGameClient extends StateBasedGame {
 
     public ConcurrentLinkedQueue<Message> in_messages;
     public ObjectOutputStream out_stream;
-    public int ID;
+    public long ID;
     public TileMap grid;
-    public HashMap< Integer, Character> allies;
+    public HashMap<Long, Character> allies;
 
 
 
@@ -89,7 +89,7 @@ public class ExplorerGameClient extends StateBasedGame {
     private void server_setup() throws IOException {
         //(Kevin) initialize data structres needed for server communication
         in_messages = new ConcurrentLinkedQueue<>();
-        allies = new HashMap<>();
+        allies = new HashMap<Long, Character>();
 
         Socket conn = new Socket("localhost", 8989);
 
@@ -105,52 +105,78 @@ public class ExplorerGameClient extends StateBasedGame {
     }
 
     public void handle_message(Message m){
-        System.out.println("recieved " + m.type);
+        System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
 
         switch (m.type){
             case INIT_CHARACTER:
             {
                 //(Kevin) retrieve a character initialization object from the server
                 //(might be some better way to do this, but cant send entities directly they arnt serializable)
+                assert m.gamepos != null;
                 if(m.id != ID){
                     var character_data_arr = (Object[]) m.data;
-                    var pos = (Vector) character_data_arr[0];
-                    var velocity = (Vector) character_data_arr[1];
-                    var spritex = (int) character_data_arr[2];
-                    var spritey = (int) character_data_arr[3];
+                    var spritex = (int) character_data_arr[0];
+                    var spritey = (int) character_data_arr[1];
 
-                    allies.put(m.id, new Character(
-                            pos.getX(), pos.getY(),
-                            velocity.getX(), velocity.getY(),
+                    allies.put(m.id, (new Character(
+                            m.gamepos,
+                            new Vector(0,0),
                             game_sprites.getSprite(spritex, spritey),
                             m.id
-                    ));
+                    )));
                 }
                 break;
             }
             case NEW_POSITION:
-//                if(m.etype == null){
-//                    allies.get(m.id).gamepos = (Vector) m.data;
-//                }
-//                switch (m.etype){
-//                    case PROJECTILE:
-//
-//                        break;
-//                    case
-//
-//                }
+
+                assert m.gamepos != null;
+                switch (m.etype){
+                    case CHARACTER:
+                        allies.get(m.id).gamepos = m.gamepos;
+                        break;
+                    case PROJECTILE:
+                        for (Projectile p : projectiles){
+                            if(p.id == m.id){
+                                p.gamepos = m.gamepos;
+                                break;
+                            }
+                        }
+                        break;
+                    case ENEMY:
+                        for (Enemy e : enemies){
+                            if(e.id == m.id){
+                                e.gamepos = m.gamepos;
+                                break;
+                            }
+                        }
+                        break;
+                }
                 break;
             case ADD_ENTITY:
             {
-                var e_data_arr = (Object[]) m.data;
-                var spritex = (int) e_data_arr[0];
-                var spritey = (int) e_data_arr[1];
+                assert m.gamepos != null;
+
                 switch (m.etype){
                     case ENEMY:
-                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
+                        var e_data_arr = (Object[]) m.data;
+                        var spritex = (int) e_data_arr[0];
+                        var spritey = (int) e_data_arr[1];
+                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
                         break;
                     case PROJECTILE:
-                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE)));
+                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), m.id));
+                        break;
+                }
+                break;
+            }
+            case REMOVE_ENTITY:
+            {
+                switch (m.etype){
+                    case ENEMY:
+                        enemies.remove(enemies.stream().filter(e -> e.id == m.id).findFirst().get());
+                        break;
+                    case PROJECTILE:
+                        projectiles.remove(projectiles.stream().filter(p -> p.id == m.id).findFirst().get());
                         break;
                 }
                 break;
@@ -196,12 +222,9 @@ public class ExplorerGameClient extends StateBasedGame {
         if (is_connected) {
             allies.put(ID, character);
             try {
-                out_stream.writeObject(new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{
-                        character.gamepos,
-                        character.getVelocity(),
-                        sprite_x,
-                        sprite_y
-                }, ID));
+                var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sprite_x, sprite_y}, ID);
+                m.gamepos = character.gamepos;
+                out_stream.writeObject(m);
             } catch (IOException e) {
                 e.printStackTrace();
             }

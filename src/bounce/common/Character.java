@@ -9,10 +9,10 @@ public class Character extends Entity {
 
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
-    public final int client_id;
+    public final long client_id;
 
 
-    public Character(final float x, final float y, final float vx, final float vy, Image img, int id) {
+    public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
         super(x,y);
         gamepos = new Vector(32,32);
         velocity = new Vector(vx, vy);
@@ -21,6 +21,15 @@ public class Character extends Entity {
         // add image with offset to it renders from top left corner
         addImageWithBoundingBox(img);
     }
+    public Character(Vector pos, Vector vel, Image img, long id){
+        super(pos.getX(), pos.getY());
+        gamepos = pos;
+        velocity = vel;
+        client_id = id;
+        addImage(img);
+
+    }
+
 
     public void setVelocity(final Vector v) {
         velocity = v;
@@ -34,7 +43,7 @@ public class Character extends Entity {
         gamepos = gamepos.add(velocity.scale(delta));
     } //Update base off of the velocity
 
-    public int getClient_id() {
+    public long getClient_id() {
         return client_id;
     }
 }

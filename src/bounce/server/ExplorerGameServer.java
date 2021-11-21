@@ -113,24 +113,23 @@ public class ExplorerGameServer extends StateBasedGame {
 
 
     public void handle_message(Message m){
-        System.out.println("recieved " + m.type);
+        System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
         switch (m.type){
             case SET_VELOCITY:
-                characters[m.id].setVelocity((Vector) m.data);
+                characters[(int) m.id].setVelocity((Vector) m.data);
                 break;
 
             //(Kevin) read a character from one client and broadcast it to all the others
             case INIT_CHARACTER:
             {
                 var character_data_arr = (Object[]) m.data;
-                var pos = (Vector) character_data_arr[0];
-                var velocity = (Vector) character_data_arr[1];
-                var spritex = (int) character_data_arr[2];
-                var spritey = (int) character_data_arr[3];
+                var spritex = (int) character_data_arr[0];
+                var spritey = (int) character_data_arr[1];
 
-                characters[m.id] = (new Character(
-                        pos.getX(), pos.getY(),
-                        velocity.getX(), velocity.getY(),
+                assert m.gamepos != null;
+                characters[(int) m.id] = (new Character(
+                        m.gamepos,
+                        new Vector(0,0),
                         game_sprites.getSprite(spritex, spritey),
                         m.id
                 ));
@@ -145,15 +144,28 @@ public class ExplorerGameServer extends StateBasedGame {
                 switch (m.etype){
                     case ENEMY:
                         enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
+                        m.id = enemies.get(enemies.size() - 1).id;
                         break;
                     case PROJECTILE:
                         projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE)));
+                        m.id = projectiles.get(projectiles.size() - 1).id;
                         break;
 
                 }
 
                 out_messages.add(m);
 
+                break;
+            }
+            case FIRE_PROJECTILE:
+            {
+                var c = characters[(int)m.id];
+                var p = new Projectile(c.gamepos, new Vector(0.1f, 0.1f),ResourceManager.getImage(ExplorerGameServer.PROJECTILE));
+                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE);
+                nm.gamepos = p.gamepos;
+                nm.velocity = p.getVelocity();
+                projectiles.add(p);
+                out_messages.add(nm);
                 break;
             }
         }

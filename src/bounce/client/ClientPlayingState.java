@@ -37,6 +37,8 @@ public class ClientPlayingState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
+        if(egc.is_connected)
+            return;
 
         container.setSoundOn(true);
 
@@ -128,9 +130,7 @@ public class ClientPlayingState extends BasicGameState {
         if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
             if (egc.is_connected){
                 try {
-                    var m = Message.add_entity(egc.character.getX(), egc.character.getY(), 0.1f, 0.1f, 0,0, Message.ENTITY_TYPE.PROJECTILE);
-                    m.id = egc.ID;
-                    egc.out_stream.writeObject(m);
+                    egc.out_stream.writeObject(new Message(Message.MSG_TYPE.FIRE_PROJECTILE, null, egc.ID));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
