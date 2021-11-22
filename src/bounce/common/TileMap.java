@@ -132,7 +132,7 @@ public class TileMap {
 
                 //(Kevin) make sure neighbor exists
                 if(0 <= gpy && gpy < maxy){
-                    if(0 <= gpx && gpx < maxy){
+                    if(0 <= gpx && gpx < maxx){
                         neighbors.add(new int[]{gpx, gpy});
                     }
                 }
@@ -159,17 +159,17 @@ public class TileMap {
                 S[u[0]][u[1]] = 1; //Means this has been seen
                 if (u[0] == 0 && u[1] == 0) { //If the top left corner
                     int[] v = new int[2];
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right is a floor tile.
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right is a floor tile.
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the down is a floor tile
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the down is a floor tile
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
-                    if (tiles[u[0] + 1][u[1] + 1].tileType == "Floor") { //If to the down right
+                    if (tiles[u[0] + 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down right
                         v[0] = u[0] + 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "RD");
@@ -177,201 +177,201 @@ public class TileMap {
 
                 } else if (u[0] == tiles.length - 1 && u[1] == 0) { //If the top right corner
                     int[] v = new int[2];
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left is a floor tile.
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left is a floor tile.
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the down is a floor tile
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the down is a floor tile
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
-                    if (tiles[u[0] - 1][u[1] + 1].tileType == "Floor") { //If to the down left
+                    if (tiles[u[0] - 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down left
                         v[0] = u[0] - 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "LD");
                     }
                 } else if (u[0] == 0 && u[1] == tiles[0].length - 1) { //If at bottom left
                     int[] v = new int[2];
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right is a floor tile.
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right is a floor tile.
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up is a floor tile
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up is a floor tile
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] + 1][u[1] - 1].tileType == "Floor") { //If to the up right
+                    if (tiles[u[0] + 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up right
                         v[0] = u[0] + 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "RU");
                     }
                 } else if (u[0] == tiles.length - 1 && u[1] == tiles[0].length - 1) { // If at bottom right
                     int[] v = new int[2];
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left is a floor tile.
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left is a floor tile.
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up is a floor tile
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up is a floor tile
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] - 1][u[1] - 1].tileType == "Floor") { //If to the up left
+                    if (tiles[u[0] - 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up left
                         v[0] = u[0] - 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "LU");
                     }
                 } else if (u[0] == 0) { //Left of the maze
                     int[] v = new int[2];
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up is a floor tile.
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up is a floor tile.
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] + 1][u[1] - 1].tileType == "Floor") { //If to the up right is a floor tile
+                    if (tiles[u[0] + 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up right is a floor tile
                         v[0] = u[0] + 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "RU");
                     }
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
-                    if (tiles[u[0] + 1][u[1] + 1].tileType == "Floor") { //If to the down right
+                    if (tiles[u[0] + 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down right
                         v[0] = u[0] + 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "RD");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the down
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the down
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
                 } else if (u[0] == tiles.length - 1) { //If on the right.
                     int[] v = new int[2];
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up is a floor tile.
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up is a floor tile.
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] - 1][u[1] - 1].tileType == "Floor") { //If to the up left is a floor tile
+                    if (tiles[u[0] - 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up left is a floor tile
                         v[0] = u[0] - 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "LU");
                     }
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0] - 1][u[1] + 1].tileType == "Floor") { //If to the down left
+                    if (tiles[u[0] - 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down left
                         v[0] = u[0] - 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "LD");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the down
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the down
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
                 } else if (u[1] == 0) { //If on the top of the maze
                     int[] v = new int[2];
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left is a floor tile.
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left is a floor tile.
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0] - 1][u[1] + 1].tileType == "Floor") { //If to the up left down
+                    if (tiles[u[0] - 1][u[1] + 1].type == TYPE.FLOOR) { //If to the up left down
                         v[0] = u[0] - 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "LD");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the Down
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the Down
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
-                    if (tiles[u[0] + 1][u[1] + 1].tileType == "Floor") { //If to the down right
+                    if (tiles[u[0] + 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down right
                         v[0] = u[0] + 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "RD");
                     }
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
                 } else if (u[1] == tiles[0].length - 1) { //If on the bottom
                     int[] v = new int[2];
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left is a floor tile.
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left is a floor tile.
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0] - 1][u[1] - 1].tileType == "Floor") { //If to the up left up
+                    if (tiles[u[0] - 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up left up
                         v[0] = u[0] - 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "LU");
                     }
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] + 1][u[1] - 1].tileType == "Floor") { //If to the down up
+                    if (tiles[u[0] + 1][u[1] - 1].type == TYPE.FLOOR) { //If to the down up
                         v[0] = u[0] + 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "RU");
                     }
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
                 } else { //Else any other coordinates
                     int[] v = new int[2];
-                    if (tiles[u[0] - 1][u[1]].tileType == "Floor") { //If to the left is a floor tile.
+                    if (tiles[u[0] - 1][u[1]].type == TYPE.FLOOR) { //If to the left is a floor tile.
                         v[0] = u[0] - 1;
                         v[1] = u[1];
                         relax(u, v, "L");
                     }
-                    if (tiles[u[0] - 1][u[1] - 1].tileType == "Floor") { //If to the up left up
+                    if (tiles[u[0] - 1][u[1] - 1].type == TYPE.FLOOR) { //If to the up left up
                         v[0] = u[0] - 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "LU");
                     }
-                    if (tiles[u[0]][u[1] - 1].tileType == "Floor") { //If to the up
+                    if (tiles[u[0]][u[1] - 1].type == TYPE.FLOOR) { //If to the up
                         v[0] = u[0];
                         v[1] = u[1] - 1;
                         relax(u, v, "U");
                     }
-                    if (tiles[u[0] + 1][u[1] - 1].tileType == "Floor") { //If to the down up
+                    if (tiles[u[0] + 1][u[1] - 1].type == TYPE.FLOOR) { //If to the down up
                         v[0] = u[0] + 1;
                         v[1] = u[1] - 1;
                         relax(u, v, "RU");
                     }
-                    if (tiles[u[0] + 1][u[1]].tileType == "Floor") { //If to the right
+                    if (tiles[u[0] + 1][u[1]].type == TYPE.FLOOR) { //If to the right
                         v[0] = u[0] + 1;
                         v[1] = u[1];
                         relax(u, v, "R");
                     }
-                    if (tiles[u[0] + 1][u[1] + 1].tileType == "Floor") { //If to the right down
+                    if (tiles[u[0] + 1][u[1] + 1].type == TYPE.FLOOR) { //If to the right down
                         v[0] = u[0] + 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "RD");
                     }
-                    if (tiles[u[0]][u[1] + 1].tileType == "Floor") { //If to the down
+                    if (tiles[u[0]][u[1] + 1].type == TYPE.FLOOR) { //If to the down
                         v[0] = u[0];
                         v[1] = u[1] + 1;
                         relax(u, v, "D");
                     }
-                    if (tiles[u[0] - 1][u[1] + 1].tileType == "Floor") { //If to the down left
+                    if (tiles[u[0] - 1][u[1] + 1].type == TYPE.FLOOR) { //If to the down left
                         v[0] = u[0] - 1;
                         v[1] = u[1] + 1;
                         relax(u, v, "LD");

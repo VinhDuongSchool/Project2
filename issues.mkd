@@ -6,6 +6,8 @@
 6 projectile attacks
 1 tile map
 15 Dijkstra algorithm.
+16 Adjust Dijkstra algorithm.
+
 
 ## Open Issues ##
 5 melee attacks
