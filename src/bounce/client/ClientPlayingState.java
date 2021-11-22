@@ -39,10 +39,14 @@ public class ClientPlayingState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
+        if(egc.is_connected)
+            return;
+
+        container.setSoundOn(true);
+
         egc.enemies.add(new Enemy(0,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
         egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
         egc.enemies.add(new Enemy(0,0, 0, 0, egc.game_sprites.getSprite(1, 8)));
-	    container.setSoundOn(true);
 
 
 	}
@@ -100,13 +104,11 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
-        //System.out.println(egc.character.gamepos);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
-
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
@@ -130,7 +132,15 @@ public class ClientPlayingState extends BasicGameState {
             v = v.add( LEFT_V.scale(-1));
         }
         if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
-            egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+            if (egc.is_connected){
+                try {
+                    egc.out_stream.writeObject(new Message(Message.MSG_TYPE.FIRE_PROJECTILE, null, egc.ID));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+            }
         }
 
 
@@ -146,27 +156,24 @@ public class ClientPlayingState extends BasicGameState {
             for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
                 egc.handle_message(m);
             }
+        } else {
+            //(Kevin) handle stuff when client isnt connected
+            egc.character.setVelocity(v);
+            egc.character.update(delta); //Update the position of the player
 
-            return;
-        }
+            //(Kevin) remove dead/hit/etc stuff
+            egc.enemies.removeIf(e -> e.getHealth() <=0);
+            egc.projectiles.removeIf(Projectile::getHit);
 
-        egc.character.setVelocity(v);
-        egc.character.update(delta); //Update the position of the player
+            //(Kevin) update all other entities
+            egc.projectiles.stream().forEach(p -> p.update(delta));
 
-
-
-        //(Kevin) remove dead/hit/etc stuff
-        egc.enemies.removeIf(e -> e.getHealth() <=0);
-        egc.projectiles.removeIf(Projectile::getHit);
-
-        //(Kevin) update all other entities
-        egc.projectiles.stream().forEach(p -> p.update(delta));
-
-        for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
-            for (Projectile p : egc.projectiles){
-                if (p.collides(e) != null){
-                    e.setHealth(e.getHealth() - p.damage);
-                    p.setHit(true);
+            for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
+                for (Projectile p : egc.projectiles){
+                    if (p.collides(e) != null){
+                        e.setHealth(e.getHealth() - p.damage);
+                        p.setHit(true);
+                    }
                 }
             }
         }

@@ -35,6 +35,7 @@ public class ExplorerGameServer extends StateBasedGame {
 
 
     public static final String SPRITES = "bounce/resource/sprites.png";
+    public static final String PROJECTILE = "bounce/resource/projectile.png";
     public final int ScreenWidth;
     public final int ScreenHeight;
 
@@ -45,6 +46,7 @@ public class ExplorerGameServer extends StateBasedGame {
     public SpriteSheet game_sprites;
     public Character[] characters; //The character class.
     public ArrayList<Enemy> enemies; //Enemies
+    public ArrayList<Projectile> projectiles;
     /**
      * Create the BounceGame frame, saving the width and height for later use.
      *
@@ -63,8 +65,11 @@ public class ExplorerGameServer extends StateBasedGame {
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
 
         //(Kevin) initialize data structures
+        enemies = new ArrayList<>();
+        projectiles = new ArrayList<>();
         in_messages = new ConcurrentLinkedQueue<>();
         out_messages = new ConcurrentLinkedQueue<>();
+        characters = new Character[n_players];
         final ArrayList<ObjectOutputStream> out_streams = new ArrayList<>();
         int client_id = 0;
 
@@ -85,7 +90,6 @@ public class ExplorerGameServer extends StateBasedGame {
             oos.flush();
             out_streams.add(oos);
         }
-        characters = new Character[client_id];
 
         //(Kevin) Handle output streams to each client
         new Thread(() -> {
@@ -109,28 +113,61 @@ public class ExplorerGameServer extends StateBasedGame {
 
 
     public void handle_message(Message m){
-        System.out.println("recieved " + m.type);
+        System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
         switch (m.type){
             case SET_VELOCITY:
-                characters[m.id].setVelocity((Vector) m.data);
+                characters[(int) m.id].setVelocity((Vector) m.data);
                 break;
 
             //(Kevin) read a character from one client and broadcast it to all the others
             case INIT_CHARACTER:
+            {
                 var character_data_arr = (Object[]) m.data;
-                var pos = (Vector) character_data_arr[0];
-                var velocity = (Vector) character_data_arr[1];
-                var spritex = (int) character_data_arr[2];
-                var spritey = (int) character_data_arr[3];
+                var spritex = (int) character_data_arr[0];
+                var spritey = (int) character_data_arr[1];
 
-                characters[m.id] = (new Character(
-                        pos.getX(), pos.getY(),
-                        velocity.getX(), velocity.getY(),
+                assert m.gamepos != null;
+                characters[(int) m.id] = (new Character(
+                        m.gamepos,
+                        new Vector(0,0),
                         game_sprites.getSprite(spritex, spritey),
                         m.id
                 ));
                 out_messages.add(m);
                 break;
+            }
+            case ADD_ENTITY:
+            {
+                var e_data_arr = (Object[]) m.data;
+                var spritex = (int) e_data_arr[0];
+                var spritey = (int) e_data_arr[1];
+                switch (m.etype){
+                    case ENEMY:
+                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
+                        m.id = enemies.get(enemies.size() - 1).id;
+                        break;
+                    case PROJECTILE:
+                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE)));
+                        m.id = projectiles.get(projectiles.size() - 1).id;
+                        break;
+
+                }
+
+                out_messages.add(m);
+
+                break;
+            }
+            case FIRE_PROJECTILE:
+            {
+                var c = characters[(int)m.id];
+                var p = new Projectile(c.gamepos, new Vector(0.1f, 0.1f),ResourceManager.getImage(ExplorerGameServer.PROJECTILE));
+                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE);
+                nm.gamepos = p.gamepos;
+                nm.velocity = p.getVelocity();
+                projectiles.add(p);
+                out_messages.add(nm);
+                break;
+            }
         }
     }
 
@@ -148,6 +185,7 @@ public class ExplorerGameServer extends StateBasedGame {
         // attempt to do in the startUp() method.
 
         ResourceManager.loadImage(SPRITES);
+        ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
 
         //(Kevin) dont start run server until all clients are connected

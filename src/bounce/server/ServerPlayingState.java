@@ -1,6 +1,8 @@
 package bounce.server;
 
+import bounce.common.Enemy;
 import bounce.common.Message;
+import bounce.common.Projectile;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -8,6 +10,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,13 +34,24 @@ public class ServerPlayingState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameServer egs = (ExplorerGameServer)game;
-
-
-
+        Enemy e;
+        Message m;
+        //TODO do better
+        e = new Enemy(0,32, 0, 0, egs.game_sprites.getSprite(0, 9));
+        egs.enemies.add(e);
+        egs.out_messages.add( Message.add_entity(e.gamepos, e.getVelocity(),0,9, e.id, Message.ENTITY_TYPE.ENEMY));
+        e = new Enemy(32*3,32*5, 0, 0, egs.game_sprites.getSprite(0, 9));
+        egs.enemies.add(e);
+        egs.out_messages.add( Message.add_entity(e.gamepos, e.getVelocity(),0,9, e.id, Message.ENTITY_TYPE.ENEMY));
+        e = new Enemy(0,0, 0, 0, egs.game_sprites.getSprite(1, 8));
+        egs.enemies.add(e);
+        egs.out_messages.add( Message.add_entity(e.gamepos, e.getVelocity(),1,8, e.id, Message.ENTITY_TYPE.ENEMY));
     }
     @Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
+        ExplorerGameServer egs = (ExplorerGameServer) game;
+        g.drawString("SERVER", egs.ScreenWidth/2, egs.ScreenHeight/2);
 
 	}
 
@@ -52,14 +66,46 @@ public class ServerPlayingState extends BasicGameState {
             egs.handle_message(m);
         }
 
-
         //(Kevin) update all the characters
         Arrays.stream(egs.characters).forEach((c) ->{
             var oldpos = c.gamepos;
             c.update(delta);
             if(!oldpos.equals(c.gamepos))
-                egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, c.gamepos, c.client_id));
+                egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, c.gamepos, c.client_id, Message.ENTITY_TYPE.CHARACTER));
         });
+
+        //(Kevin) remove dead/hit/etc stuff
+        var toremove =  egs.enemies.stream().filter(e -> e.getHealth() <=0).collect(Collectors.toList());
+        for (Enemy e : toremove) {
+           egs.enemies.remove(e);
+            egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null,  e.id, Message.ENTITY_TYPE.ENEMY));
+        }
+        for (int i = egs.projectiles.size()-1; i >= 0; i--){
+            var p = egs.projectiles.get(i);
+            if (p.getHit()){
+                egs.projectiles.remove(i);
+                egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE));
+            }
+        }
+
+
+        //(Kevin) update all other entities
+        egs.projectiles.forEach(p -> {
+            p.update(delta);
+            egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION,  p.gamepos, p.id, Message.ENTITY_TYPE.PROJECTILE));
+        });
+
+        for (Enemy e : egs.enemies) { //Check if arrow collied with an alive enemy.
+            for (Projectile p : egs.projectiles){
+                if (p.collides(e) != null){
+                    e.setHealth(e.getHealth() - p.damage);
+                    p.setHit(true);
+                }
+            }
+        }
+
+
+
 	}
 
 	@Override
