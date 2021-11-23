@@ -3,6 +3,8 @@ package bounce.client;
 import bounce.common.Enemy;
 import bounce.common.Message;
 import bounce.common.Projectile;
+import bounce.common.Tile;
+import bounce.common.TileMap;
 import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
@@ -28,6 +30,9 @@ import java.util.List;
  * Transitions To GameOverState
  */
 public class ClientPlayingState extends BasicGameState {
+
+    private int lastDelta;
+    private Vector lastVector;
 
 
 	@Override
@@ -114,6 +119,13 @@ public class ClientPlayingState extends BasicGameState {
 
         egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
+        Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
+        if (currentTile.type == TileMap.TYPE.WALL ) { //If the current tile is a wall.
+            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
+            egc.character.setVelocity(reverseVector); //Set the new velocity.
+            egc.character.update(lastDelta); //Update the last delta.
+        }
+
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector v = new Vector(0,0);
@@ -177,6 +189,9 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
+
+        lastDelta = delta;
+        lastVector = v;
 	}
 
 	@Override
