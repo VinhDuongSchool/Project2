@@ -13,6 +13,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
+import java.security.Key;
 
 
 /**
@@ -106,6 +107,7 @@ public class ClientPlayingState extends BasicGameState {
 			int delta) throws SlickException {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
+        //todo use topdown view for melee damage
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
@@ -126,6 +128,30 @@ public class ClientPlayingState extends BasicGameState {
         }
         if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
             egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+        }
+        if(input.isKeyPressed(Input.KEY_I)){
+            egc.character.playermelee(2);
+        }
+        if(input.isKeyPressed(Input.KEY_O)){
+            egc.character.playermelee(8);
+        }
+        if(input.isKeyPressed(Input.KEY_L)){
+            egc.character.playermelee(4);// working
+        }
+        if(input.isKeyPressed(Input.KEY_P)){ // working
+            egc.character.playermelee(6);
+        }
+        if(input.isKeyPressed(Input.KEY_UP)){
+            egc.character.playermelee(1);
+        }
+        if(input.isKeyPressed(Input.KEY_RIGHT)){
+            egc.character.playermelee(3);
+        }
+        if(input.isKeyPressed(Input.KEY_DOWN)){
+            egc.character.playermelee(5);
+        }
+        if(input.isKeyPressed(Input.KEY_LEFT)){
+            egc.character.playermelee(7);
         }
 
 

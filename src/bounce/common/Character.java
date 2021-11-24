@@ -17,7 +17,7 @@ public class Character extends Entity {
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
     public final int client_id;
-    public Entity testentitiy;
+    public Entity CurrentMelee;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, int id) {
@@ -55,7 +55,86 @@ public class Character extends Entity {
         /**
          * looking at the grid we can asume that if this is a wariior
          */
-        ;
+        switch (dir){
+            case 1: Vector [] up = new Vector[]{
+                    new Vector(48.0f,-16.0f),
+                    new Vector(48.0f, -48.0f),
+                    new Vector(-48.0f, -48.0f),
+                    new Vector(-48.0f, -16.0f)
+                };
+                addShape(new ConvexPolygon(up),Color.transparent,Color.green);
+                break;
+            case 2: Vector [] topright = new Vector[]{
+                    new Vector(-16.0f,-16.0f),
+                    new Vector(-16.0f, -48.0f),
+
+                    new Vector(48.0f, -48.0f),
+                    new Vector(48.0f, 16.0f),
+
+                    new Vector(16.0f, 16.0f),
+                    new Vector(16.0f, -16.0f)
+                };
+                addShape(new ConvexPolygon(topright),Color.transparent, Color.blue);
+                break;
+            case 3: Vector [] right = new Vector[]{
+                    new Vector(16.0f,48.0f),
+                    new Vector(48.0f, 48.0f),
+                    new Vector(48.0f, -48.0f),
+                    new Vector(16.0f, -48.0f)
+
+            };
+                addShape(new ConvexPolygon(right), Color.transparent, Color.green);
+                break;
+            case 4: Vector[] rightbottom = new Vector[]{
+                    new Vector(16.0f, -16.0f),
+                    new Vector(48.0f,-16.0f),
+                    new Vector(48.0f, 48.0f),
+                    new Vector(-16.0f, 48.0f),
+                    new Vector(-16.0f, 16.0f),
+                    new Vector(16.0f, 16.0f)
+            };
+                addShape(new ConvexPolygon(rightbottom), Color.transparent, Color.green);
+                break;
+            case 5:Vector [] down = new Vector[]{
+                    new Vector(48.0f,16.0f),
+                    new Vector(48.0f, 48.0f),
+                    new Vector(-48.0f, 48.0f),
+                    new Vector(-48.0f, 16.0f)
+            };
+                addShape(new ConvexPolygon(down),Color.transparent,Color.green);
+                break;
+            case 6: Vector[] leftbottom = new Vector[]{
+                    new Vector(-16.0f, -16.0f),
+                    new Vector(-48.0f,-16.0f),
+                    new Vector(-48.0f, 48.0f),
+                    new Vector(16.0f, 48.0f),
+                    new Vector(16.0f, 16.0f),
+                    new Vector(-16.0f, 16.0f)
+            };
+                addShape(new ConvexPolygon(leftbottom), Color.transparent, Color.green);
+                break;
+            case 7: Vector[] left = new Vector[]{
+                    new Vector(-16.0f, 48.0f),
+                    new Vector(-48.0f, 48.0f),
+                    new Vector(-48.0f, -48.0f),
+                    new Vector(-16.0f, -48.0f)
+            };
+                addShape(new ConvexPolygon(left), Color.transparent, Color.green);
+                break;
+            case 8: Vector [] topleft = new Vector[]{
+                    new Vector(16.0f,-16.0f),
+                    new Vector(16.0f, -48.0f),
+
+                    new Vector(-48.0f, -48.0f),
+                    new Vector(-48.0f, 16.0f),
+
+                    new Vector(-16.0f, 16.0f),
+                    new Vector(-16.0f, -16.0f)
+            };
+                addShape(new ConvexPolygon(topleft),Color.transparent, Color.blue);;
+                break;
+
+        }
 
     }
 
