@@ -19,7 +19,7 @@ public class Character extends Entity {
         client_id = id;
 
         // add image with offset to it renders from top left corner
-        addImageWithBoundingBox(img);
+        addImage(img);
     }
     public Character(Vector pos, Vector vel, Image img, long id){
         super(pos.getX(), pos.getY());

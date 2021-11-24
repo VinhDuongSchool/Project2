@@ -58,6 +58,16 @@ public class TileMap {
                 tiles[x][y].type = t;
             }
         }
+        //(Kevin) test tile
+        var t = new Tile(0,0, new Vector(10*32, 10*32), ss.getSprite(0,2), "WALL");
+//        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
+        t.type = TYPE.WALL;
+        tiles[10][10] = t;
+//        t = new Tile(0,0, new Vector(11*32, 10*32), ss.getSprite(0,2), "WALL");
+//        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
+//        t.type = TYPE.WALL;
+//        tiles[11][10] = t;
+
         S = new int[tiles.length][tiles[0].length];
         d = new int[tiles.length][tiles[0].length];
         pi = new int[tiles.length][tiles[0].length];

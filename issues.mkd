@@ -21,5 +21,6 @@
 16 make firing a projectile integrated with character/enemy?
 17 uniquly identify an entity somehow
 18 enemy damaged/healed message
+19 modify rendering so collisions work
 
 

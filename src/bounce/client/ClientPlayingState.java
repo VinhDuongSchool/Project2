@@ -1,11 +1,6 @@
 package bounce.client;
 
-import bounce.common.Enemy;
-import bounce.common.Message;
-import bounce.common.Projectile;
-import bounce.common.Tile;
-import bounce.common.TileMap;
-import bounce.common.lib;
+import bounce.common.*;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -70,7 +65,8 @@ public class ClientPlayingState extends BasicGameState {
 
 
         // testing stuff
-//        g.drawLine(0,0, egc.screenox, egc.screenoy);
+//        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
+//        g.drawLine(0,0, v.getX(), v.getY());
 //        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
@@ -129,8 +125,8 @@ public class ClientPlayingState extends BasicGameState {
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector v = new Vector(0,0);
-        var UP_V = new Vector(0.2f,-0.2f);
-        var LEFT_V = new Vector(-0.1f,-0.1f);
+        var UP_V = new Vector(0.2f,-0.2f).unit().scale(.3f);
+        var LEFT_V = new Vector(-0.1f,-0.1f).unit().scale(.3f);
         if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
             v = v.add(UP_V);
         }
