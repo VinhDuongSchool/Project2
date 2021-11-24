@@ -107,7 +107,7 @@ public class ClientPlayingState extends BasicGameState {
 			int delta) throws SlickException {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
-        //todo use topdown view for melee damage
+
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
