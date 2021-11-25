@@ -7,20 +7,22 @@
 1 tile map
 15 Dijkstra algorithm.
 16 Adjust Dijkstra algorithm.
+5 melee attacks
+11 server entity creation/deletion
+12 server projectiles
+17 uniquly identify an entity somehow
 
 
 ## Open Issues ##
-5 melee attacks
 7 attacks can collide
 8 tile functionality (wall collision/doors)
 9 enemy path finding
-11 server entity creation/deletion
-12 server projectiles
 14 rooms
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
 16 make firing a projectile integrated with character/enemy?
-17 uniquly identify an entity somehow
 18 enemy damaged/healed message
 19 modify rendering so collisions work
+20 merge character/enemy constructors somewhat
+21 mouse aiming system (convert a mouse angle from the character into a game direction)
 
 

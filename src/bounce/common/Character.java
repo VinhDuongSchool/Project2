@@ -57,7 +57,7 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public void playermelee(ArrayList<lib.DIRS> dirs){//todo figure out the area that the  weapon of choice
+    public void playermelee(ArrayList<lib.DIRS> dirs){
         /**
          * looking at the grid we can asume that if this is a wariior
          */
