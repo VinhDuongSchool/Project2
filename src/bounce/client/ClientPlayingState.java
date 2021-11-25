@@ -105,6 +105,7 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
+        //System.out.println(egc.character.gamepos);
 	}
 
 	@Override
@@ -125,20 +126,45 @@ public class ClientPlayingState extends BasicGameState {
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector v = new Vector(0,0);
-        var UP_V = new Vector(0.2f,-0.2f).unit().scale(.3f);
-        var LEFT_V = new Vector(-0.1f,-0.1f).unit().scale(.3f);
-        if (input.isKeyDown(Input.KEY_W)){ //Move the player in the direction of the key pressed.
-            v = v.add(UP_V);
+        var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
+        var d = lib.input_to_dir.get(inp);
+        if (d != null){
+            var UP_V = new Vector(0.2f,0).unit().scale(.3f);
+            var LEFT_V = new Vector(0,-.2f).unit().scale(.3f);
+            // todo fix long ass switch
+            egc.character.curdir  =  lib.input_to_dir.get(inp);
+            switch (d){
+                case NORTH:
+                    v = UP_V;
+                    break;
+                case SOUTH:
+                    v = UP_V.scale(-1);
+                    break;
+                case WEST:
+                    v = LEFT_V;
+                    break;
+                case EAST:
+                    v = LEFT_V.scale(-1);
+                    break;
+                case NORTHEAST:
+                    v = UP_V.add(LEFT_V.scale(-1));
+                    break;
+                case NORTHWEST:
+                    v = UP_V.add(LEFT_V);
+                    break;
+                case SOUTHEAST:
+                    v = UP_V.scale(-1).add(LEFT_V.scale(-1));
+                    break;
+                case SOUTHWEST:
+                    v = UP_V.scale(-1).add(LEFT_V);
+                    break;
+                default:
+                    break;
+            }
+
         }
-        if (input.isKeyDown(Input.KEY_A)){
-            v = v.add( LEFT_V);
-        }
-        if (input.isKeyDown(Input.KEY_S)){
-            v = v.add( UP_V.scale(-1));
-        }
-        if (input.isKeyDown(Input.KEY_D)){
-            v = v.add( LEFT_V.scale(-1));
-        }
+        egc.character.setVelocity(v);
+
         if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
             if (egc.is_connected){
                 try {
@@ -148,6 +174,18 @@ public class ClientPlayingState extends BasicGameState {
                 }
             } else {
                 egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+            }
+        }
+        if(input.isKeyPressed(Input.KEY_I)){
+            //TODO turn a mouse angle into a list of dirs to attack with
+            // angle is usefule bc we can add +-45 to get the other directions to attack with easily
+            // this is just a test case right now
+            egc.character.playermelee(new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTH, lib.DIRS.NORTHEAST, lib.DIRS.NORTHWEST})));
+        }
+
+        for(Enemy e : egc.enemies){
+            if(egc.character.collides(e)!= null){
+                System.out.println("character collided with an enemy");
             }
         }
 
