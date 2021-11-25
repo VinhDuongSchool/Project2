@@ -19,16 +19,8 @@ public class Enemy extends Entity {
         velocity = new Vector(vx, vy);
         health = 1;
 
-        // add image with offset to it renders from top left corner
         addImage(img);
-        Vector[] one = new Vector[]{
-                new Vector(- 32.0f, 0.0f),
-                new Vector(0.0f,  16.0f),
-                new Vector( 32.0f, 0.0f),
-                new Vector(0.0f, - 16.0f)
-        };
-        ConvexPolygon test = new ConvexPolygon(one);
-        addShape(test,new Vector(0.0f, 32.0f));
+        addShape(new ConvexPolygon(lib.sqr.getPoints()));
     }
 
     public void setVelocity(final Vector v) {

@@ -1,17 +1,52 @@
 package bounce.common;
 
 
+import jig.ConvexPolygon;
+import jig.Shape;
 import jig.Vector;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class lib {
 
-    // returns a new vector that turns the world coordinates to screen coordinates
+    //Kevin, a square, to be used to make collision shapes for entities, so we dont have float arrays everywhere when all we want is offset squares
+    public static Shape sqr = new ConvexPolygon(new float[]{
+            -16, 16,
+            -16, -16,
+            16, -16,
+            16, 16
+    });
 
+    public static enum DIRS {
+        NORTH,
+        NORTHEAST,
+        NORTHWEST,
+        WEST,
+        EAST,
+        SOUTH,
+        SOUTHWEST,
+        SOUTHEAST
+    }
+
+    //Kevin, Turn input into the direction ingame, assuming input is a bool array of "wasd" true if the key is down
+    public static HashMap<List<Boolean>,DIRS> input_to_dir = new HashMap<>(){{
+        put(List.of(new Boolean[]{Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE}), DIRS.WEST);
+        put(List.of(new Boolean[]{Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE}), DIRS.SOUTH);
+        put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.TRUE, Boolean.TRUE}), DIRS.EAST);
+        put(List.of(new Boolean[]{Boolean.TRUE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE}), DIRS.NORTH);
+        put(List.of(new Boolean[]{Boolean.TRUE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE}), DIRS.NORTHWEST);
+        put(List.of(new Boolean[]{Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE}), DIRS.SOUTHWEST);
+        put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE}), DIRS.SOUTHEAST);
+        put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE}), DIRS.NORTHEAST);
+    }};
+
+    // returns a new vector that turns the world coordinates to screen coordinates
     public static Vector to_screen(float wx, float wy, Vector screen_orgin){
         return screen_orgin.transform(new float[]{1,0, 0, 1, (wx + wy),   (wy - wx)/2});
 
