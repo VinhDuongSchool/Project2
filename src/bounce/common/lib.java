@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class lib {
@@ -34,8 +33,11 @@ public class lib {
         SOUTHEAST
     }
 
+    //Kevin, convert an int into a dir, mainly used to convert a mouse direction into a dir, 0 and 8 are the same to deal with 360-0 boundry
+    public static final DIRS[] angle_index_to_dir = new DIRS[]{DIRS.NORTHEAST,DIRS.EAST, DIRS.SOUTHEAST, DIRS.SOUTH,  DIRS.SOUTHWEST, DIRS.WEST, DIRS.NORTHWEST, DIRS.NORTH,  DIRS.NORTHEAST};
+
     //Kevin, Turn input into the direction ingame, assuming input is a bool array of "wasd" true if the key is down
-    public static HashMap<List<Boolean>,DIRS> input_to_dir = new HashMap<>(){{
+    private static final HashMap<List<Boolean>,DIRS> input_to_dir = new HashMap<>(){{
         put(List.of(new Boolean[]{Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE}), DIRS.WEST);
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE}), DIRS.SOUTH);
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.TRUE, Boolean.TRUE}), DIRS.EAST);
@@ -45,6 +47,11 @@ public class lib {
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE}), DIRS.SOUTHEAST);
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE}), DIRS.NORTHEAST);
     }};
+
+    //Kevin, abstraction on how wasd is converted into a dir
+    public static DIRS wasd_to_dir(List<Boolean> wasd){
+        return input_to_dir.get(wasd);
+    }
 
     // returns a new vector that turns the world coordinates to screen coordinates
     public static Vector to_screen(float wx, float wy, Vector screen_orgin){

@@ -132,13 +132,13 @@ public class ClientPlayingState extends BasicGameState {
         // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector v = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        var d = lib.input_to_dir.get(inp);
+        var d = lib.wasd_to_dir(inp);
         if (d != null){
-//            System.out.println(d);
+            System.out.println(d);
             var UP_V = new Vector(0.2f,0).unit().scale(.2f);
             var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
             // todo fix long ass switch
-            egc.character.curdir  =  lib.input_to_dir.get(inp);
+            egc.character.curdir  =  d;
             switch (d){
                 case NORTH:
                     v = UP_V;
@@ -182,11 +182,25 @@ public class ClientPlayingState extends BasicGameState {
                 egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
             }
         }
-        if(input.isKeyPressed(Input.KEY_I)){
-            //TODO turn a mouse angle into a list of dirs to attack with
-            // angle is usefule bc we can add +-45 to get the other directions to attack with easily
-            // this is just a test case right now
-            egc.character.playermelee(new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTH, lib.DIRS.NORTHEAST, lib.DIRS.NORTHWEST})));
+
+        //Kevin, attack when left mouse or I is pressed, (my mouse isnt recognized so i needed the i key lol)
+        if(input.isKeyPressed(Input.MOUSE_LEFT_BUTTON) || input.isKeyPressed(Input.KEY_I)){
+            var m = new Vector(input.getMouseX(), input.getMouseY());
+            //Kevin, m is mouse cords on screen, character is always in the sceen center,
+            //angleto gives the angle in degrees rotated by 180 for some reason,
+            //divide by 45 to convert into 8 directions, then round to get the angle index,
+            //0 and 8 map to the same value
+            var diridx = (int)Math.round((m.angleTo(egc.screen_center)+180)/45);
+            ArrayList<lib.DIRS> attack_dirs;
+            if (diridx == 0 || diridx == 8){
+                //Kevin, deal with edge case
+                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
+            } else {
+                //Kevin, otherwise get neighbors directly
+                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
+            }
+            //Kevin, player melee converts directions into the correct hit boxes
+            egc.character.playermelee(attack_dirs);
         }
 
 
@@ -204,6 +218,7 @@ public class ClientPlayingState extends BasicGameState {
             for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
                 egc.handle_message(m);
             }
+
         } else {
             //(Kevin) handle stuff when client isnt connected
             egc.character.setVelocity(v);
@@ -234,7 +249,9 @@ public class ClientPlayingState extends BasicGameState {
 
         lastDelta = delta;
         lastVector = v;
-	}
+
+
+    }
 
 	@Override
 	public int getID() {

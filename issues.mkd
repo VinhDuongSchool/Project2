@@ -13,6 +13,7 @@
 17 uniquly identify an entity somehow
 19 modify rendering so collisions work
 20 merge character/enemy constructors somewhat
+21 mouse aiming system (convert a mouse angle from the character into a game direction)
 
 
 ## Open Issues ##
@@ -23,9 +24,9 @@
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
 16 make firing a projectile integrated with character/enemy?
 18 enemy damaged/healed message
-21 mouse aiming system (convert a mouse angle from the character into a game direction)
 22 make gamepos private so updating it is easier
 23 projectile images
 24 character movement is still wonky
+25 send character dir to server
 
 
