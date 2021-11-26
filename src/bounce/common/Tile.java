@@ -1,5 +1,6 @@
 package bounce.common;
 
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.Image;
@@ -20,6 +21,7 @@ public class Tile extends Entity {
        addImage(img);
        gamepos = gp;
        tileType = tp;
+       addShape(new ConvexPolygon(lib.sqr.getPoints()));
     }
 
 }

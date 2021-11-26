@@ -64,5 +64,6 @@ public class Projectile extends Entity {
 
     public void update(final int delta) {
         gamepos = gamepos.add(velocity.scale(delta)); //Move the projectile based off of the gamepos.
+        setPosition(gamepos);
     } //Update base off of the velocity
 }

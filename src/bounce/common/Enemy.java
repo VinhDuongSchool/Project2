@@ -5,7 +5,6 @@ import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
-
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -60,7 +59,8 @@ public class Enemy extends Entity {
     } //Get the velocity
 
     public void update(final int delta) {
-        translate(velocity.scale(delta));
+        gamepos = gamepos.add(velocity.scale(delta));
+        setPosition(gamepos);
     } //Update base off of the velocity
 
     public void setHealth(final int i) {health = i; } //Add health and check if enemy is dead.

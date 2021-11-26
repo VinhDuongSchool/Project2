@@ -57,6 +57,7 @@ public class ClientPlayingState extends BasicGameState {
 
 
         var screen_offset = lib.to_screen(new Vector( -egc.character.gamepos.getX(), -egc.character.gamepos.getY()), egc.screen_center);
+        egc.character.setPosition(egc.screen_center);
         egc.screenox = screen_offset.getX();
         egc.screenoy = screen_offset.getY();
 
@@ -67,7 +68,11 @@ public class ClientPlayingState extends BasicGameState {
         // testing stuff
 //        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
 //        g.drawLine(0,0, v.getX(), v.getY());
-//        g.drawRect(egc.screenox, egc.screenoy, 64, 64);
+//        draw game pos on screen
+//        g.drawRect(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 32, 32);
+//        for (var e : egc.enemies){
+//            g.drawRect(e.gamepos.getX(),e.gamepos.getY(),32,32);
+//        }
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 //        var p = new Polygon();
@@ -129,8 +134,9 @@ public class ClientPlayingState extends BasicGameState {
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         var d = lib.input_to_dir.get(inp);
         if (d != null){
-            var UP_V = new Vector(0.2f,0).unit().scale(.3f);
-            var LEFT_V = new Vector(0,-.2f).unit().scale(.3f);
+//            System.out.println(d);
+            var UP_V = new Vector(0.2f,0).unit().scale(.2f);
+            var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
             // todo fix long ass switch
             egc.character.curdir  =  lib.input_to_dir.get(inp);
             switch (d){
@@ -183,11 +189,7 @@ public class ClientPlayingState extends BasicGameState {
             egc.character.playermelee(new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTH, lib.DIRS.NORTHEAST, lib.DIRS.NORTHWEST})));
         }
 
-        for(Enemy e : egc.enemies){
-            if(egc.character.collides(e)!= null){
-                System.out.println("character collided with an enemy");
-            }
-        }
+
 
 
         if (egc.is_connected){
@@ -213,6 +215,7 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
+            egc.enemies.stream().forEach(e -> e.update(delta));
 
             for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
                 for (Projectile p : egc.projectiles){
@@ -221,6 +224,11 @@ public class ClientPlayingState extends BasicGameState {
                         p.setHit(true);
                     }
                 }
+            }
+        }
+        for(Enemy e : egc.enemies){
+            if(egc.character.collides(e)!= null){
+                System.out.println("character collided with an enemy");
             }
         }
 

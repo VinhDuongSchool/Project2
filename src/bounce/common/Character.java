@@ -6,10 +6,7 @@ import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.geom.Polygon;
-import org.newdawn.slick.geom.Transform;
 
-import javax.crypto.EncryptedPrivateKeyInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -63,14 +60,14 @@ public class Character extends Entity {
          */
 
         var offsetdirs = new HashMap<lib.DIRS, Vector>(){{
-            put(lib.DIRS.NORTH, new Vector(0, -32));
-            put(lib.DIRS.WEST, new Vector(-32,0));
-            put(lib.DIRS.EAST, new Vector(32, 0));
-            put(lib.DIRS.SOUTH, new Vector(0,32));
-            put(lib.DIRS.NORTHWEST, new Vector(-32,-32));
-            put(lib.DIRS.NORTHEAST, new Vector(32,-32));
-            put(lib.DIRS.SOUTHWEST, new Vector(-32,32));
-            put(lib.DIRS.SOUTHEAST, new Vector(32,32));
+            put(lib.DIRS.NORTH, new Vector(32, 0));
+            put(lib.DIRS.WEST, new Vector(0,-32));
+            put(lib.DIRS.EAST, new Vector(0,32 ));
+            put(lib.DIRS.SOUTH, new Vector(-32,0));
+            put(lib.DIRS.NORTHWEST, new Vector(32,-32));
+            put(lib.DIRS.NORTHEAST, new Vector(32,32));
+            put(lib.DIRS.SOUTHWEST, new Vector(-32,-32));
+            put(lib.DIRS.SOUTHEAST, new Vector(-32,32));
         }};
 
         //Kevin, set attack timer, for each dir in the list create a new shape,
@@ -179,6 +176,7 @@ public class Character extends Entity {
             attack_shapes.clear();
         }
         gamepos = gamepos.add(velocity.scale(delta));
+        setPosition(gamepos);
     } //Update base off of the velocity
 
     public long getClient_id() {

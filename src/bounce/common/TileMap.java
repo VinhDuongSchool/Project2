@@ -93,6 +93,7 @@ public class TileMap {
                 Tile t = tiles[x][y];
                 t.setPosition(lib.to_screen(t.gamepos, screen_offset, -16));
                 t.render(g);
+                t.setPosition(t.gamepos);
             }
         }
 
