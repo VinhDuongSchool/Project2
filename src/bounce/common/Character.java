@@ -16,7 +16,6 @@ public class Character extends Entity {
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
     public final long client_id;
-    public Entity CurrentMelee;
     public long attack_timer;
     private ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;
@@ -24,7 +23,7 @@ public class Character extends Entity {
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
         super(x,y);
-        gamepos = new Vector(32,32);
+        gamepos = new Vector(x,y);
         velocity = new Vector(vx, vy);
         client_id = id;
 
@@ -33,15 +32,9 @@ public class Character extends Entity {
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         attack_shapes = new ArrayList<>();
     }
-    public Character(Vector pos, Vector vel, Image img, long id){
-        super(pos.getX(), pos.getY());
-        gamepos = pos;
-        velocity = vel;
-        client_id = id;
-        addImage(img);
-        addShape(new ConvexPolygon(lib.sqr.getPoints()));
-        attack_shapes = new ArrayList<>();
 
+    public Character(Vector pos, Vector vel, Image img, long id){
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), img, id);
     }
 
 

@@ -1,6 +1,7 @@
 package bounce.common;
 
 import bounce.client.ExplorerGameClient;
+import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
@@ -19,35 +20,31 @@ public class Projectile extends Entity {
     private boolean hit;
     public int damage;
     public Vector gamepos;
+    public lib.DIRS curdir;
 
 
-    public Projectile(final float x, final float y, final float vx, final float vy) {
+    public Projectile(final float x, final float y, final float vx, final float vy, long _id) {
         super(x,y);
         velocity = new Vector(vx, vy);
         gamepos = new Vector(x,y);
         damage = 1;
 
         // add image with offset to it renders from top left corner
-        addImageWithBoundingBox(ResourceManager.getImage(ExplorerGameClient.PROJECTILE));
-        id = ID_COUNTER.getAndIncrement();
+        addImage(ResourceManager.getImage(ExplorerGameClient.PROJECTILE));
+        addShape(new ConvexPolygon(lib.sqr.getPoints()));
+        id = _id;
     }
-
 
     public Projectile(Vector pos, Vector vel, Image img, long _id){
-        super(pos.getX(), pos.getY());
-        gamepos = pos;
-        velocity = vel;
-        addImageWithBoundingBox(img);
-        id = _id;
-        damage = 1;
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id);
     }
+
     public Projectile(Vector pos, Vector vel, Image img){
-        super(pos.getX(), pos.getY());
-        gamepos = pos;
-        velocity = vel;
-        addImageWithBoundingBox(img);
-        id = ID_COUNTER.getAndIncrement();
-        damage = 1;
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(),  ID_COUNTER.getAndIncrement());
+    }
+
+    public Projectile(final float x, final float y, final float vx, final float vy) {
+        this(x,y,vx,vy,  ID_COUNTER.getAndIncrement());
     }
 
     public void setVelocity(final Vector v) {
