@@ -28,5 +28,6 @@
 23 projectile images
 24 character movement is still wonky
 25 send character dir to server
+26 Adjust wall collisions to use
 
 

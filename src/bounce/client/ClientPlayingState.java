@@ -121,12 +121,6 @@ public class ClientPlayingState extends BasicGameState {
 
         egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
-        Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
-        if (currentTile.type == TileMap.TYPE.WALL ) { //If the current tile is a wall.
-            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
-            egc.character.setVelocity(reverseVector); //Set the new velocity.
-            egc.character.update(lastDelta); //Update the last delta.
-        }
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
@@ -246,6 +240,13 @@ public class ClientPlayingState extends BasicGameState {
                 System.out.println("character collided with an enemy");
             }
         }
+        
+         Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
+         if (currentTile.type == TileMap.TYPE.WALL && egc.character.collides(currentTile) != null) { //If the current tile is a wall and the player collides with it.
+            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
+            egc.character.setVelocity(reverseVector); //Set the new velocity.
+            egc.character.update(lastDelta); //Update the last delta.
+         }
 
         lastDelta = delta;
         lastVector = v;
