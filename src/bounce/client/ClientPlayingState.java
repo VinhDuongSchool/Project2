@@ -12,6 +12,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -69,7 +70,10 @@ public class ClientPlayingState extends BasicGameState {
 //        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
+//        g.setColor(Color.blue);
 //        g.drawRect(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 32, 32);
+//        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
+//        g.setColor(Color.gray);
 //        for (var e : egc.enemies){
 //            g.drawRect(e.gamepos.getX(),e.gamepos.getY(),32,32);
 //        }
@@ -128,7 +132,7 @@ public class ClientPlayingState extends BasicGameState {
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         var d = lib.wasd_to_dir(inp);
         if (d != null){
-            System.out.println(d);
+//            System.out.println(d);
             var UP_V = new Vector(0.2f,0).unit().scale(.2f);
             var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
             // todo fix long ass switch
@@ -197,9 +201,6 @@ public class ClientPlayingState extends BasicGameState {
             egc.character.playermelee(attack_dirs);
         }
 
-
-
-
         if (egc.is_connected){
             if (!egc.character.getVelocity().equals(v)){
                 try {
@@ -218,35 +219,51 @@ public class ClientPlayingState extends BasicGameState {
             egc.character.setVelocity(v);
             egc.character.update(delta); //Update the position of the player
 
-            //(Kevin) remove dead/hit/etc stuff
-            egc.enemies.removeIf(e -> e.getHealth() <=0);
-            egc.projectiles.removeIf(Projectile::getHit);
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
             egc.enemies.stream().forEach(e -> e.update(delta));
 
-            for (Enemy e : egc.enemies) { //Check if arrow collied with an alive enemy.
-                for (Projectile p : egc.projectiles){
+            //Kevin, check if projectiles collide with enemies
+            for (Projectile p : egc.projectiles){
+                for (Enemy e : egc.enemies) {
                     if (p.collides(e) != null){
                         e.setHealth(e.getHealth() - p.damage);
                         p.setHit(true);
+                        break; // each projectile should only collide with a single entity
                     }
                 }
             }
+
+            //(Kevin) remove dead/hit/etc stuff
+            egc.enemies.removeIf(e -> e.getHealth() <=0);
+            egc.projectiles.removeIf(Projectile::getHit);
         }
-        for(Enemy e : egc.enemies){
-            if(egc.character.collides(e)!= null){
-                System.out.println("character collided with an enemy");
-            }
-        }
-        
-         Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
-         if (currentTile.type == TileMap.TYPE.WALL && egc.character.collides(currentTile) != null) { //If the current tile is a wall and the player collides with it.
-            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
-            egc.character.setVelocity(reverseVector); //Set the new velocity.
-            egc.character.update(lastDelta); //Update the last delta.
-         }
+
+//        Kevin, commented out until its used for something
+//        for(Enemy e : egc.enemies){
+//            if(egc.character.collides(e)!= null){
+//                System.out.println("character collided with an enemy");
+//            }
+//        }
+
+        //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
+        egc.grid.getNeighbors(egc.character.gamepos).stream()
+                .filter(t -> t.type == TileMap.TYPE.WALL)
+                .map(egc.character::collides) // stream of collisions that may be null
+                .filter(Objects::nonNull)
+                .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
+                    egc.character.setVelocity(egc.character.getVelocity().scale(-1));
+                    egc.character.update(delta);
+        });
+
+//        System.out.println(egc.character.gamepos);
+//         Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
+//         if (currentTile.type == TileMap.TYPE.WALL && egc.character.collides(currentTile) != null) { //If the current tile is a wall and the player collides with it.
+//            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
+//            egc.character.setVelocity(reverseVector); //Set the new velocity.
+//            egc.character.update(lastDelta); //Update the last delta.
+//         }
 
         lastDelta = delta;
         lastVector = v;

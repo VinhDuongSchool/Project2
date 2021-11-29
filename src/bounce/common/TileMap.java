@@ -99,6 +99,7 @@ public class TileMap {
 
     }
 
+
     public void MakePath(ArrayList<Vector> goals){
         for(var arr : costs){
             Arrays.fill(arr, Integer.MAX_VALUE);
@@ -133,7 +134,7 @@ public class TileMap {
         }
     }
 
-    private ArrayList<int[]> getNeighbors(int[] t) {
+    public ArrayList<int[]> getNeighbors(int[] t) {
         var neighbors = new ArrayList<int[]>();
         //(Kevin) go in all 8 dirs
         for (int x = -1; x <= 1; x++) {
@@ -145,6 +146,29 @@ public class TileMap {
                 if(0 <= gpy && gpy < maxy){
                     if(0 <= gpx && gpx < maxx){
                         neighbors.add(new int[]{gpx, gpy});
+                    }
+                }
+            }
+        }
+        return neighbors;
+    }
+
+
+    public ArrayList<Tile> getNeighbors(Vector agamepos) {
+        int[] t = new int[]{
+                (int)Math.floor( agamepos.getX()/32.0f),
+                (int)Math.floor( agamepos.getY()/32.0f)};
+        var neighbors = new ArrayList<Tile>();
+        //(Kevin) go in all 8 dirs
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                int gpx = t[0] + x;
+                int gpy = t[1] + y;
+
+                //(Kevin) make sure neighbor exists
+                if(0 <= gpy && gpy < maxy){
+                    if(0 <= gpx && gpx < maxx){
+                        neighbors.add(tiles[gpx][gpy]);
                     }
                 }
             }
