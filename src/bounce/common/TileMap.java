@@ -82,6 +82,13 @@ public class TileMap {
         int y = (int)Math.floor(gamey/32.0f);
         return tiles[x][y];
     }
+
+    public Vector getdir(Vector gamexy){
+        int x = (int)Math.floor( gamexy.getX()/32.0f);
+        int y = (int)Math.floor( gamexy.getY()/32.0f);
+        return DirToNext[x][y];
+    }
+
     public void render(Graphics g, Vector screen_offset, Vector character_pos){
 
         //(Kevin) render a square around the player, proper render order is enforced in the for loops
@@ -117,8 +124,10 @@ public class TileMap {
                         tocheck.add(new int[]{x,y});
                 });
 
+        tocheck.stream().forEach(t -> tiles[t[0]][t[1]].next = tiles[t[0]][t[1]]);
         while (!tocheck.isEmpty()){
             var cur = tocheck.poll();
+            var curt = tiles[cur[0]][cur[1]];
             var curcost = costs[cur[0]][cur[1]];
             getNeighbors(cur)
                     .stream()
@@ -128,6 +137,7 @@ public class TileMap {
                         if (cost != Integer.MAX_VALUE && curcost + 1 < cost){
                             costs[t[0]][t[1]] = curcost + 1;
                             DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
+                            tiles[t[0]][t[1]].next = curt;
                             tocheck.add(t);
                         }
                     });

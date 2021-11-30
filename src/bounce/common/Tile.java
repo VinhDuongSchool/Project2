@@ -13,6 +13,7 @@ public class Tile extends Entity {
     public int gridy;
     public String tileType;
     public TileMap.TYPE type;
+    public Tile next;
 
     public Vector gamepos;
 

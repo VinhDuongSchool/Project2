@@ -45,10 +45,16 @@ public class ClientPlayingState extends BasicGameState {
 
         container.setSoundOn(true);
 
-        egc.enemies.add(new Enemy(0,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
-        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
-        egc.enemies.add(new Enemy(0,0, 0, 0, egc.game_sprites.getSprite(1, 8)));
+        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
+        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
+        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
+
+        egc.enemies.forEach(e -> {
+            e.goal = egc.grid.getTile(e.gamepos).next;
+            e.setVelocity(e.goal.gamepos.subtract(e.gamepos));
+        });
 
 	}
 	@Override

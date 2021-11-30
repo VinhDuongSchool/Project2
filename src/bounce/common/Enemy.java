@@ -17,6 +17,8 @@ public class Enemy extends Entity {
     private Vector velocity; //Velocity vectore.
     public Vector gamepos;
     private int health;
+    public Tile goal;
+
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -49,8 +51,15 @@ public class Enemy extends Entity {
     } //Get the velocity
 
     public void update(final int delta) {
-        gamepos = gamepos.add(velocity.scale(delta));
+        if(gamepos.distance(goal.gamepos) < velocity.length()){
+           gamepos = goal.gamepos;
+            goal = goal.next;
+            setVelocity(gamepos.subtract(goal.gamepos));
+        }else {
+            gamepos = gamepos.add(velocity.scale(delta));
+        }
         setPosition(gamepos);
+
     } //Update base off of the velocity
 
     public void setHealth(final int i) {health = i; } //Add health and check if enemy is dead.
