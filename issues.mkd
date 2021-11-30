@@ -29,5 +29,6 @@
 24 character movement is still wonky
 25 send character dir to server
 26 Adjust wall collisions to use
+27 limit path finding to current room
 
 

@@ -50,11 +50,20 @@ public class Enemy extends Entity {
         return velocity;
     } //Get the velocity
 
-    public void update(final int delta) {
-        if(gamepos.distance(goal.gamepos) < velocity.length()){
-           gamepos = goal.gamepos;
-            goal = goal.next;
-            setVelocity(gamepos.subtract(goal.gamepos));
+    public void update(final int delta, Tile curt) {
+        if (goal == null){
+            goal = curt.next;
+        }
+        velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+        System.out.print(goal.gamepos + " | ");
+        System.out.println(curt.gamepos);
+        var vs = velocity.scale(delta);
+        if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
+            gamepos = goal.gamepos;
+            goal = curt.next;
+            velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+//            setVelocity(goal.gamepos.subtract(gamepos).scale(.01f));
+//            setVelocity(new Vector(0,0));
         }else {
             gamepos = gamepos.add(velocity.scale(delta));
         }

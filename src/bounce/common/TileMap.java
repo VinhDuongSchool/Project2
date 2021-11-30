@@ -109,7 +109,7 @@ public class TileMap {
 
     public void MakePath(ArrayList<Vector> goals){
         for(var arr : costs){
-            Arrays.fill(arr, Integer.MAX_VALUE);
+            Arrays.fill(arr, Integer.MAX_VALUE - 100000);
         }
         PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingInt(v -> costs[v[0]][v[1]]));
         //(Kevin) assuming goals are some game position
@@ -133,8 +133,9 @@ public class TileMap {
                     .stream()
                     .forEach(t -> {
                         // (Kevin) ignore walls and set cost to +1
-                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE : costs[t[0]][t[1]];
-                        if (cost != Integer.MAX_VALUE && curcost + 1 < cost){
+//                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE-10 : costs[t[0]][t[1]];
+                        int cost = costs[t[0]][t[1]];
+                        if (tiles[t[0]][t[1]].type != TYPE.WALL && curcost + 1 < cost){
                             costs[t[0]][t[1]] = curcost + 1;
                             DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
                             tiles[t[0]][t[1]].next = curt;
@@ -147,8 +148,34 @@ public class TileMap {
     public ArrayList<int[]> getNeighbors(int[] t) {
         var neighbors = new ArrayList<int[]>();
         //(Kevin) go in all 8 dirs
+        boolean wall_neighbor = false;
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
+                if ((x == 0) == (y == 0) && tiles[t[0]][t[1]].type == TYPE.WALL){
+                    wall_neighbor = true;
+                    break;
+                }
+                int gpx = t[0] + x;
+                int gpy = t[1] + y;
+
+                //(Kevin) make sure neighbor exists
+                if(0 <= gpy && gpy < maxy){
+                    if(0 <= gpx && gpx < maxx){
+                        neighbors.add(new int[]{gpx, gpy});
+                    }
+                }
+            }
+        }
+        if(!wall_neighbor){
+            return neighbors;
+        }
+
+        neighbors.clear();
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if ((x == 0) == (y == 0) ){
+                    continue;
+                }
                 int gpx = t[0] + x;
                 int gpy = t[1] + y;
 

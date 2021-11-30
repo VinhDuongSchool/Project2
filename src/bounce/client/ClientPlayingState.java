@@ -2,10 +2,7 @@ package bounce.client;
 
 import bounce.common.*;
 import jig.Vector;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -48,13 +45,9 @@ public class ClientPlayingState extends BasicGameState {
         egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
         egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
-        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
-        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
+//        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
+//        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
-        egc.enemies.forEach(e -> {
-            e.goal = egc.grid.getTile(e.gamepos).next;
-            e.setVelocity(e.goal.gamepos.subtract(e.gamepos));
-        });
 
 	}
 	@Override
@@ -76,13 +69,13 @@ public class ClientPlayingState extends BasicGameState {
 //        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
-//        g.setColor(Color.blue);
-//        g.drawRect(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 32, 32);
-//        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
-//        g.setColor(Color.gray);
-//        for (var e : egc.enemies){
-//            g.drawRect(e.gamepos.getX(),e.gamepos.getY(),32,32);
-//        }
+        g.setColor(Color.blue);
+        g.drawRect(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 32, 32);
+        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
+        for (var e : egc.enemies){
+            g.drawRect(e.gamepos.getX(),e.gamepos.getY(),32,32);
+        }
+        g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 //        var p = new Polygon();
@@ -228,7 +221,7 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
-            egc.enemies.stream().forEach(e -> e.update(delta));
+            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.gamepos)));
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
