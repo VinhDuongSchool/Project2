@@ -124,6 +124,7 @@ public class TileMap {
                         tocheck.add(new int[]{x,y});
                 });
 
+        //Kevin, set refernce for character tiles to themselves so when enemy reaches goal they dont error
         tocheck.stream().forEach(t -> tiles[t[0]][t[1]].next = tiles[t[0]][t[1]]);
         while (!tocheck.isEmpty()){
             var cur = tocheck.poll();
@@ -149,20 +150,25 @@ public class TileMap {
         var neighbors = new ArrayList<int[]>();
         //(Kevin) go in all 8 dirs
         boolean wall_neighbor = false;
+        outer:
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
-                if ((x == 0) == (y == 0) && tiles[t[0]][t[1]].type == TYPE.WALL){
-                    wall_neighbor = true;
-                    break;
-                }
                 int gpx = t[0] + x;
                 int gpy = t[1] + y;
 
-                //(Kevin) make sure neighbor exists
-                if(0 <= gpy && gpy < maxy){
-                    if(0 <= gpx && gpx < maxx){
-                        neighbors.add(new int[]{gpx, gpy});
+                //(Kevin) make sure neighbor exists and is not a self reference
+                if(
+                    (0 <= gpy && gpy < maxy ) &&
+                    (0 <= gpx && gpx < maxx) &&
+                    !(x == 0 && y == 0)
+                ){
+                    //Kevin, would love to use a goto to do it all with 1 set of loops but no goto :/
+                    //Kevin, check if wall is an edge
+                    if ((x == 0) != (y == 0) && tiles[gpx][gpy].type == TYPE.WALL){
+                        wall_neighbor = true;
+                        break outer;
                     }
+                    neighbors.add(new int[]{gpx, gpy});
                 }
             }
         }
@@ -170,6 +176,7 @@ public class TileMap {
             return neighbors;
         }
 
+        //Kevin, if wall in one of 4 edges dont add corners to neighbors because diagnal movement would collide with wall
         neighbors.clear();
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -179,11 +186,12 @@ public class TileMap {
                 int gpx = t[0] + x;
                 int gpy = t[1] + y;
 
-                //(Kevin) make sure neighbor exists
-                if(0 <= gpy && gpy < maxy){
-                    if(0 <= gpx && gpx < maxx){
-                        neighbors.add(new int[]{gpx, gpy});
-                    }
+                //(Kevin) make sure neighbor exists and is not a self reference
+                if(
+                    (0 <= gpy && gpy < maxy) &&
+                    (0 <= gpx && gpx < maxx)
+                ){
+                    neighbors.add(new int[]{gpx, gpy});
                 }
             }
         }
@@ -202,11 +210,12 @@ public class TileMap {
                 int gpx = t[0] + x;
                 int gpy = t[1] + y;
 
-                //(Kevin) make sure neighbor exists
-                if(0 <= gpy && gpy < maxy){
-                    if(0 <= gpx && gpx < maxx){
-                        neighbors.add(tiles[gpx][gpy]);
-                    }
+                //(Kevin) make sure neighbor exists, needs self reference for proper collsion (x,y) == (0,0)
+                if(
+                    (0 <= gpy && gpy < maxy ) &&
+                    (0 <= gpx && gpx < maxx)
+                ){
+                    neighbors.add(tiles[gpx][gpy]);
                 }
             }
         }

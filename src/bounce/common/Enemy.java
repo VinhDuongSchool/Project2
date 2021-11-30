@@ -18,7 +18,8 @@ public class Enemy extends Entity {
     public Vector gamepos;
     private int health;
     public Tile goal;
-
+    public float speed;
+    public Vector dir;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -54,20 +55,18 @@ public class Enemy extends Entity {
         if (goal == null){
             goal = curt.next;
         }
-        velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
-        System.out.print(goal.gamepos + " | ");
-        System.out.println(curt.gamepos);
+
+        //Kevin, if the distance to the next goal is less than how much we move setup next goal
         var vs = velocity.scale(delta);
         if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
             gamepos = goal.gamepos;
             goal = curt.next;
-            velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
-//            setVelocity(goal.gamepos.subtract(gamepos).scale(.01f));
-//            setVelocity(new Vector(0,0));
         }else {
             gamepos = gamepos.add(velocity.scale(delta));
         }
         setPosition(gamepos);
+        //Kevin, setup next goal direction
+        velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
 
     } //Update base off of the velocity
 

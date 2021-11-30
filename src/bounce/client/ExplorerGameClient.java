@@ -212,7 +212,7 @@ public class ExplorerGameClient extends StateBasedGame {
         int sprite_x = 0;
         int sprite_y = 10;
         character = new Character(
-                screen_center.getX(), screen_center.getY(),
+                32*5, 32*5,
                 0,0,
                 game_sprites.getSprite(sprite_x, sprite_y),
                 ID);  //Set up the character.
