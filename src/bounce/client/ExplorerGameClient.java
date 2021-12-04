@@ -211,7 +211,7 @@ public class ExplorerGameClient extends StateBasedGame {
         // character will always render in the center of the screen
         int sprite_x = 0;
         int sprite_y = 10;
-        character = new Character(
+        character = new Warrior(
                 32*5, 32*5,
                 0,0,
                 game_sprites.getSprite(sprite_x, sprite_y),

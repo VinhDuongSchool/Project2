@@ -15,11 +15,10 @@
 20 merge character/enemy constructors somewhat
 21 mouse aiming system (convert a mouse angle from the character into a game direction)
 9 enemy path finding
-
+8 tile functionality (wall collision/doors)
 
 ## Open Issues ##
 7 attacks can collide
-8 tile functionality (wall collision/doors)
 14 rooms
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
 16 make firing a projectile integrated with character/enemy and use their current direction
@@ -32,5 +31,6 @@
 27 limit path finding to current room
 28 use dir and speed for enemies
 29 set dir enum for enemy while path finding
+30 Subclass the Chracter class for the different types of characters.
 
 

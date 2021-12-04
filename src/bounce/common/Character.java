@@ -19,6 +19,12 @@ public class Character extends Entity {
     public long attack_timer;
     private ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;
+    public int health;
+    public int defense;
+    public int stamina;
+    public int magic;
+    public int attack;
+    public int speed;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
@@ -176,3 +182,5 @@ public class Character extends Entity {
         return client_id;
     }
 }
+
+
