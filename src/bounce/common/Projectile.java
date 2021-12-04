@@ -23,28 +23,38 @@ public class Projectile extends Entity {
     public lib.DIRS curdir;
 
 
-    public Projectile(final float x, final float y, final float vx, final float vy, long _id) {
+    public Projectile(final float x, final float y, final float vx, final float vy, long _id, final lib.DIRS d) {
         super(x,y);
         velocity = new Vector(vx, vy);
         gamepos = new Vector(x,y);
         damage = 1;
 
         // add image with offset to it renders from top left corner
-        addImage(ResourceManager.getImage(ExplorerGameClient.PROJECTILE));
+        if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
+            addImage(ResourceManager.getImage(ExplorerGameClient.UD));
+        } else if (d == lib.DIRS.SOUTHWEST || d == lib.DIRS.NORTHEAST) {
+            addImage(ResourceManager.getImage(ExplorerGameClient.LR));
+        } else if (d == lib.DIRS.WEST || d == lib.DIRS.EAST) {
+            addImage(ResourceManager.getImage(ExplorerGameClient.DR));
+        } else if (d == lib.DIRS.NORTH || d == lib.DIRS.SOUTH) {
+            addImage(ResourceManager.getImage(ExplorerGameClient.UR));
+        }
+
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         id = _id;
+
     }
 
-    public Projectile(Vector pos, Vector vel, Image img, long _id){
-        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id);
+    public Projectile(Vector pos, Vector vel, Image img, long _id, final lib.DIRS d){
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id, d);
     }
 
-    public Projectile(Vector pos, Vector vel, Image img){
-        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(),  ID_COUNTER.getAndIncrement());
+    public Projectile(Vector pos, Vector vel, Image img, final lib.DIRS d){
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(),  ID_COUNTER.getAndIncrement(), d);
     }
 
-    public Projectile(final float x, final float y, final float vx, final float vy) {
-        this(x,y,vx,vy,  ID_COUNTER.getAndIncrement());
+    public Projectile(final float x, final float y, final float vx, final float vy, final lib.DIRS d) {
+        this(x,y,vx,vy,  ID_COUNTER.getAndIncrement(),d);
     }
 
     public void setVelocity(final Vector v) {

@@ -35,6 +35,11 @@ public class ExplorerGameClient extends StateBasedGame {
 
     public static final String SPRITES = "bounce/resource/sprites.png";
     public static final String PROJECTILE = "bounce/resource/projectile.png";
+    public static final String UD = "bounce/resource/UD.png";
+    public static final String LR = "bounce/resource/LR.png";
+    public static final String UR = "bounce/resource/UR.png";
+    public static final String DR = "bounce/resource/DR.png";
+
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -164,7 +169,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
                         break;
                     case PROJECTILE:
-                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), m.id));
+                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), m.id, null));
                         break;
                 }
                 break;
@@ -204,6 +209,10 @@ public class ExplorerGameClient extends StateBasedGame {
 
         ResourceManager.loadImage(SPRITES);
         ResourceManager.loadImage(PROJECTILE);
+        ResourceManager.loadImage(UD);
+        ResourceManager.loadImage(LR);
+        ResourceManager.loadImage(UR);
+        ResourceManager.loadImage(DR);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;

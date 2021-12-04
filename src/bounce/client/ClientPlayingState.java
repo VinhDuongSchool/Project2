@@ -176,7 +176,10 @@ public class ClientPlayingState extends BasicGameState {
                     e.printStackTrace();
                 }
             } else {
-                egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+                Projectile temp = new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0f, 0f, d); //Make a new projectile
+                temp.setVelocity(v); //Add the velocity of the player
+                egc.projectiles.add(temp); //Set the initial location to the player.
+
             }
         }
 

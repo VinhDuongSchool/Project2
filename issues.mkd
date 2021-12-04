@@ -16,6 +16,7 @@
 21 mouse aiming system (convert a mouse angle from the character into a game direction)
 9 enemy path finding
 8 tile functionality (wall collision/doors)
+30 Subclass the Chracter class for the different types of characters.
 
 ## Open Issues ##
 7 attacks can collide
@@ -31,6 +32,6 @@
 27 limit path finding to current room
 28 use dir and speed for enemies
 29 set dir enum for enemy while path finding
-30 Subclass the Chracter class for the different types of characters.
+31 Have the projectile be fired in all 8 directions.
 
 
