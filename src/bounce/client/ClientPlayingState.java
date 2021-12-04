@@ -24,10 +24,6 @@ import java.util.Objects;
  */
 public class ClientPlayingState extends BasicGameState {
 
-    private int lastDelta;
-    private Vector lastVector;
-
-
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -128,39 +124,38 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
-        Vector v = new Vector(0,0);
+        Vector characterVector = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        var d = lib.wasd_to_dir(inp);
-        if (d != null){
+        var characterDir = lib.wasd_to_dir(inp);
+        if (characterDir != null){
 //            System.out.println(d);
             var UP_V = new Vector(0.2f,0).unit().scale(.2f);
             var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
             // todo fix long ass switch
-            egc.character.curdir  =  d;
-            switch (d){
+            switch (characterDir){
                 case NORTH:
-                    v = UP_V;
+                    characterVector = UP_V;
                     break;
                 case SOUTH:
-                    v = UP_V.scale(-1);
+                    characterVector = UP_V.scale(-1);
                     break;
                 case WEST:
-                    v = LEFT_V;
+                    characterVector = LEFT_V;
                     break;
                 case EAST:
-                    v = LEFT_V.scale(-1);
+                    characterVector = LEFT_V.scale(-1);
                     break;
                 case NORTHEAST:
-                    v = UP_V.add(LEFT_V.scale(-1));
+                    characterVector = UP_V.add(LEFT_V.scale(-1));
                     break;
                 case NORTHWEST:
-                    v = UP_V.add(LEFT_V);
+                    characterVector = UP_V.add(LEFT_V);
                     break;
                 case SOUTHEAST:
-                    v = UP_V.scale(-1).add(LEFT_V.scale(-1));
+                    characterVector = UP_V.scale(-1).add(LEFT_V.scale(-1));
                     break;
                 case SOUTHWEST:
-                    v = UP_V.scale(-1).add(LEFT_V);
+                    characterVector = UP_V.scale(-1).add(LEFT_V);
                     break;
                 default:
                     break;
@@ -197,82 +192,80 @@ public class ClientPlayingState extends BasicGameState {
 //        }
 
 
-        if(egc.is_connected){
-            serverUpdate(egc, input, d, v, diridx);
-        } else {
-            clientupdate(egc, delta, input, v);
+        if(egc.is_connected){ //Kevin, run with a server
+            var messages = new ArrayList<Message>();
+            if (!egc.character.getVelocity().equals(characterVector)){
+                messages.add(new Message(Message.MSG_TYPE.SET_VELOCITY, characterVector, egc.ID));
+                egc.character.setVelocity(characterVector);
+            }
+            if(egc.character.curdir != characterDir){
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER));
+                egc.character.curdir = characterDir;
+            }
+
+
+            if(input.isKeyPressed(Input.KEY_F))
+                messages.add(Message.builder(Message.MSG_TYPE.FIRE_PROJECTILE, egc.ID));
+
+            if(diridx >= 0)
+                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID));
+
+            messages.stream().forEach(m -> {
+                try {
+                    egc.out_stream.writeObject(m);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
+                egc.handle_message(m);
+            }
+
+        } else { //Kevin, update stuff as a solo program
+            egc.character.curdir  =  characterDir;
+            if(input.isKeyPressed(Input.KEY_F))
+                egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+
+            //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
+            egc.grid.getNeighbors(egc.character.gamepos).stream()
+                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .map(egc.character::collides) // stream of collisions that may be null
+                    .filter(Objects::nonNull)
+                    .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
+                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
+                        egc.character.update(delta);
+                    });
+
+            //(Kevin) handle stuff when client isnt connected
+            egc.character.setVelocity(characterVector);
+            egc.character.update(delta); //Update the position of the player
+
+
+            //(Kevin) update all other entities
+            egc.projectiles.stream().forEach(p -> p.update(delta));
+            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.gamepos)));
+
+            //Kevin, check if projectiles collide with enemies
+            for (Projectile p : egc.projectiles){
+                for (Enemy e : egc.enemies) {
+                    if (p.collides(e) != null){
+                        e.setHealth(e.getHealth() - p.damage);
+                        p.setHit(true);
+                        break; // each projectile should only collide with a single entity
+                    }
+                }
+            }
+
+            //(Kevin) remove dead/hit/etc stuff
+            egc.enemies.removeIf(e -> e.getHealth() <=0);
+            egc.projectiles.removeIf(Projectile::getHit);
         }
     }
 
     public void serverUpdate(ExplorerGameClient egc, Input input, lib.DIRS characterDir, Vector characterVector, int mdiridx){
-        var messages = new ArrayList<Message>();
-        if (!egc.character.getVelocity().equals(characterVector)){
-            messages.add(new Message(Message.MSG_TYPE.SET_VELOCITY, characterVector, egc.ID));
-            egc.character.setVelocity(characterVector);
-        }
-        if(egc.character.curdir != characterDir){
-            messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER));
-            egc.character.curdir = characterDir;
-        }
-
-
-        if(input.isKeyPressed(Input.KEY_F))
-            messages.add(Message.builder(Message.MSG_TYPE.FIRE_PROJECTILE, egc.ID));
-
-        if(mdiridx >= 0)
-            messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID));
-
-        messages.stream().forEach(m -> {
-            try {
-                egc.out_stream.writeObject(m);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
-            egc.handle_message(m);
-        }
 
     }
 
-    public void clientupdate(ExplorerGameClient egc, int delta, Input input, Vector v){
-        if(input.isKeyPressed(Input.KEY_F))
-            egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
-        //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
-        egc.grid.getNeighbors(egc.character.gamepos).stream()
-                .filter(t -> t.type == TileMap.TYPE.WALL)
-                .map(egc.character::collides) // stream of collisions that may be null
-                .filter(Objects::nonNull)
-                .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
-                    egc.character.setVelocity(egc.character.getVelocity().scale(-1));
-                    egc.character.update(delta);
-                });
-
-        //(Kevin) handle stuff when client isnt connected
-        egc.character.setVelocity(v);
-        egc.character.update(delta); //Update the position of the player
-
-
-        //(Kevin) update all other entities
-        egc.projectiles.stream().forEach(p -> p.update(delta));
-        egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.gamepos)));
-
-        //Kevin, check if projectiles collide with enemies
-        for (Projectile p : egc.projectiles){
-            for (Enemy e : egc.enemies) {
-                if (p.collides(e) != null){
-                    e.setHealth(e.getHealth() - p.damage);
-                    p.setHit(true);
-                    break; // each projectile should only collide with a single entity
-                }
-            }
-        }
-
-        //(Kevin) remove dead/hit/etc stuff
-        egc.enemies.removeIf(e -> e.getHealth() <=0);
-        egc.projectiles.removeIf(Projectile::getHit);
-
-    }
 
     @Override
     public int getID() {

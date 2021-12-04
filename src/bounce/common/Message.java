@@ -15,7 +15,8 @@ public class Message implements Serializable {
         FIRE_PROJECTILE,
         MOUSE_IDX,
         SET_DIR,
-        INIT_GRID
+        INIT_GRID,
+        SET_HP
     }
 
     public enum ENTITY_TYPE{
@@ -30,6 +31,7 @@ public class Message implements Serializable {
     public Vector gamepos;
     public Vector velocity;
     public lib.DIRS dir;
+    public int HP;
 
     public Message(MSG_TYPE t, Object d, long _id) {
         type = t;
@@ -110,8 +112,9 @@ public class Message implements Serializable {
         this.etype = etype;
         return this;
     }
+
+    public Message setHP(int hp) {
+        this.HP = hp;
+        return this;
+    }
 }
-
-
-
-

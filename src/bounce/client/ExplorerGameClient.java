@@ -188,6 +188,18 @@ public class ExplorerGameClient extends StateBasedGame {
                 }
                 break;
             }
+            case SET_HP:
+            {
+                switch (m.etype){
+                    case ENEMY:
+                        enemies.stream()
+                                .filter(e -> e.id == m.id)
+                                .findFirst()
+                                .ifPresentOrElse(
+                                        e -> e.setHealth(m.HP),
+                                        () -> System.out.println("missed entity id"));
+                }
+            }
 
         }
     }
