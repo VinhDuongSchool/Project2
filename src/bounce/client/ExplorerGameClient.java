@@ -181,6 +181,13 @@ public class ExplorerGameClient extends StateBasedGame {
                 }
                 break;
             }
+            case SET_DIR:
+            {
+                if(m.etype == Message.ENTITY_TYPE.CHARACTER && m.id != ID){
+                    allies.get(m.id).curdir = m.dir;
+                }
+                break;
+            }
 
         }
     }
@@ -242,11 +249,15 @@ public class ExplorerGameClient extends StateBasedGame {
             connected = false;
         }
 
+
 		try {
+            System.out.println("making app");
 			app = new AppGameContainer(new ExplorerGameClient("Bounce!", 800, 600,connected));
 			app.setDisplayMode(800, 600, false);
 			app.setVSync(true);
+            System.out.println("starting");
 			app.start();
+            System.out.println("started");
 		} catch (SlickException | IOException e) {
 			e.printStackTrace();
 		}

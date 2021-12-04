@@ -3,13 +3,16 @@ package bounce.server;
 import bounce.common.Enemy;
 import bounce.common.Message;
 import bounce.common.Projectile;
+import bounce.common.TileMap;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -61,6 +64,8 @@ public class ServerPlayingState extends BasicGameState {
 
         ExplorerGameServer egs = (ExplorerGameServer) game;
 
+        egs.grid.MakePath(Arrays.stream(egs.characters).map(c -> c.gamepos).collect(Collectors.toCollection(ArrayList::new)));
+
         //(Kevin) read all the messages
         for(var m = egs.in_messages.poll(); m != null; m = egs.in_messages.poll()){
             egs.handle_message(m);
@@ -72,7 +77,18 @@ public class ServerPlayingState extends BasicGameState {
             c.update(delta);
             if(!oldpos.equals(c.gamepos))
                 egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, c.gamepos, c.client_id, Message.ENTITY_TYPE.CHARACTER));
+
+            //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
+            egs.grid.getNeighbors(c.gamepos).stream()
+                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .map(c::collides) // stream of collisions that may be null
+                    .filter(Objects::nonNull)
+                    .findAny().ifPresent(collision -> { // the actual collision object isnt useful, the minpentration doesnt work at all
+                        c.setVelocity(c.getVelocity().scale(-1));
+                        c.update(delta);
+                    });
         });
+
 
         //(Kevin) remove dead/hit/etc stuff
         var toremove =  egs.enemies.stream().filter(e -> e.getHealth() <=0).collect(Collectors.toList());

@@ -47,6 +47,8 @@ public class ExplorerGameServer extends StateBasedGame {
     public Character[] characters; //The character class.
     public ArrayList<Enemy> enemies; //Enemies
     public ArrayList<Projectile> projectiles;
+    public TileMap grid;
+
     /**
      * Create the BounceGame frame, saving the width and height for later use.
      *
@@ -168,6 +170,14 @@ public class ExplorerGameServer extends StateBasedGame {
                 out_messages.add(nm);
                 break;
             }
+            case SET_DIR:
+            {
+                if(m.etype == Message.ENTITY_TYPE.CHARACTER){
+                    characters[(int) m.id].curdir = m.dir;
+                }
+                out_messages.add(m);
+                break;
+            }
         }
     }
 
@@ -187,6 +197,7 @@ public class ExplorerGameServer extends StateBasedGame {
         ResourceManager.loadImage(SPRITES);
         ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
+        grid = new TileMap(100,100, game_sprites);
 
         //(Kevin) dont start run server until all clients are connected
         while (Arrays.stream(characters).anyMatch(Objects::isNull)){

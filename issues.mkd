@@ -32,5 +32,6 @@
 27 limit path finding to current room
 28 use dir and speed for enemies
 29 set dir enum for enemy while path finding
+30 maybe use cost array for enemy pathfinding instead of a next array
 
 
