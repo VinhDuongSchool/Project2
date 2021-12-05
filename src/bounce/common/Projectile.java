@@ -5,7 +5,6 @@ import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
-import org.newdawn.slick.Image;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -45,11 +44,11 @@ public class Projectile extends Entity {
 
     }
 
-    public Projectile(Vector pos, Vector vel, Image img, long _id, final lib.DIRS d){
+    public Projectile(Vector pos, Vector vel, long _id, final lib.DIRS d){
         this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id, d);
     }
 
-    public Projectile(Vector pos, Vector vel, Image img, final lib.DIRS d){
+    public Projectile(Vector pos, Vector vel, final lib.DIRS d){
         this(pos.getX(), pos.getY(), vel.getX(), vel.getY(),  ID_COUNTER.getAndIncrement(), d);
     }
 

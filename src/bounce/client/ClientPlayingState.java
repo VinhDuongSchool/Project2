@@ -224,7 +224,11 @@ public class ClientPlayingState extends BasicGameState {
         } else { //Kevin, update stuff as a solo program
             egc.character.curdir  =  characterDir;
             if(input.isKeyPressed(Input.KEY_F))
-                egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+                egc.projectiles.add(new Projectile(egc.character.gamepos, new Vector(0.1f, 0.1f), 0,egc.character.curdir)); //Set the initial location to the player.
+
+            //(Kevin) handle stuff when client isnt connected
+            egc.character.setVelocity(characterVector);
+            egc.character.update(delta); //Update the position of the player
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
             egc.grid.getNeighbors(egc.character.gamepos).stream()
@@ -235,10 +239,6 @@ public class ClientPlayingState extends BasicGameState {
                         egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                         egc.character.update(delta);
                     });
-
-            //(Kevin) handle stuff when client isnt connected
-            egc.character.setVelocity(characterVector);
-            egc.character.update(delta); //Update the position of the player
 
 
             //(Kevin) update all other entities

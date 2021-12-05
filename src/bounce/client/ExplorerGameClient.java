@@ -2,7 +2,6 @@ package bounce.client;
 
 import bounce.common.Character;
 import bounce.common.*;
-import bounce.server.ExplorerGameServer;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
@@ -169,7 +168,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
                         break;
                     case PROJECTILE:
-                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), m.id, null));
+                        projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
                         break;
                 }
                 break;

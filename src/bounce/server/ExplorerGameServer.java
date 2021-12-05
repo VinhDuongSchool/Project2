@@ -140,6 +140,7 @@ public class ExplorerGameServer extends StateBasedGame {
             }
             case ADD_ENTITY:
             {
+                assert false : "unreachable m = " + m.type;
                 var e_data_arr = (Object[]) m.data;
                 var spritex = (int) e_data_arr[0];
                 var spritey = (int) e_data_arr[1];
@@ -148,10 +149,10 @@ public class ExplorerGameServer extends StateBasedGame {
                         enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
                         m.id = enemies.get(enemies.size() - 1).id;
                         break;
-                    case PROJECTILE:
-                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), null));
-                        m.id = projectiles.get(projectiles.size() - 1).id;
-                        break;
+//                    case PROJECTILE:
+//                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), null));
+//                        m.id = projectiles.get(projectiles.size() - 1).id;
+//                        break;
 
                 }
 
@@ -162,7 +163,7 @@ public class ExplorerGameServer extends StateBasedGame {
             case FIRE_PROJECTILE:
             {
                 var c = characters[(int)m.id];
-                var p = new Projectile(c.gamepos, new Vector(0.1f, 0.1f),ResourceManager.getImage(ExplorerGameServer.PROJECTILE), null);
+                var p = new Projectile(c.gamepos, new Vector(0.1f, 0.1f), c.curdir);
                 var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE);
                 nm.gamepos = p.gamepos;
                 nm.velocity = p.getVelocity();
