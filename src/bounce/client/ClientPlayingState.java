@@ -24,10 +24,6 @@ import java.util.Objects;
  */
 public class ClientPlayingState extends BasicGameState {
 
-    private int lastDelta;
-    private Vector lastVector;
-
-
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -122,67 +118,52 @@ public class ClientPlayingState extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
-        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
+        if(!egc.is_connected)
+            egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
 
 
         //(Kevin) deal with user input
         // will need to change movement stuff to make it easier to do different sprites for different directions
-        Vector v = new Vector(0,0);
+        Vector characterVector = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        var d = lib.wasd_to_dir(inp);
-        if (d != null){
+        var characterDir = lib.wasd_to_dir(inp);
+        if (characterDir != null){
 //            System.out.println(d);
             var UP_V = new Vector(0.2f,0).unit().scale(.2f);
             var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
             // todo fix long ass switch
-            egc.character.curdir  =  d;
-            switch (d){
+            switch (characterDir){
                 case NORTH:
-                    v = UP_V;
+                    characterVector = UP_V;
                     break;
                 case SOUTH:
-                    v = UP_V.scale(-1);
+                    characterVector = UP_V.scale(-1);
                     break;
                 case WEST:
-                    v = LEFT_V;
+                    characterVector = LEFT_V;
                     break;
                 case EAST:
-                    v = LEFT_V.scale(-1);
+                    characterVector = LEFT_V.scale(-1);
                     break;
                 case NORTHEAST:
-                    v = UP_V.add(LEFT_V.scale(-1));
+                    characterVector = UP_V.add(LEFT_V.scale(-1));
                     break;
                 case NORTHWEST:
-                    v = UP_V.add(LEFT_V);
+                    characterVector = UP_V.add(LEFT_V);
                     break;
                 case SOUTHEAST:
-                    v = UP_V.scale(-1).add(LEFT_V.scale(-1));
+                    characterVector = UP_V.scale(-1).add(LEFT_V.scale(-1));
                     break;
                 case SOUTHWEST:
-                    v = UP_V.scale(-1).add(LEFT_V);
+                    characterVector = UP_V.scale(-1).add(LEFT_V);
                     break;
                 default:
                     break;
             }
 
         }
-        egc.character.setVelocity(v);
 
-        if (input.isKeyPressed(Input.KEY_F)){ //Use the f key to fire a projectile.
-            if (egc.is_connected){
-                try {
-                    egc.out_stream.writeObject(new Message(Message.MSG_TYPE.FIRE_PROJECTILE, null, egc.ID));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Projectile temp = new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0f, 0f, d); //Make a new projectile
-                temp.setVelocity(v); //Add the velocity of the player
-                egc.projectiles.add(temp); //Set the initial location to the player.
-
-            }
-        }
-
+        int diridx = -1;
         //Kevin, attack when left mouse or I is pressed, (my mouse isnt recognized so i needed the i key lol)
         if(input.isKeyPressed(Input.MOUSE_LEFT_BUTTON) || input.isKeyPressed(Input.KEY_I)){
             var m = new Vector(input.getMouseX(), input.getMouseY());
@@ -190,7 +171,7 @@ public class ClientPlayingState extends BasicGameState {
             //angleto gives the angle in degrees rotated by 180 for some reason,
             //divide by 45 to convert into 8 directions, then round to get the angle index,
             //0 and 8 map to the same value
-            var diridx = (int)Math.round((m.angleTo(egc.screen_center)+180)/45);
+            diridx = (int)Math.round((m.angleTo(egc.screen_center)+180)/45);
             ArrayList<lib.DIRS> attack_dirs;
             if (diridx == 0 || diridx == 8){
                 //Kevin, deal with edge case
@@ -203,22 +184,60 @@ public class ClientPlayingState extends BasicGameState {
             egc.character.playermelee(attack_dirs);
         }
 
-        if (egc.is_connected){
-            if (!egc.character.getVelocity().equals(v)){
+//        Kevin, commented out until its used for something
+//        for(Enemy e : egc.enemies){
+//            if(egc.character.collides(e)!= null){
+//                System.out.println("character collided with an enemy");
+//            }
+//        }
+
+
+        if(egc.is_connected){ //Kevin, run with a server
+            var messages = new ArrayList<Message>();
+            if (!egc.character.getVelocity().equals(characterVector)){
+                messages.add(new Message(Message.MSG_TYPE.SET_VELOCITY, characterVector, egc.ID));
+                egc.character.setVelocity(characterVector);
+            }
+            if(egc.character.curdir != characterDir){
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER));
+                egc.character.curdir = characterDir;
+            }
+
+
+            if(input.isKeyPressed(Input.KEY_F))
+                messages.add(Message.builder(Message.MSG_TYPE.FIRE_PROJECTILE, egc.ID));
+
+            if(diridx >= 0)
+                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID));
+
+            messages.stream().forEach(m -> {
                 try {
-                    egc.out_stream.writeObject(new Message(Message.MSG_TYPE.SET_VELOCITY, v, egc.ID));
+                    egc.out_stream.writeObject(m);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                egc.character.setVelocity(v);
-            }
+            });
             for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
                 egc.handle_message(m);
             }
 
-        } else {
+        } else { //Kevin, update stuff as a solo program
+            egc.character.curdir  =  characterDir;
+            if(input.isKeyPressed(Input.KEY_F))
+                egc.projectiles.add(new Projectile(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 0.1f, 0.1f)); //Set the initial location to the player.
+
+            //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
+            egc.grid.getNeighbors(egc.character.gamepos).stream()
+                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .map(egc.character::collides) // stream of collisions that may be null
+                    .filter(Objects::nonNull)
+                    .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
+                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
+                        egc.character.update(delta);
+                    });
+
             //(Kevin) handle stuff when client isnt connected
-            egc.character.setVelocity(v);
+            egc.character.setVelocity(characterVector);
             egc.character.update(delta); //Update the position of the player
 
 
@@ -241,41 +260,13 @@ public class ClientPlayingState extends BasicGameState {
             egc.enemies.removeIf(e -> e.getHealth() <=0);
             egc.projectiles.removeIf(Projectile::getHit);
         }
-
-//        Kevin, commented out until its used for something
-//        for(Enemy e : egc.enemies){
-//            if(egc.character.collides(e)!= null){
-//                System.out.println("character collided with an enemy");
-//            }
-//        }
-
-        //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
-        egc.grid.getNeighbors(egc.character.gamepos).stream()
-                .filter(t -> t.type == TileMap.TYPE.WALL)
-                .map(egc.character::collides) // stream of collisions that may be null
-                .filter(Objects::nonNull)
-                .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
-                    egc.character.setVelocity(egc.character.getVelocity().scale(-1));
-                    egc.character.update(delta);
-        });
-
-//        System.out.println(egc.character.gamepos);
-//         Tile currentTile = egc.grid.getTile(egc.character.gamepos); //Get the current tile type.
-//         if (currentTile.type == TileMap.TYPE.WALL && egc.character.collides(currentTile) != null) { //If the current tile is a wall and the player collides with it.
-//            Vector reverseVector = lastVector.negate(); //Get the negation of the last vector.
-//            egc.character.setVelocity(reverseVector); //Set the new velocity.
-//            egc.character.update(lastDelta); //Update the last delta.
-//         }
-
-        lastDelta = delta;
-        lastVector = v;
-
-
     }
 
-	@Override
-	public int getID() {
-		return ExplorerGameClient.PLAYINGSTATE;
+
+
+    @Override
+    public int getID() {
+        return ExplorerGameClient.PLAYINGSTATE;
 	}
 
 }

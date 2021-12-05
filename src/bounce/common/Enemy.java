@@ -25,7 +25,7 @@ public class Enemy extends Entity {
         super(x,y);
         gamepos = new Vector(x,y);
         velocity = new Vector(vx, vy);
-        health = 1;
+        health = 3;
         id = _id;
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));

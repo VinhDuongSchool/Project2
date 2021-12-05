@@ -16,6 +16,9 @@
 21 mouse aiming system (convert a mouse angle from the character into a game direction)
 9 enemy path finding
 8 tile functionality (wall collision/doors)
+18 enemy damaged/healed message
+25 send character dir to server
+26 Adjust wall collisions to use
 30 Subclass the Chracter class for the different types of characters.
 
 ## Open Issues ##
@@ -23,15 +26,14 @@
 14 rooms
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
 16 make firing a projectile integrated with character/enemy and use their current direction
-18 enemy damaged/healed message
 22 make gamepos private so updating it is easier
 23 projectile images
 24 character movement is still wonky
-25 send character dir to server
-26 Adjust wall collisions to use
 27 limit path finding to current room
 28 use dir and speed for enemies
 29 set dir enum for enemy while path finding
-31 Have the projectile be fired in all 8 directions.
+31 maybe use cost array for enemy pathfinding instead of a next array
+32 add dir to projectile message
+33 Have the projectile be fired in all 8 directions.
 
 

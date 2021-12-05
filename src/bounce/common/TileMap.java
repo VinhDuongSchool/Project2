@@ -54,12 +54,12 @@ public class TileMap {
                     tileType = "Floor";
                     t= TYPE.FLOOR;
                 }
-                tiles[x][y] = new Tile(0,0, new Vector(x*32, y*32),i,tileType);
+                tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i,tileType);
                 tiles[x][y].type = t;
             }
         }
         //(Kevin) test tile
-        var t = new Tile(0,0, new Vector(10*32, 10*32), ss.getSprite(0,2), "WALL");
+        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2), "WALL");
 //        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
         t.type = TYPE.WALL;
         tiles[10][10] = t;
