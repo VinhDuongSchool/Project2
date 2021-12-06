@@ -18,7 +18,7 @@ public class Projectile extends Entity {
     private Vector velocity; //Velocity vectore.
     private boolean hit;
     public int damage;
-    public Vector gamepos;
+    private Vector gamepos;
     public lib.DIRS curdir;
 
 
@@ -72,4 +72,14 @@ public class Projectile extends Entity {
         gamepos = gamepos.add(velocity.scale(delta)); //Move the projectile based off of the gamepos.
         setPosition(gamepos);
     } //Update base off of the velocity
+
+
+    public void setGamepos(Vector gamepos) {
+        this.gamepos = gamepos;
+        setPosition(gamepos);
+    }
+
+    public Vector getGamepos() {
+        return gamepos;
+    }
 }

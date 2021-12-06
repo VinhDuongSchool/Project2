@@ -163,9 +163,9 @@ public class ExplorerGameServer extends StateBasedGame {
             case FIRE_PROJECTILE:
             {
                 var c = characters[(int)m.id];
-                var p = new Projectile(c.gamepos, new Vector(0.1f, 0.1f), c.curdir);
+                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.curdir);
                 var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE);
-                nm.gamepos = p.gamepos;
+                nm.gamepos = p.getGamepos();
                 nm.velocity = p.getVelocity();
                 projectiles.add(p);
                 out_messages.add(nm);

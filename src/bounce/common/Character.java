@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class Character extends Entity {
 
     private Vector velocity; //Velocity vectore.
-    public Vector gamepos;
+    private Vector gamepos;
     public final long client_id;
     public long attack_timer;
     private ArrayList<Shape> attack_shapes;
@@ -180,6 +180,15 @@ public class Character extends Entity {
 
     public long getClient_id() {
         return client_id;
+    }
+
+    public void setGamepos(Vector gamepos) {
+        this.gamepos = gamepos;
+        setPosition(gamepos);
+    }
+
+    public Vector getGamepos() {
+        return gamepos;
     }
 }
 

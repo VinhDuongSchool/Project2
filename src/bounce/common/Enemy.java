@@ -15,7 +15,7 @@ public class Enemy extends Entity {
     public final long id;
 
     private Vector velocity; //Velocity vectore.
-    public Vector gamepos;
+    private Vector gamepos;
     private int health;
     public Tile goal;
     public float speed;
@@ -64,9 +64,9 @@ public class Enemy extends Entity {
         }else {
             gamepos = gamepos.add(velocity.scale(delta));
         }
-        setPosition(gamepos);
         //Kevin, setup next goal direction
         velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+        setPosition(gamepos);
 
     } //Update base off of the velocity
 
@@ -74,6 +74,12 @@ public class Enemy extends Entity {
     public int getHealth() { return health; }
 
 
+    public void setGamepos(Vector gamepos) {
+        this.gamepos = gamepos;
+        setPosition(gamepos);
+    }
 
-
+    public Vector getGamepos() {
+        return gamepos;
+    }
 }

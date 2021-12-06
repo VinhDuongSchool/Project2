@@ -39,7 +39,6 @@ public class ExplorerGameClient extends StateBasedGame {
     public static final String UR = "bounce/resource/UR.png";
     public static final String DR = "bounce/resource/DR.png";
 
-
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 
@@ -136,12 +135,12 @@ public class ExplorerGameClient extends StateBasedGame {
                 assert m.gamepos != null;
                 switch (m.etype){
                     case CHARACTER:
-                        allies.get(m.id).gamepos = m.gamepos;
+                        allies.get(m.id).setGamepos(m.gamepos);
                         break;
                     case PROJECTILE:
                         for (Projectile p : projectiles){
                             if(p.id == m.id){
-                                p.gamepos = m.gamepos;
+                                p.setGamepos(m.gamepos);
                                 break;
                             }
                         }
@@ -149,7 +148,7 @@ public class ExplorerGameClient extends StateBasedGame {
                     case ENEMY:
                         for (Enemy e : enemies){
                             if(e.id == m.id){
-                                e.gamepos = m.gamepos;
+                                e.setGamepos(m.gamepos);
                                 break;
                             }
                         }
@@ -250,7 +249,7 @@ public class ExplorerGameClient extends StateBasedGame {
             allies.put(ID, character);
             try {
                 var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sprite_x, sprite_y}, ID);
-                m.gamepos = character.gamepos;
+                m.gamepos = character.getGamepos();
                 out_stream.writeObject(m);
             } catch (IOException e) {
                 e.printStackTrace();

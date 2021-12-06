@@ -38,7 +38,7 @@ public class ClientPlayingState extends BasicGameState {
 
         container.setSoundOn(true);
 
-        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
+        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.getGamepos())));
 
         egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
@@ -52,12 +52,12 @@ public class ClientPlayingState extends BasicGameState {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
 
-        var screen_offset = lib.to_screen(new Vector( -egc.character.gamepos.getX(), -egc.character.gamepos.getY()), egc.screen_center);
+        var screen_offset = lib.to_screen(egc.character.getGamepos().scale(-1), egc.screen_center);
         egc.character.setPosition(egc.screen_center);
         egc.screenox = screen_offset.getX();
         egc.screenoy = screen_offset.getY();
 
-        egc.grid.render(g,screen_offset, egc.character.gamepos);
+        egc.grid.render(g,screen_offset, egc.character.getGamepos());
 
 
 
@@ -66,10 +66,10 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
         g.setColor(Color.blue);
-        g.drawRect(egc.character.gamepos.getX(), egc.character.gamepos.getY(), 32, 32);
+        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
         g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
         for (var e : egc.enemies){
-            g.drawRect(e.gamepos.getX(),e.gamepos.getY(),32,32);
+            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
         }
         g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
@@ -91,20 +91,20 @@ public class ClientPlayingState extends BasicGameState {
 
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
-            e.setPosition(lib.to_screen(e.gamepos, new Vector(egc.screenox, egc.screenoy)));
+            e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             e.render(g);
         }
         egc.character.render(g); //Render the character onto the screen.
 
         egc.projectiles.stream().forEach(p -> {
-            p.setPosition(lib.to_screen(p.gamepos, new Vector(egc.screenox, egc.screenoy)));
+            p.setPosition(lib.to_screen(p.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             p.render(g);
         });
 
         if(egc.is_connected){
             for (var c : egc.allies.values()){
                 if (c.client_id != egc.ID){
-                    c.setPosition(lib.to_screen(c.gamepos, new Vector(egc.screenox, egc.screenoy)));
+                    c.setPosition(lib.to_screen(c.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
                     c.render(g);
                 }
             }
@@ -119,7 +119,7 @@ public class ClientPlayingState extends BasicGameState {
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
         if(!egc.is_connected)
-            egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.gamepos)));
+            egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.getGamepos())));
 
 
         //(Kevin) deal with user input
@@ -224,14 +224,14 @@ public class ClientPlayingState extends BasicGameState {
         } else { //Kevin, update stuff as a solo program
             egc.character.curdir  =  characterDir;
             if(input.isKeyPressed(Input.KEY_F))
-                egc.projectiles.add(new Projectile(egc.character.gamepos, new Vector(0.1f, 0.1f), 0,egc.character.curdir)); //Set the initial location to the player.
+                egc.projectiles.add(new Projectile(egc.character.getGamepos(), new Vector(0.1f, 0.1f), 0,egc.character.curdir)); //Set the initial location to the player.
 
             //(Kevin) handle stuff when client isnt connected
             egc.character.setVelocity(characterVector);
             egc.character.update(delta); //Update the position of the player
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
-            egc.grid.getNeighbors(egc.character.gamepos).stream()
+            egc.grid.getNeighbors(egc.character.getGamepos()).stream()
                     .filter(t -> t.type == TileMap.TYPE.WALL)
                     .map(egc.character::collides) // stream of collisions that may be null
                     .filter(Objects::nonNull)
@@ -243,7 +243,7 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
-            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.gamepos)));
+            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos())));
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
