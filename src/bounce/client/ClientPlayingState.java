@@ -158,20 +158,22 @@ public class ClientPlayingState extends BasicGameState {
                     characterVector = UP_V.scale(-1).add(LEFT_V);
                     break;
                 default:
+                    assert false : "unreachable";
                     break;
             }
 
         }
 
-        int diridx = -1;
+        var mousePos = new Vector(input.getMouseX(), input.getMouseY());
+
+        //Kevin, m is mouse cords on screen, character is always in the sceen center,
+        //angleto gives the angle in degrees rotated by 180 for some reason,
+        //divide by 45 to convert into 8 directions, then round to get the angle index,
+        int diridx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
+
         //Kevin, attack when left mouse or I is pressed, (my mouse isnt recognized so i needed the i key lol)
         if(input.isKeyPressed(Input.MOUSE_LEFT_BUTTON) || input.isKeyPressed(Input.KEY_I)){
-            var m = new Vector(input.getMouseX(), input.getMouseY());
-            //Kevin, m is mouse cords on screen, character is always in the sceen center,
-            //angleto gives the angle in degrees rotated by 180 for some reason,
-            //divide by 45 to convert into 8 directions, then round to get the angle index,
             //0 and 8 map to the same value
-            diridx = (int)Math.round((m.angleTo(egc.screen_center)+180)/45);
             ArrayList<lib.DIRS> attack_dirs;
             if (diridx == 0 || diridx == 8){
                 //Kevin, deal with edge case
@@ -224,7 +226,7 @@ public class ClientPlayingState extends BasicGameState {
         } else { //Kevin, update stuff as a solo program
             egc.character.curdir  =  characterDir;
             if(input.isKeyPressed(Input.KEY_F))
-                egc.projectiles.add(new Projectile(egc.character.getGamepos(), new Vector(0.1f, 0.1f), 0,egc.character.curdir)); //Set the initial location to the player.
+                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
 
             //(Kevin) handle stuff when client isnt connected
             egc.character.setVelocity(characterVector);
