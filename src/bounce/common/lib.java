@@ -23,14 +23,21 @@ public class lib {
     });
 
     public static enum DIRS {
-        NORTH,
-        NORTHEAST,
-        NORTHWEST,
-        WEST,
-        EAST,
-        SOUTH,
-        SOUTHWEST,
-        SOUTHEAST
+        //Kevin, values number clockwise from NORTH
+        NORTH(0),
+        NORTHEAST(1),
+        NORTHWEST(7),
+        WEST(6),
+        EAST(2),
+        SOUTH(4),
+        SOUTHWEST(5),
+        SOUTHEAST(3);
+
+        private final int val;
+
+        DIRS(int value){
+            this.val = value;
+        }
     }
 
     //Kevin, convert an int into a dir, mainly used to convert a mouse direction into a dir, 0 and 8 are the same to deal with 360-0 boundry
@@ -47,6 +54,10 @@ public class lib {
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE}), DIRS.SOUTHEAST);
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE}), DIRS.NORTHEAST);
     }};
+
+    public static Vector dir_enum_to_vector(DIRS d){
+        return (new Vector(1,0)).rotate(45 * d.val);
+    }
 
     //Kevin, abstraction on how wasd is converted into a dir
     public static DIRS wasd_to_dir(List<Boolean> wasd){

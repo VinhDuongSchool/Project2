@@ -7,9 +7,9 @@ import jig.Vector;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import org.newdawn.slick.Color;
 
 
 public class Enemy extends Entity {
@@ -60,14 +60,13 @@ public class Enemy extends Entity {
     } //Get the velocity
 
     public void update(final int delta, Tile curt, Character[] characterVector) {
-        float distance = 100000; //Placeholder distance
-        for (bounce.common.Character c : characterVector) { //Get the distance of each enemy.
-            distance = c.getGamepos().distance(gamepos);
-        }
+        Vector cp = Arrays.stream(characterVector)
+                .map(Character::getGamepos)
+                .min((a,b)-> (int)(gamepos.distance(a) - gamepos.distance(b))).get();
 
+       float distance = gamepos.distance(cp);
 
-
-        if (distance <= 40 && moving == true) { //If the distance is less than 40
+        if (distance <= 40 && moving) { //If the distance is less than 40
             moving = false; //The enemy should stop moving
             attack_timer = 3000; //Set a timer.
             var offsetdirs = new HashMap<lib.DIRS, Vector>(){{ //Offset for the boxes
@@ -85,7 +84,7 @@ public class Enemy extends Entity {
             attack_shapes.add(s);
             addShape(s, offsetdirs.get(lib.DIRS.NORTH));
 
-        } else if (moving == true) { //If the enemy is still moving then continue getting close to the player.
+        } else if (moving) { //If the enemy is still moving then continue getting close to the player.
             if (goal == null){
                 goal = curt.next;
             }

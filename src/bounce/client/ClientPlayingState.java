@@ -123,46 +123,12 @@ public class ClientPlayingState extends BasicGameState {
 
 
         //(Kevin) deal with user input
-        // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector characterVector = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         var characterDir = lib.wasd_to_dir(inp);
-        if (characterDir != null){
-//            System.out.println(d);
-            var UP_V = new Vector(0.2f,0).unit().scale(.2f);
-            var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
-            // todo fix long ass switch
-            switch (characterDir){
-                case NORTH:
-                    characterVector = UP_V;
-                    break;
-                case SOUTH:
-                    characterVector = UP_V.scale(-1);
-                    break;
-                case WEST:
-                    characterVector = LEFT_V;
-                    break;
-                case EAST:
-                    characterVector = LEFT_V.scale(-1);
-                    break;
-                case NORTHEAST:
-                    characterVector = UP_V.add(LEFT_V.scale(-1));
-                    break;
-                case NORTHWEST:
-                    characterVector = UP_V.add(LEFT_V);
-                    break;
-                case SOUTHEAST:
-                    characterVector = UP_V.scale(-1).add(LEFT_V.scale(-1));
-                    break;
-                case SOUTHWEST:
-                    characterVector = UP_V.scale(-1).add(LEFT_V);
-                    break;
-                default:
-                    assert false : "unreachable";
-                    break;
-            }
 
-        }
+        if (characterDir != null)
+            characterVector = lib.dir_enum_to_vector(characterDir).scale(0.3f);
 
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
 
@@ -245,8 +211,8 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
-            bounce.common.Character[] characterArray = new bounce.common.Character[] {egc.character};
-            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos()), characterArray));
+            //Kevin, make  an array of characters because thats what the server would give to the method
+            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos()), new bounce.common.Character[] {egc.character}));
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
