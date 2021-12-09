@@ -14,6 +14,7 @@ public class Tile extends Entity {
     public String tileType;
     public TileMap.TYPE type;
     public Tile next;
+    public Room room;
 
     public Vector gamepos;
 
@@ -22,6 +23,12 @@ public class Tile extends Entity {
        addImage(img);
        gamepos = gp;
        addShape(new ConvexPolygon(lib.sqr.getPoints()));
+    }
+
+    public Tile(float x, float y, Image img, TileMap.TYPE t, Room r){
+        this(x, y, new Vector(x, y), img);
+        this.type = t;
+        this.room = r;
     }
 
 }

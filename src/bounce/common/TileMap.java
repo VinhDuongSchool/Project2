@@ -513,36 +513,104 @@ public class TileMap {
         room = System.getProperty("user.dir") + "\\Project2\\src\\bounce\\resource\\"+room;
 
         var r = new Room();
+
+        //Kevin, parsing a level file:
+        //first line = room corner description ie 2 point rectangle form
+        //all other lines define inner stuff:
+        //first number: type 1 = wall, 99 = temp door case
+        //second: number of tiles to insert
+        //third: direction to insert tiles, y = 1, x = 0
+        //fourth: start tile, it must be within the walls of the room
+
         try {
             var ft = new BufferedReader(new FileReader(room));
-            var lines  = ft.lines().map(s -> Arrays.stream(s.split(" ")).map(Integer::parseInt).collect((Collectors.toCollection(ArrayList::new)))).collect(Collectors.toCollection(ArrayList::new));
-            var size = lines.get(0).toArray(new Integer[0]);
-            System.out.println(Arrays.toString(size));
-            int x1 = size[0];
-            int y1 = size[1];
-            int x2 = size[2];
-            int y2 = size[3];
+
+            //Kevin, convert lines to int arrays instead of array list
+            //because indexing is cleaner than .get() on an array list
+            var lines  = ft.lines()
+                    .map(s -> Arrays.stream(s.split(" "))
+                            .map(Integer::parseInt)
+                            .toArray(Integer[]::new))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            var cords = lines.get(0);
+            System.out.println(Arrays.toString(cords));
+            final int x1 = cords[0];
+            final int y1 = cords[1];
+            final int x2 = cords[2];
+            final int y2 = cords[3];
 
             for(int x = x1; x < x2; x++){
                 for(int y = y1; y < y2; y++){
-                    //Kevin, edge
+                    //Kevin, add room edges
                     if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
-                        tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),ss.getSprite(0,2));
-                        tiles[x][y].type = TYPE.WALL;
+                        tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
+                    } else {
+                        tiles[x][y] = new Tile(x*32, y*32, ss.getSprite(10, 4), TYPE.FLOOR, r);
                     }
-
                 }
-
-
             }
 
-            lines.stream().skip(1).filter(l -> l.size() >= 1).forEach(System.out::println);
+            lines.stream().skip(1).filter(l -> l.length >= 1).forEach(l -> {
+                System.out.println(Arrays.toString(l));
+                int type = l[0];
+                int count = l[1];
+                int dir = l[2];
+                int xp = l[3];
+                int yp = l[4];
+
+                //Kevin, 0 or 1 depending on dir
+                int xdir = 1 & ~(0 ^ dir);
+                int ydir = 1 & ~(1 ^ dir);
+
+                TYPE t;
+                Image img;
+                switch (type){
+                    case 1:
+                       t = TYPE.WALL;
+                       img = ss.getSprite(0,2);
+                       break;
+
+                    case 99:
+                        //Kevin, this is a temp function
+                        // doors should be dynamically added to rooms later when hallways are generated
+                        t = TYPE.DOOR;
+                        if(xp == x1){
+                            img = ss.getSprite(12,4);
+                        } else if (yp == y1){
+                            img = ss.getSprite(11,4);
+                        } else {
+                            throw new IllegalStateException("Unexpected value: " + xp + " " + yp);
+                        }
+
+                        tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
+                        xp += xdir;
+                        yp += ydir;
+                        tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
+                        return;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + type);
+                }
+
+                //Kevin, assert tile are within the room
+                assert x1 < xp && (xp + count * xdir) < x2-1;
+                assert y1 < yp && (yp + count * ydir) < y2-1;
+
+                //Kevin, insert the tile line into the map
+                for(int i = 0; i < count; i++){
+                    tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
+                    xp += xdir;
+                    yp += ydir;
+                }
+            });
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
+
     public int[][] getPiArray() {
         return pi;
     }
 }
+
