@@ -35,5 +35,11 @@
 31 maybe use cost array for enemy pathfinding instead of a next array
 32 add dir to projectile message
 33 Have the projectile be fired in all 8 directions.
+34 fix projectile velocity
+35 ranged enemy mechanics
+37 melee enemy mechanics
+38 ranger mechanics
+39 warrior mechanics
+40 entity graphics
 
 
