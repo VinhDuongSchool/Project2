@@ -5,10 +5,14 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
 public class TileMap {
     public final Tile[][] tiles;
@@ -47,19 +51,17 @@ public class TileMap {
                 TYPE t;
                 if(y == 0 || x == 0){
                     i = ss.getSprite(0,2);
-                    tileType = "Wall";
                     t = TYPE.WALL;
                 } else {
                     i = ss.getSprite(10, 4);
-                    tileType = "Floor";
                     t= TYPE.FLOOR;
                 }
-                tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i,tileType);
+                tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i);
                 tiles[x][y].type = t;
             }
         }
         //(Kevin) test tile
-        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2), "WALL");
+        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2));
 //        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
         t.type = TYPE.WALL;
         tiles[10][10] = t;
@@ -71,12 +73,16 @@ public class TileMap {
         S = new int[tiles.length][tiles[0].length];
         d = new int[tiles.length][tiles[0].length];
         pi = new int[tiles.length][tiles[0].length];
+
+        addRoom("room1", ss);
     }
+
     public Tile getTile(Vector gamexy){
         int x = (int)Math.floor( gamexy.getX()/32.0f);
         int y = (int)Math.floor( gamexy.getY()/32.0f);
         return tiles[x][y];
     }
+
     public Tile getTile(float gamex, float gamey){
         int x = (int)Math.floor(gamex/32.0f);
         int y = (int)Math.floor(gamey/32.0f);
@@ -501,6 +507,41 @@ public class TileMap {
         }
     }
 
+    private void addRoom(String room, SpriteSheet ss){
+
+        //Kevin, add proper path to levels
+        room = System.getProperty("user.dir") + "\\Project2\\src\\bounce\\resource\\"+room;
+
+        var r = new Room();
+        try {
+            var ft = new BufferedReader(new FileReader(room));
+            var lines  = ft.lines().map(s -> Arrays.stream(s.split(" ")).map(Integer::parseInt).collect((Collectors.toCollection(ArrayList::new)))).collect(Collectors.toCollection(ArrayList::new));
+            var size = lines.get(0).toArray(new Integer[0]);
+            System.out.println(Arrays.toString(size));
+            int x1 = size[0];
+            int y1 = size[1];
+            int x2 = size[2];
+            int y2 = size[3];
+
+            for(int x = x1; x < x2; x++){
+                for(int y = y1; y < y2; y++){
+                    //Kevin, edge
+                    if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
+                        tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),ss.getSprite(0,2));
+                        tiles[x][y].type = TYPE.WALL;
+                    }
+
+                }
+
+
+            }
+
+            lines.stream().skip(1).filter(l -> l.size() >= 1).forEach(System.out::println);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
     public int[][] getPiArray() {
         return pi;
     }

@@ -17,11 +17,10 @@ public class Tile extends Entity {
 
     public Vector gamepos;
 
-    public Tile(final float x, final float y, Vector gp, Image img, String tp){
+    public Tile(final float x, final float y, Vector gp, Image img){
        super(x,y);
        addImage(img);
        gamepos = gp;
-       tileType = tp;
        addShape(new ConvexPolygon(lib.sqr.getPoints()));
     }
 
