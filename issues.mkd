@@ -35,5 +35,6 @@
 31 maybe use cost array for enemy pathfinding instead of a next array
 32 add dir to projectile message
 33 Have the projectile be fired in all 8 directions.
+34 Have the enemies top and add new hit box to the enemy.
 
 

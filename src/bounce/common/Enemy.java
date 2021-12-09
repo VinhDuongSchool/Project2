@@ -2,10 +2,14 @@ package bounce.common;
 
 import jig.ConvexPolygon;
 import jig.Entity;
+import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.newdawn.slick.Color;
 
 
 public class Enemy extends Entity {
@@ -19,7 +23,10 @@ public class Enemy extends Entity {
     private int health;
     public Tile goal;
     public float speed;
+    public long attack_timer;
+    public boolean moving = true;
     public Vector dir;
+    private ArrayList<Shape> attack_shapes;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -29,6 +36,7 @@ public class Enemy extends Entity {
         id = _id;
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
+        attack_shapes = new ArrayList<>();
     }
 
     public Enemy(Vector pos, Vector vel, Image img, long _id){
@@ -51,22 +59,56 @@ public class Enemy extends Entity {
         return velocity;
     } //Get the velocity
 
-    public void update(final int delta, Tile curt) {
-        if (goal == null){
-            goal = curt.next;
+    public void update(final int delta, Tile curt, Character[] characterVector) {
+        float distance = 100000; //Placeholder distance
+        for (bounce.common.Character c : characterVector) { //Get the distance of each enemy.
+            distance = c.getGamepos().distance(gamepos);
         }
 
-        //Kevin, if the distance to the next goal is less than how much we move setup next goal
-        var vs = velocity.scale(delta);
-        if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
-            gamepos = goal.gamepos;
-            goal = curt.next;
-        }else {
-            gamepos = gamepos.add(velocity.scale(delta));
+
+
+        if (distance <= 40 && moving == true) { //If the distance is less than 40
+            moving = false; //The enemy should stop moving
+            attack_timer = 3000; //Set a timer.
+            var offsetdirs = new HashMap<lib.DIRS, Vector>(){{ //Offset for the boxes
+                put(lib.DIRS.NORTH, new Vector(32, 0));
+                put(lib.DIRS.WEST, new Vector(0,-32));
+                put(lib.DIRS.EAST, new Vector(0,32 ));
+                put(lib.DIRS.SOUTH, new Vector(-32,0));
+                put(lib.DIRS.NORTHWEST, new Vector(32,-32));
+                put(lib.DIRS.NORTHEAST, new Vector(32,32));
+                put(lib.DIRS.SOUTHWEST, new Vector(-32,-32));
+                put(lib.DIRS.SOUTHEAST, new Vector(-32,32));
+            }};
+
+            var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
+            attack_shapes.add(s);
+            addShape(s, offsetdirs.get(lib.DIRS.NORTH));
+
+        } else if (moving == true) { //If the enemy is still moving then continue getting close to the player.
+            if (goal == null){
+                goal = curt.next;
+            }
+
+            //Kevin, if the distance to the next goal is less than how much we move setup next goal
+            var vs = velocity.scale(delta);
+            if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
+                gamepos = goal.gamepos;
+                goal = curt.next;
+            }else {
+                gamepos = gamepos.add(velocity.scale(delta));
+            }
+            //Kevin, setup next goal direction
+            velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+            setPosition(gamepos);
+        } else if (attack_timer <= 0) { //If the attack timer reaches zero
+            moving = true; //Then the enemy can move and remove the boxes.
+            attack_shapes.stream().forEach(this::removeShape);
+            attack_shapes.clear();
+
+        } else { //else decrement the attack timer.
+            attack_timer = attack_timer - delta;
         }
-        //Kevin, setup next goal direction
-        velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
-        setPosition(gamepos);
 
     } //Update base off of the velocity
 
