@@ -39,6 +39,42 @@ public class Projectile extends Entity {
             addImage(ResourceManager.getImage(ExplorerGameClient.UR));
         }
 
+        var UP_V = new Vector(0.2f,0).unit().scale(.2f); //To find out what the velocity should be based off the mouse direction.
+        var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
+        Vector tempVector;
+
+        switch (d){
+            case NORTH:
+                tempVector = UP_V;
+                break;
+            case SOUTH:
+                tempVector = UP_V.scale(-1);
+                break;
+            case WEST:
+                tempVector = LEFT_V;
+                break;
+            case EAST:
+                tempVector = LEFT_V.scale(-1);
+                break;
+            case NORTHEAST:
+                tempVector = UP_V.add(LEFT_V.scale(-1));
+                break;
+            case NORTHWEST:
+                tempVector = UP_V.add(LEFT_V);
+                break;
+            case SOUTHEAST:
+                tempVector = UP_V.scale(-1).add(LEFT_V.scale(-1));
+                break;
+            case SOUTHWEST:
+                tempVector = UP_V.scale(-1).add(LEFT_V);
+                break;
+            default:
+                tempVector = new Vector(0,0);
+                assert false : "unreachable";
+                break;
+        }
+
+        velocity = tempVector;
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         id = _id;
 

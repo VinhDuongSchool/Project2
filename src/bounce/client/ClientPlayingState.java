@@ -245,7 +245,8 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
-            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos())));
+            bounce.common.Character[] characterArray = new bounce.common.Character[] {egc.character};
+            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos()), characterArray));
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){

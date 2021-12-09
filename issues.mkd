@@ -37,6 +37,7 @@
 33 Have the projectile be fired in all 8 directions.
 34 fix projectile velocity
 35 ranged enemy mechanics
+36 Have the enemies top and add new hit box to the enemy.
 37 melee enemy mechanics
 38 ranger mechanics
 39 warrior mechanics
