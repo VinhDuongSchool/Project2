@@ -22,7 +22,7 @@ public class TileMap {
     private int[][] d;
     private int[][] pi;
 
-    private int[][] costs;
+    private float[][] costs;
     private Vector[][] DirToNext;
 
 
@@ -45,7 +45,7 @@ public class TileMap {
 
         rooms = new ArrayList<>();
         tiles = new Tile[tilesx][tilesy];
-        costs = new int[tilesx][tilesy];
+        costs = new float[tilesx][tilesy];
         DirToNext = new Vector[tilesx][tilesy];
 
         for (int x = 0; x < tiles.length; x++){
@@ -134,9 +134,9 @@ public class TileMap {
 
     public void MakePath(ArrayList<Vector> goals){
         for(var arr : costs){
-            Arrays.fill(arr, Integer.MAX_VALUE - 100000);
+            Arrays.fill(arr, Float.MAX_VALUE - 100000); //Kevin, to prevent overflow errors probably
         }
-        PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingInt(v -> costs[v[0]][v[1]]));
+        PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingDouble(v -> costs[v[0]][v[1]]));
         //(Kevin) assuming goals are some game position
         goals.stream()
                 .filter(g -> // filter positions outside of the map (should be turned into an assertion later)
@@ -160,9 +160,10 @@ public class TileMap {
                     .forEach(t -> {
                         // (Kevin) ignore walls and set cost to +1
 //                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE-10 : costs[t[0]][t[1]];
-                        int cost = costs[t[0]][t[1]];
-                        if (tiles[t[0]][t[1]].type != TYPE.WALL && curcost + 1 < cost){
-                            costs[t[0]][t[1]] = curcost + 1;
+                        float cost = costs[t[0]][t[1]];
+                        float new_cost = curcost + ((((cur[0] - t[0]) == 0) != ((cur[1] - t[1]) == 0)) ? 1 : (float) Math.sqrt(2));
+                        if (tiles[t[0]][t[1]].type != TYPE.WALL && new_cost < cost){
+                            costs[t[0]][t[1]] = new_cost;
                             DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
                             tiles[t[0]][t[1]].next = curt;
                             tocheck.add(t);

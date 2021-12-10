@@ -91,7 +91,8 @@ public class Enemy extends Entity {
 
             //Kevin, if the distance to the next goal is less than how much we move setup next goal
             var vs = velocity.scale(delta);
-            if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
+            var gp = goal.gamepos;
+            if(gamepos.distanceSquared(gp) < vs.lengthSquared() || gamepos.equals(gp)){
                 gamepos = goal.gamepos;
                 goal = curt.next;
             }else {
@@ -99,7 +100,8 @@ public class Enemy extends Entity {
             }
             //Kevin, setup next goal direction
             velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
-            setPosition(gamepos);
+
+
         } else if (attack_timer <= 0) { //If the attack timer reaches zero
             moving = true; //Then the enemy can move and remove the boxes.
             attack_shapes.stream().forEach(this::removeShape);
@@ -108,6 +110,7 @@ public class Enemy extends Entity {
         } else { //else decrement the attack timer.
             attack_timer = attack_timer - delta;
         }
+        setPosition(gamepos);
 
     } //Update base off of the velocity
 
