@@ -110,6 +110,12 @@ public class ClientPlayingState extends BasicGameState {
             }
         }
         //System.out.println(egc.character.gamepos);
+        egc.grid.rooms.get(0).room_hitbox.render(g);
+        var r = egc.grid.rooms.get(0);
+        g.drawRect(r.x, r.y, r.width, r.height);
+
+        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
+
 	}
 
 	@Override
@@ -194,6 +200,7 @@ public class ClientPlayingState extends BasicGameState {
 //        }
 
 
+
         if(egc.is_connected){ //Kevin, run with a server
             var messages = new ArrayList<Message>();
             if (!egc.character.getVelocity().equals(characterVector)){
@@ -234,7 +241,7 @@ public class ClientPlayingState extends BasicGameState {
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
             egc.grid.getNeighbors(egc.character.getGamepos()).stream()
-                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .filter(t -> t.type == TileMap.TYPE.WALL || (t.type == TileMap.TYPE.DOOR && !((Door)t).is_open)) //hmmmmmmmmmmmmmm
                     .map(egc.character::collides) // stream of collisions that may be null
                     .filter(Objects::nonNull)
                     .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
@@ -257,6 +264,15 @@ public class ClientPlayingState extends BasicGameState {
                     }
                 }
             }
+
+//            egc.grid.update(new Character[]{egc.character});
+
+            //Kevin, temp room open/close keys
+            if(input.isKeyPressed(Input.KEY_O))
+                egc.grid.rooms.forEach(Room::open);
+            if(input.isKeyPressed(Input.KEY_P))
+                egc.grid.rooms.forEach(Room::close);
+
 
             //(Kevin) remove dead/hit/etc stuff
             egc.enemies.removeIf(e -> e.getHealth() <=0);

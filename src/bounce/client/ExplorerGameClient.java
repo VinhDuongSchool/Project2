@@ -43,7 +43,7 @@ public class ExplorerGameClient extends StateBasedGame {
 	public final int ScreenHeight;
 
     public final Vector screen_center;
-    public SpriteSheet game_sprites;
+    public static SpriteSheet game_sprites;
     public float screenox;
     public float screenoy;
     public boolean is_connected;
@@ -213,7 +213,6 @@ public class ExplorerGameClient extends StateBasedGame {
         addState(new ClientPlayingState());
 		addState(new StartUpState());
 		addState(new GameOverState());
-
 
 
 		// the sound resource takes a particularly long time to load,
