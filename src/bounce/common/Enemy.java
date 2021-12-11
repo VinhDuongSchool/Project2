@@ -8,7 +8,6 @@ import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -24,9 +23,9 @@ public class Enemy extends Entity {
     public Tile goal;
     public float speed;
     public long attack_timer;
-    public boolean moving = true;
     public Vector dir;
     private ArrayList<Shape> attack_shapes;
+    public lib.DIRS curdir;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -59,6 +58,16 @@ public class Enemy extends Entity {
         return velocity;
     } //Get the velocity
 
+    public void attack(Vector cp){
+        attack_timer = 3000; //Set a timer.
+
+        int diridx = (int)Math.round((cp.angleTo(gamepos)+180)/45);
+        var offsetdir = lib.dir_enum_to_dir_vector(lib.angle_index_to_dir[diridx]);
+        var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
+        attack_shapes.add(s);
+        addShape(s, offsetdir.scale(32.0f));
+    }
+
     public void update(final int delta, Tile curt, Character[] characterVector) {
         Vector cp = Arrays.stream(characterVector)
                 .map(Character::getGamepos)
@@ -66,25 +75,19 @@ public class Enemy extends Entity {
 
        float distance = gamepos.distance(cp);
 
-        if (distance <= 40 && moving) { //If the distance is less than 40
-            moving = false; //The enemy should stop moving
-            attack_timer = 3000; //Set a timer.
-            var offsetdirs = new HashMap<lib.DIRS, Vector>(){{ //Offset for the boxes
-                put(lib.DIRS.NORTH, new Vector(32, 0));
-                put(lib.DIRS.WEST, new Vector(0,-32));
-                put(lib.DIRS.EAST, new Vector(0,32 ));
-                put(lib.DIRS.SOUTH, new Vector(-32,0));
-                put(lib.DIRS.NORTHWEST, new Vector(32,-32));
-                put(lib.DIRS.NORTHEAST, new Vector(32,32));
-                put(lib.DIRS.SOUTHWEST, new Vector(-32,-32));
-                put(lib.DIRS.SOUTHEAST, new Vector(-32,32));
-            }};
+        if (distance <= 40 && attack_timer <= 0) { //If the distance is less than 40
+            System.out.println("attacked");
+            attack(cp);
+        }
 
-            var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
-            attack_shapes.add(s);
-            addShape(s, offsetdirs.get(lib.DIRS.NORTH));
+        //Kevin, if we are done attacking remove shapes
+        if(attack_shapes.size() > 0 && attack_timer <= 0){
+            attack_shapes.stream().forEach(this::removeShape);
+            attack_shapes.clear();
+        }
 
-        } else if (moving) { //If the enemy is still moving then continue getting close to the player.
+        //Kevin, do movement stuff
+        if (attack_timer <= 0) { //If the enemy is still moving then continue getting close to the player.
             if (goal == null){
                 goal = curt.next;
             }
@@ -95,6 +98,8 @@ public class Enemy extends Entity {
             if(gamepos.distanceSquared(gp) < vs.lengthSquared() || gamepos.equals(gp)){
                 gamepos = goal.gamepos;
                 goal = curt.next;
+                curdir = lib.dir_from_point_to_point(goal.gamepos, gamepos);
+                System.out.println(curdir);
             }else {
                 gamepos = gamepos.add(velocity.scale(delta));
             }
@@ -102,15 +107,11 @@ public class Enemy extends Entity {
             velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
 
 
-        } else if (attack_timer <= 0) { //If the attack timer reaches zero
-            moving = true; //Then the enemy can move and remove the boxes.
-            attack_shapes.stream().forEach(this::removeShape);
-            attack_shapes.clear();
 
-        } else { //else decrement the attack timer.
-            attack_timer = attack_timer - delta;
+            setPosition(gamepos);
+        } else { //attack timer is  > 0 so decrement it
+            attack_timer -= delta;
         }
-        setPosition(gamepos);
 
     } //Update base off of the velocity
 

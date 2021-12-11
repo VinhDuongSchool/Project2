@@ -39,7 +39,7 @@ public class Projectile extends Entity {
             addImage(ResourceManager.getImage(ExplorerGameClient.UR));
         }
 
-        velocity = lib.dir_enum_to_vector(d).scale(0.4f);
+        velocity = lib.dir_enum_to_unit_vector(d).scale(0.4f);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         id = _id;
 

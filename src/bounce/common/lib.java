@@ -55,8 +55,19 @@ public class lib {
         put(List.of(new Boolean[]{Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE}), DIRS.NORTHEAST);
     }};
 
-    public static Vector dir_enum_to_vector(DIRS d){
+    public static Vector dir_enum_to_unit_vector(DIRS d){
         return (new Vector(1,0)).rotate(45 * d.val);
+    }
+
+    public static Vector dir_enum_to_dir_vector(DIRS d){
+        var v= dir_enum_to_unit_vector(d);
+        return new Vector(Math.signum(v.getX()), Math.signum(v.getY()));
+    }
+
+    public static DIRS dir_from_point_to_point(Vector a, Vector b){
+        double ang = (a.angleTo(b)+180 + 360 - 45)%360;
+        int diridx = (int)Math.round((ang)/45);
+        return lib.angle_index_to_dir[diridx];
     }
 
     //Kevin, abstraction on how wasd is converted into a dir

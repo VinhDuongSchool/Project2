@@ -21,24 +21,23 @@
 26 Adjust wall collisions to use
 30 Subclass the Chracter class for the different types of characters.
 22 make gamepos private so updating it is easier
+14 rooms
+24 character movement is still wonky
+34 fix projectile velocity
+36 Have the enemies stop and add new hit box to the enemy.
+33 Have the projectile be fired in all 8 directions.
 
 ## Open Issues ##
-7 attacks can collide
-14 rooms
+7 attacks can collide with wall
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
 16 make firing a projectile integrated with character/enemy and use their current direction
 23 projectile images
-24 character movement is still wonky
 27 limit path finding to current room
 28 use dir and speed for enemies
 29 set dir enum for enemy while path finding
 31 maybe use cost array for enemy pathfinding instead of a next array
 32 add dir to projectile message
-33 Have the projectile be fired in all 8 directions.
-34 fix projectile velocity
 35 ranged enemy mechanics
-36 Have the enemies top and add new hit box to the enemy.
-37 melee enemy mechanics
 38 ranger mechanics
 39 warrior mechanics
 40 entity graphics

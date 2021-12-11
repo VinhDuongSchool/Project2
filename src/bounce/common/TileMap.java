@@ -10,6 +10,7 @@ import org.newdawn.slick.SpriteSheet;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -72,7 +73,17 @@ public class TileMap {
         d = new int[tiles.length][tiles[0].length];
         pi = new int[tiles.length][tiles[0].length];
 
-        addRoom("room1", ss);
+        //Kevin, load all defined rooms
+        //lazy and dont want to deal with searching for files and testing if they exist
+        int i = 1;
+        while (true){
+            try {
+                addRoom("room"+i, ss);
+            } catch (IOException e) {
+                break;
+            }
+            i++;
+        }
 
         int gpx = 6;
         int gpy = 6;
@@ -527,7 +538,8 @@ public class TileMap {
         }
     }
 
-    private void addRoom(String room, SpriteSheet ss){
+    private void addRoom(String room, SpriteSheet ss) throws FileNotFoundException {
+        System.out.println(room);
 
         //Kevin, add proper path to levels
         room = System.getProperty("user.dir") + "\\Project2\\src\\bounce\\resource\\"+room;
@@ -537,7 +549,7 @@ public class TileMap {
         Kevin, parsing a level file:
 
         first line = room definition in rectangle x y w h form
-        second line = door positions, they are defined W S E N, -1 means that side does not have a door
+        second line = door positions, they are defined S,W,N,E, -1 means that side does not have a door
         all other lines define inner stuff:
         first number: type 1 = wall, 99 = temp door case
         second: number of tiles to insert
@@ -545,117 +557,114 @@ public class TileMap {
         fourth: start tile, it must be within the walls of the room
          */
 
-        try {
-            var ft = new BufferedReader(new FileReader(room));
+        var ft = new BufferedReader(new FileReader(room));
 
-            //Kevin, convert lines to int arrays instead of array list
-            //because indexing is cleaner than .get() on an array list
-            var lines  = ft.lines()
-                    .map(s -> Arrays.stream(s.split(" "))
-                            .map(Integer::parseInt)
-                            .toArray(Integer[]::new))
-                    .collect(Collectors.toCollection(ArrayList::new));
+        //Kevin, convert lines to int arrays instead of array list
+        //because indexing is cleaner than .get() on an array list
+        var lines  = ft.lines()
+                .map(s -> Arrays.stream(s.split(" "))
+                        .map(Integer::parseInt)
+                        .toArray(Integer[]::new))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-            var cords = lines.get(0);
-            var r = new Room(cords);
-            System.out.println(Arrays.toString(cords));
+        var cords = lines.get(0);
+        var r = new Room(cords);
+        System.out.println(Arrays.toString(cords));
 
-            final int x1 = cords[0];
-            final int y1 = cords[1];
-            cords[2] += cords[0];
-            cords[3] += cords[1];
-            final int x2 = cords[2];
-            final int y2 = cords[3];
-
+        final int x1 = cords[0];
+        final int y1 = cords[1];
+        cords[2] += cords[0];
+        cords[3] += cords[1];
+        final int x2 = cords[2];
+        final int y2 = cords[3];
 
 
-            for(int x = x1; x < x2; x++){
-                for(int y = y1; y < y2; y++){
-                    //Kevin, add room edges
-                    if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
-                        tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
-                    } else {
-                        tiles[x][y] = new Tile(x*32, y*32, ss.getSprite(10, 4), TYPE.FLOOR, r);
-                    }
-                }
-            }
-
-            var doors =  lines.get(1);
-
-            //Kevin, insert doors by walking though defined cords (x1 y1 x2 y2)
-            for(int i = 0; i < 4; i ++){
-                int edgeBound = cords[i] - ((i > 1) ? 1 : 0);
-                int dir = doors[i];
-
-                if(dir == -1)
-                    continue;
-
-                //Kevin, get correct rotation of door based on if y cords or x cords
-                var img = ss.getSprite(12 - i % 2 ,4);
-                var t = TYPE.DOOR;
-
-                //Kevin, add door to the right edge and add the door to the room list
-                Function<Boolean, BiConsumer<Integer, Integer>> set_v = (v) -> { // EHHHHH it works
-                    final boolean vt = v;
-                    return (Integer a, Integer b) -> {
-                        var tl =  new Door(a*32, b*32, img, t, r, vt);
-                        r.doors.add(tl);
-                        tiles[a][b] = tl;
-                    };
-                };
-                BiConsumer<Integer, Integer> addDoor;
-                if(i % 2 == 0){
-                    addDoor = set_v.apply(false);
-                    addDoor.accept(edgeBound, dir);
-                    dir += 1;
-                    addDoor.accept(edgeBound, dir);
+        for(int x = x1; x < x2; x++){
+            for(int y = y1; y < y2; y++){
+                //Kevin, add room edges
+                if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
+                    tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
                 } else {
-                    addDoor = set_v.apply(true);
-                    addDoor.accept(dir, edgeBound);
-                    dir += 1;
-                    addDoor.accept(dir, edgeBound);
+                    tiles[x][y] = new Tile(x*32, y*32, ss.getSprite(10, 4), TYPE.FLOOR, r);
                 }
             }
-
-            lines.stream().skip(2).filter(l -> l.length >= 1).forEach(l -> {
-                System.out.println(Arrays.toString(l));
-                int type = l[0];
-                int count = l[1];
-                int dir = l[2];
-                int xp = l[3];
-                int yp = l[4];
-
-                //Kevin, 0 or 1 depending on dir
-                int xdir = 1 & ~(0 ^ dir);
-                int ydir = 1 & ~(1 ^ dir);
-
-                TYPE t;
-                Image img;
-                switch (type){
-                    case 1:
-                       t = TYPE.WALL;
-                       img = ss.getSprite(0,2);
-                       break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + type);
-                }
-
-                //Kevin, assert tile are within the room bounds
-                assert x1 <= xp && (xp + count * xdir) < x2;
-                assert y1 <= yp && (yp + count * ydir) < y2;
-
-                //Kevin, insert the tile line into the map
-                for(int i = 0; i < count; i++){
-                    tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
-                    xp += xdir;
-                    yp += ydir;
-                }
-            });
-
-            rooms.add(r);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
+
+        //S,W,N,E
+        var doors =  lines.get(1);
+
+        //Kevin, insert doors by walking though defined cords (x1 y1 x2 y2)
+        for(int i = 0; i < 4; i ++){
+            int edgeBound = cords[i] - ((i > 1) ? 1 : 0);
+            int dir = doors[i];
+
+            if(dir <= 0)
+                continue;
+
+            dir += cords[i%2 == 0 ? 1 : 0];
+            //Kevin, get correct rotation of door based on if y cords or x cords
+            var img = ss.getSprite(12 - i % 2 ,4);
+            var t = TYPE.DOOR;
+
+            //Kevin, add door to the right edge and add the door to the room list
+            Function<Boolean, BiConsumer<Integer, Integer>> set_v = (v) -> { // EHHHHH it works
+                final boolean vt = v;
+                return (Integer a, Integer b) -> {
+                    var tl =  new Door(a*32, b*32, img, t, r, vt);
+                    r.doors.add(tl);
+                    tiles[a][b] = tl;
+                };
+            };
+            BiConsumer<Integer, Integer> addDoor;
+            if(i % 2 == 0){
+                addDoor = set_v.apply(false);
+                addDoor.accept(edgeBound, dir);
+                dir += 1;
+                addDoor.accept(edgeBound, dir);
+            } else {
+                addDoor = set_v.apply(true);
+                addDoor.accept(dir, edgeBound);
+                dir += 1;
+                addDoor.accept(dir, edgeBound);
+            }
+        }
+
+        lines.stream().skip(2).filter(l -> l.length >= 1).forEach(l -> {
+            System.out.println(Arrays.toString(l));
+            int type = l[0];
+            int count = l[1];
+            int dir = l[2];
+            int xp = l[3]+x1;
+            int yp = l[4]+y1;
+
+            //Kevin, 0 or 1 depending on dir
+            int xdir = 1 & ~(0 ^ dir);
+            int ydir = 1 & ~(1 ^ dir);
+
+            TYPE t;
+            Image img;
+            switch (type){
+                case 1:
+                   t = TYPE.WALL;
+                   img = ss.getSprite(0,2);
+                   break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + type);
+            }
+
+            //Kevin, assert tile are within the room bounds
+            assert x1 < xp && (xp + count * xdir) < x2-1;
+            assert y1 < yp && (yp + count * ydir) < y2-1;
+
+            //Kevin, insert the tile line into the map
+            for(int i = 0; i < count; i++){
+                tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
+                xp += xdir;
+                yp += ydir;
+            }
+        });
+
+        rooms.add(r);
     }
 
     public int[][] getPiArray() {

@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public class ClientPlayingState extends BasicGameState {
 
+    Vector mp = new Vector(0,0);
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -71,6 +72,7 @@ public class ClientPlayingState extends BasicGameState {
         for (var e : egc.enemies){
             g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
         }
+//        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
         g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
@@ -134,9 +136,12 @@ public class ClientPlayingState extends BasicGameState {
         var characterDir = lib.wasd_to_dir(inp);
 
         if (characterDir != null)
-            characterVector = lib.dir_enum_to_vector(characterDir).scale(0.3f);
+            characterVector = lib.dir_enum_to_unit_vector(characterDir).scale(0.3f);
 
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
+
+
+//        System.out.println(lib.dir_from_point_to_point(mousePos, egc.screen_center));
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
         //angleto gives the angle in degrees rotated by 180 for some reason,
