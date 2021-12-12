@@ -155,7 +155,7 @@ public class ClientPlayingState extends BasicGameState {
                 attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
             }
             //Kevin, player melee converts directions into the correct hit boxes
-            egc.character.playermelee(attack_dirs);
+            egc.character.primary(attack_dirs);
         }
 
 //        Kevin, commented out until its used for something

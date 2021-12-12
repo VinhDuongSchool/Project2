@@ -25,6 +25,7 @@ public class Character extends Entity {
     public int magic;
     public int attack;
     public int speed;
+    public int countdown;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
@@ -53,7 +54,7 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public void playermelee(ArrayList<lib.DIRS> dirs){
+    public void primary(ArrayList<lib.DIRS> dirs){
         /**
          * looking at the grid we can asume that if this is a wariior
          */

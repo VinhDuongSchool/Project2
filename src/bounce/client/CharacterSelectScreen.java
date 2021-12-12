@@ -49,13 +49,13 @@ public class CharacterSelectScreen extends BasicGameState {
             egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(0,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyDown(Input.KEY_2)) {
-            egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(1,10), egc.character.client_id);
+            egc.character = new Archer(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(1,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyDown(Input.KEY_3)) {
-            egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(2,10), egc.character.client_id);
+            egc.character = new Rogue(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(2,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }else if (input.isKeyDown(Input.KEY_4)) {
-            egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(3,10), egc.character.client_id);
+            egc.character = new Mage(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(3,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }
     }
