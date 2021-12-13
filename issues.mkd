@@ -22,6 +22,8 @@
 30 Subclass the Chracter class for the different types of characters.
 22 make gamepos private so updating it is easier
 41 Create a select screen for classes.
+42 Implement structure for primary mechanic of each subclass.
+43 Have warrior implement melee attack and archer fire projectile.
 
 ## Open Issues ##
 7 attacks can collide
@@ -43,6 +45,6 @@
 38 ranger mechanics
 39 warrior mechanics
 40 entity graphics
-42 Implement structure for primary mechanic of each subclass.
+
 
 

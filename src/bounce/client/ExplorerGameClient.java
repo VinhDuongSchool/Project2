@@ -50,7 +50,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public boolean is_connected;
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
-    public ArrayList<Projectile> projectiles;
+    public static ArrayList<Projectile> projectiles;
 
     public ConcurrentLinkedQueue<Message> in_messages;
     public ObjectOutputStream out_stream;

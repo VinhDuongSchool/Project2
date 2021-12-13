@@ -24,8 +24,7 @@ public class Rogue extends Character {
     }
 
     @Override
-    public void primary(ArrayList<lib.DIRS> dirs) { //Primary attack
-        super.primary(dirs);
+    public void primary(ArrayList<lib.DIRS> dirs, final lib.DIRS d) { //Primary attack
         addImage(ExplorerGameClient.game_sprites.getSprite(2,11));
         countdown = 500;
     }
