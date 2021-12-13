@@ -8,9 +8,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -79,7 +77,7 @@ public class TileMap {
         while (true){
             try {
                 addRoom("room"+i, ss);
-            } catch (IOException e) {
+            } catch (NullPointerException e) {
                 break;
             }
             i++;
@@ -538,26 +536,25 @@ public class TileMap {
         }
     }
 
-    private void addRoom(String room, SpriteSheet ss) throws FileNotFoundException {
-        System.out.println(room);
-
-        //Kevin, add proper path to levels
-        room = System.getProperty("user.dir") + "\\Project2\\src\\bounce\\resource\\"+room;
-
-
+    private void addRoom(String room, SpriteSheet ss) throws NullPointerException {
         /*
         Kevin, parsing a level file:
 
         first line = room definition in rectangle x y w h form
+
         second line = door positions, they are defined S,W,N,E, -1 means that side does not have a door
+        cords are relative to the room start position
+
         all other lines define inner stuff:
-        first number: type 1 = wall, 99 = temp door case
+        first number: type 1 = wall
         second: number of tiles to insert
         third: direction to insert tiles, y = 1, x = 0
-        fourth: start tile, it must be within the walls of the room
+        fourth: start tile, it must be within the walls of the room, relative to room cords
          */
 
-        var ft = new BufferedReader(new FileReader(room));
+        var f =  getClass().getResourceAsStream("../resource/" + room);
+        var ft = new BufferedReader(new InputStreamReader(f));
+        System.out.println(room);
 
         //Kevin, convert lines to int arrays instead of array list
         //because indexing is cleaner than .get() on an array list
