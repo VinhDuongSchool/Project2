@@ -2,6 +2,7 @@ package bounce.client;
 
 import bounce.common.*;
 import jig.Vector;
+
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -9,7 +10,10 @@ import org.newdawn.slick.state.StateBasedGame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+
 
 /**
  * This state is active when the Game is being played. In this state, sound is
@@ -22,6 +26,8 @@ import java.util.Objects;
  * Transitions To GameOverState
  */
 public class ClientPlayingState extends BasicGameState {
+
+
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
