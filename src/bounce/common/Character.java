@@ -23,6 +23,7 @@ public class Character extends Entity {
     public int magic;
     public int attack;
     public int speed;
+    public int countdown;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {

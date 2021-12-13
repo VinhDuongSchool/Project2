@@ -21,11 +21,15 @@
 26 Adjust wall collisions to use
 30 Subclass the Chracter class for the different types of characters.
 22 make gamepos private so updating it is easier
+41 Create a select screen for classes.
+42 Implement structure for primary mechanic of each subclass.
+43 Have warrior implement melee attack and archer fire projectile.
 14 rooms
 24 character movement is still wonky
 34 fix projectile velocity
 36 Have the enemies stop and add new hit box to the enemy.
 33 Have the projectile be fired in all 8 directions.
+37 melee enemy mechanics
 
 ## Open Issues ##
 7 attacks can collide with wall

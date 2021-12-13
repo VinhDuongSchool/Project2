@@ -31,6 +31,7 @@ public class ExplorerGameClient extends StateBasedGame {
 	public static final int STARTUPSTATE = 0;
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
+    public static final int CHARACTERSELECTSTATE = 3;
 
     public static final String SPRITES = "bounce/resource/sprites.png";
     public static final String PROJECTILE = "bounce/resource/projectile.png";
@@ -49,7 +50,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public boolean is_connected;
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
-    public ArrayList<Projectile> projectiles;
+    public static ArrayList<Projectile> projectiles;
 
     public ConcurrentLinkedQueue<Message> in_messages;
     public ObjectOutputStream out_stream;
@@ -210,6 +211,7 @@ public class ExplorerGameClient extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         System.out.println("init states list");
+        addState(new CharacterSelectScreen());
         addState(new ClientPlayingState());
 		addState(new StartUpState());
 		addState(new GameOverState());

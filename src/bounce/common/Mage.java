@@ -1,5 +1,6 @@
 package bounce.common;
 
+import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Shape;
@@ -20,5 +21,23 @@ public class Mage extends Character {
         magic = 100;
         attack = 100;
         speed = 25;
+    }
+
+    @Override
+    public void primary(ArrayList<lib.DIRS> dirs, final lib.DIRS d) { //Primary attack
+        addImage(ExplorerGameClient.game_sprites.getSprite(3,11));
+        countdown = 500;
+    }
+
+    @Override
+    public void update(int delta) { //To check the countdown timer.
+        super.update(delta);
+        if (countdown > 0) {
+            countdown -= delta;
+            if (countdown <= 0) {
+                removeImage(ExplorerGameClient.game_sprites.getSprite(3,11));
+            }
+        }
+
     }
 }
