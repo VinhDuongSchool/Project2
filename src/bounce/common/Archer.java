@@ -1,20 +1,15 @@
 package bounce.common;
 
 import bounce.client.ExplorerGameClient;
-import jig.ConvexPolygon;
-import jig.Entity;
-import jig.Shape;
-import jig.Vector;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Optional;
 
 
 public class Archer extends Character {
-    //private Vector gamepos;
-    //private Vector velocity; //Velocity vectore.
+    Image temp_im;
+
     public Archer(final float x, final float y, final float vx, final float vy, Image img, long id) {
         super(x,y,vx,vy,img,id);
         health = 75;
@@ -23,24 +18,31 @@ public class Archer extends Character {
         magic = 0;
         attack = 75;
         speed = 50;
-        //gamepos = new Vector(x,y);
-        //velocity = new Vector(vx, vy);
     }
 
     @Override
-    public void primary(ArrayList<lib.DIRS> dirs, final lib.DIRS d) { //Primary attack
-        ExplorerGameClient.projectiles.add(new Projectile(gamepos, velocity, 0, d)); //To add a new projectile.
+    public Optional<ArrayList<Projectile>>primary(int dir_index) { //Primary attack
+//                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
+        temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
+        addImage(temp_im);
+        countdown = 500;
+
+        //Kevin, make a new projectile with the proper stats and return it
+        var d = lib.angle_index_to_dir[dir_index];
+        var p = new Projectile(super.getGamepos(), lib.dir_enum_to_unit_vector(d).scale(0.4f), 0, d);
+        var ar = new ArrayList<Projectile>();
+        ar.add(p);
+        return Optional.of(ar);
     }
 
     @Override
     public void update(int delta) { //To end the timer.
         super.update(delta);
-        if (countdown > 0) {
+        if (countdown <= 0) {
+            removeImage(temp_im);
+        } else {
             countdown -= delta;
-            if (countdown <= 0) {
-                removeImage(ExplorerGameClient.game_sprites.getSprite(1,11));
-            }
         }
-
     }
+
 }

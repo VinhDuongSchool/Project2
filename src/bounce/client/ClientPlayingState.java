@@ -149,20 +149,6 @@ public class ClientPlayingState extends BasicGameState {
         //divide by 45 to convert into 8 directions, then round to get the angle index,
         int diridx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
 
-        //Kevin, attack when left mouse or I is pressed, (my mouse isnt recognized so i needed the i key lol)
-        if(input.isKeyPressed(Input.MOUSE_LEFT_BUTTON) || input.isKeyPressed(Input.KEY_I)){
-            //0 and 8 map to the same value
-            ArrayList<lib.DIRS> attack_dirs;
-            if (diridx == 0 || diridx == 8){
-                //Kevin, deal with edge case
-                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
-            } else {
-                //Kevin, otherwise get neighbors directly
-                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
-            }
-            //Kevin, player melee converts directions into the correct hit boxes
-            egc.character.primary(attack_dirs, lib.angle_index_to_dir[diridx]);
-        }
 
 //        Kevin, commented out until its used for something
 //        for(Enemy e : egc.enemies){
@@ -202,12 +188,9 @@ public class ClientPlayingState extends BasicGameState {
                 egc.handle_message(m);
             }
 
-        } else { //Kevin, update stuff as a solo program
-            egc.character.curdir  =  characterDir;
-            if(input.isKeyPressed(Input.KEY_F))
-                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
-
+        } else {
             //(Kevin) handle stuff when client isnt connected
+            egc.character.curdir = characterDir;
             egc.character.setVelocity(characterVector);
             egc.character.update(delta); //Update the position of the player
 
@@ -219,7 +202,11 @@ public class ClientPlayingState extends BasicGameState {
                     .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
                         egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                         egc.character.update(delta);
+                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                     });
+
+            if(input.isKeyPressed(Input.KEY_F))
+                egc.character.primary(diridx).ifPresent(egc.projectiles::addAll);
 
 
             //(Kevin) update all other entities

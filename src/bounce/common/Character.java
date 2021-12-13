@@ -7,6 +7,7 @@ import jig.Vector;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 public class Character extends Entity {
@@ -15,7 +16,7 @@ public class Character extends Entity {
     private Vector gamepos;
     public final long client_id;
     public long attack_timer;
-    private ArrayList<Shape> attack_shapes;
+    public ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;
     public int health;
     public int defense;
@@ -52,30 +53,19 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public void playermelee(ArrayList<lib.DIRS> dirs){
-
-        //Kevin, if we already attacked cant attack again
-        if (attack_timer > 0)
-            return;
-
-        //Kevin, set attack timer, for each dir in the list create a new shape,
-        //keep a reference to the shape so we can delete it later,
-        //add the shape to the entity with the specific offset for the dir it should be in
-        attack_timer = 1000;
-        for(var d : dirs){
-            var s = new ConvexPolygon(lib.sqr.getPoints());
-            attack_shapes.add(s);
-            addShape(s,lib.dir_enum_to_dir_vector(d).scale(32));
-        }
+    public Optional<ArrayList<Projectile>> primary(int dir_index){
+        throw new IllegalStateException("don't call Character melee call some class melee");
     }
 
     public void update(final int delta) {
-        attack_timer -= delta;
         //Kevin, update the attack timer and if its 0 remove the attack shapes from the entity
         if (attack_timer <= 0){
             attack_shapes.stream().forEach(this::removeShape);
             attack_shapes.clear();
+        } else {
+            attack_timer -= delta;
         }
+
         gamepos = gamepos.add(velocity.scale(delta));
         setPosition(gamepos);
     } //Update base off of the velocity
