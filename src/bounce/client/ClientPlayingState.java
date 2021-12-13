@@ -2,7 +2,10 @@ package bounce.client;
 
 import bounce.common.*;
 import jig.Vector;
-import org.newdawn.slick.*;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -66,14 +69,14 @@ public class ClientPlayingState extends BasicGameState {
 //        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
-        g.setColor(Color.blue);
-        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
-        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
-        for (var e : egc.enemies){
-            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
-        }
+//        g.setColor(Color.blue);
+//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
+//        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
+//        for (var e : egc.enemies){
+//            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
+//        }
 //        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
-        g.setColor(Color.gray);
+//        g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 //        var p = new Polygon();
@@ -90,7 +93,10 @@ public class ClientPlayingState extends BasicGameState {
 //        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
 //        p.addPoint(v2.getX(), v2.getY());
 //        g.draw(p);
-
+//        egc.grid.rooms.get(0).room_hitbox.render(g);
+//        var r = egc.grid.rooms.get(0);
+//        g.drawRect(r.x, r.y, r.width, r.height);
+//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
             e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
@@ -112,11 +118,6 @@ public class ClientPlayingState extends BasicGameState {
             }
         }
         //System.out.println(egc.character.gamepos);
-        egc.grid.rooms.get(0).room_hitbox.render(g);
-        var r = egc.grid.rooms.get(0);
-        g.drawRect(r.x, r.y, r.width, r.height);
-
-        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
 	}
 

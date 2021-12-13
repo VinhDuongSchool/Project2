@@ -61,7 +61,11 @@ public class Enemy extends Entity {
     public void attack(Vector cp){
         attack_timer = 3000; //Set a timer.
 
-        int diridx = (int)Math.round((cp.angleTo(gamepos)+180)/45);
+        //Kevin, attack in the direction of the player
+        //not using lib.dir_from_point_to_point incase we need to add multiple shapes depending on direction
+
+        double ang = (cp.angleTo(gamepos)+180 + 360 - 45)%360;
+        int diridx = (int)Math.round((ang)/45);
         var offsetdir = lib.dir_enum_to_dir_vector(lib.angle_index_to_dir[diridx]);
         var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
         attack_shapes.add(s);
@@ -106,12 +110,11 @@ public class Enemy extends Entity {
             //Kevin, setup next goal direction
             velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
 
-
-
-            setPosition(gamepos);
         } else { //attack timer is  > 0 so decrement it
             attack_timer -= delta;
         }
+
+        setPosition(gamepos);
 
     } //Update base off of the velocity
 
