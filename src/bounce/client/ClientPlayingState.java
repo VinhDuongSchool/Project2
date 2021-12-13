@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 /**
  * This state is active when the Game is being played. In this state, sound is
  * turned on, the bounce counter begins at 0 and increases until 10 at which
