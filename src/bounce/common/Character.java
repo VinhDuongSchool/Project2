@@ -6,6 +6,7 @@ import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SpriteSheet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ public class Character extends Entity {
     public int magic;
     public int attack;
     public int speed;
+    public SpriteSheet spriteSheet;
+
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
@@ -37,6 +40,9 @@ public class Character extends Entity {
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         attack_shapes = new ArrayList<>();
+//        spriteSheet = new SpriteSheet(img,1,1);
+
+
     }
 
     public Character(Vector pos, Vector vel, Image img, long id){
@@ -168,6 +174,13 @@ public class Character extends Entity {
     }
 
     public void update(final int delta) {
+
+        //animations
+        if(true){
+
+
+        }
+
         attack_timer -= delta;
         //Kevin, update the attack timer and if its 0 remove the attack shapes from the entity
         if (attack_timer <= 0){
