@@ -2,6 +2,7 @@ package bounce.common;
 
 import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
+import jig.Vector;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
@@ -12,14 +13,14 @@ import java.util.Optional;
 public class Warrior extends Character {
     Image temp_im;
 
-    public Warrior(final float x, final float y, final float vx, final float vy, Image img, long id) {
-        super(x,y,vx,vy,img,id);
+    public Warrior(Vector gp, Vector v, Image img, long id) {
+        super(gp,v,img,id);
         health = 100;
         defense = 50;
         stamina = 100;
         magic = 0;
         attack = 50;
-        speed = 25;
+        speed = 0.3f;
     }
 
     @Override

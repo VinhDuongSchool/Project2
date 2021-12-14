@@ -5,15 +5,13 @@ import bounce.common.*;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
-import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,15 +156,23 @@ public class ExplorerGameClient extends StateBasedGame {
                 break;
             case ADD_ENTITY:
             {
-                assert m.gamepos != null;
-
                 switch (m.etype){
-                    case ENEMY:
+                    case ZOMBIE:
+                    {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new Zombie(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
                         break;
+                    }
+                    case SHADOWARCHER:
+                    {
+                        var e_data_arr = (Object[]) m.data;
+                        var spritex = (int) e_data_arr[0];
+                        var spritey = (int) e_data_arr[1];
+                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        break;
+                    }
                     case PROJECTILE:
                         projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
                         break;
@@ -188,7 +194,7 @@ public class ExplorerGameClient extends StateBasedGame {
             case SET_DIR:
             {
                 if(m.etype == Message.ENTITY_TYPE.CHARACTER && m.id != ID){
-                    allies.get(m.id).curdir = m.dir;
+                    allies.get(m.id).setCurdir(m.dir);
                 }
                 break;
             }
@@ -207,6 +213,32 @@ public class ExplorerGameClient extends StateBasedGame {
 
         }
     }
+
+    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
+        var im = game_sprites.getSprite(sx, sy);
+        var constructorType = new Class[]{Vector.class, Vector.class, Image.class, long.class};
+
+        try {
+             character = ct.getConstructor(constructorType).newInstance(gp,v,im,ID);
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+            throw new IllegalArgumentException("character initialization failed");
+        }
+
+        //(Kevin) send this clients character to everyone else
+        if (is_connected) {
+            allies.put(ID, character);
+            try {
+                var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sx, sy}, ID);
+                m.gamepos = character.getGamepos();
+                out_stream.writeObject(m);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
@@ -236,27 +268,15 @@ public class ExplorerGameClient extends StateBasedGame {
         screenoy = 0;
 
         // character will always render in the center of the screen
-        int sprite_x = 0;
-        int sprite_y = 10;
-        character = new Warrior(
-                32*5, 32*5,
-                0,0,
-                game_sprites.getSprite(sprite_x, sprite_y),
-                ID);  //Set up the character.
+//        int sprite_x = 0;
+//        int sprite_y = 10;
+//        character = new Warrior(
+//                32*5, 32*5,
+//                0,0,
+//                game_sprites.getSprite(sprite_x, sprite_y),
+//                ID);  //Set up the character.
 
         grid = new TileMap(100,100, game_sprites);
-        //(Kevin) send this clients character to everyone else
-        if (is_connected) {
-            allies.put(ID, character);
-            try {
-                var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sprite_x, sprite_y}, ID);
-                m.gamepos = character.getGamepos();
-                out_stream.writeObject(m);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
 	public static void main(String[] args) {

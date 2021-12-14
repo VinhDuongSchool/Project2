@@ -1,6 +1,7 @@
 package bounce.common;
 
 import bounce.client.ExplorerGameClient;
+import jig.Vector;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
@@ -10,14 +11,14 @@ import java.util.Optional;
 public class Archer extends Character {
     Image temp_im;
 
-    public Archer(final float x, final float y, final float vx, final float vy, Image img, long id) {
-        super(x,y,vx,vy,img,id);
+    public Archer(Vector gp, Vector v, Image img, long id) {
+        super(gp,v,img,id);
         health = 75;
         defense = 25;
         stamina = 100;
         magic = 0;
         attack = 75;
-        speed = 50;
+        speed = 0.3f;
     }
 
     @Override
@@ -29,7 +30,7 @@ public class Archer extends Character {
 
         //Kevin, make a new projectile with the proper stats and return it
         var d = lib.angle_index_to_dir[dir_index];
-        var p = new Projectile(super.getGamepos(), lib.dir_enum_to_unit_vector(d).scale(0.4f), d, 0, this);
+        var p = new Projectile(gamepos, lib.dir_enum_to_unit_vector(d).scale(0.4f), d, 0, this);
         var ar = new ArrayList<Projectile>();
         ar.add(p);
         return Optional.of(ar);

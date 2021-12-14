@@ -29,6 +29,8 @@ import java.util.Optional;
 public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
+    int lastMouseIdx = 0;
+
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -63,6 +65,8 @@ public class ClientPlayingState extends BasicGameState {
 			Graphics g) throws SlickException {
         ExplorerGameClient egc = (ExplorerGameClient)game;
 
+        if(egc.character == null)
+            throw new IllegalStateException("character not initialized");
 
         var screen_offset = lib.to_screen(egc.character.getGamepos().scale(-1), egc.screen_center);
         egc.character.setPosition(egc.screen_center);
@@ -135,28 +139,21 @@ public class ClientPlayingState extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
+        if(egc.character == null)
+            throw new IllegalStateException("character not initialized");
+
         if(!egc.is_connected)
             egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.getGamepos())));
 
-
         //(Kevin) deal with user input
-        Vector characterVector = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         var characterDir = lib.wasd_to_dir(inp);
-
-        if (characterDir != null)
-            characterVector = lib.dir_enum_to_unit_vector(characterDir).scale(0.3f);
-
-        var mousePos = new Vector(input.getMouseX(), input.getMouseY());
-
-
-//        System.out.println(lib.dir_from_point_to_point(mousePos, egc.screen_center));
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
         //angleto gives the angle in degrees rotated by 180 for some reason,
         //divide by 45 to convert into 8 directions, then round to get the angle index,
+        var mousePos = new Vector(input.getMouseX(), input.getMouseY());
         int diridx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
-
 
 //        Kevin, commented out until its used for something
 //        for(Enemy e : egc.enemies){
@@ -165,25 +162,22 @@ public class ClientPlayingState extends BasicGameState {
 //            }
 //        }
 
-
-
         if(egc.is_connected){ //Kevin, run with a server
             var messages = new ArrayList<Message>();
-            if (!egc.character.getVelocity().equals(characterVector)){
-                messages.add(new Message(Message.MSG_TYPE.SET_VELOCITY, characterVector, egc.ID));
-                egc.character.setVelocity(characterVector);
-            }
-            if(egc.character.curdir != characterDir){
-                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER));
-                egc.character.curdir = characterDir;
+
+            if(egc.character.getCurdir() != characterDir){
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(characterDir));
+                egc.character.setCurdir(characterDir);
             }
 
 
             if(input.isKeyPressed(Input.KEY_F))
                 messages.add(Message.builder(Message.MSG_TYPE.FIRE_PROJECTILE, egc.ID));
 
-            if(diridx >= 0)
+            if(diridx != lastMouseIdx){
                 messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID));
+                lastMouseIdx = diridx;
+            }
 
             messages.stream().forEach(m -> {
                 try {
@@ -198,8 +192,7 @@ public class ClientPlayingState extends BasicGameState {
 
         } else {
             //(Kevin) handle stuff when client isnt connected
-            egc.character.curdir = characterDir;
-            egc.character.setVelocity(characterVector);
+            egc.character.setCurdir(characterDir);
             egc.character.update(delta); //Update the position of the player
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision

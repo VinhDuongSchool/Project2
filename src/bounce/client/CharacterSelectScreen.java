@@ -2,14 +2,12 @@ package bounce.client;
 
 import bounce.common.*;
 import jig.Vector;
-import org.newdawn.slick.*;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -45,19 +43,22 @@ public class CharacterSelectScreen extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
+        var startpos = new Vector(32*5, 32*5);
+
         if (input.isKeyDown(Input.KEY_1)) { //Choose the character by selecting the information that is already in the character and load the appropiate image.
-            egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(0,10), egc.character.client_id);
+            egc.setCharacter(Warrior.class, startpos, lib.v0, 0, 10);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyDown(Input.KEY_2)) {
-            egc.character = new Archer(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(1,10), egc.character.client_id);
+            egc.setCharacter(Archer.class, startpos, lib.v0, 1, 10);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyDown(Input.KEY_3)) {
-            egc.character = new Rogue(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(2,10), egc.character.client_id);
+            egc.setCharacter(Rogue.class, startpos, lib.v0, 2, 10);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }else if (input.isKeyDown(Input.KEY_4)) {
-            egc.character = new Mage(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(3,10), egc.character.client_id);
+            egc.setCharacter(Mage.class, startpos, lib.v0, 3, 10);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }
+
     }
 
 

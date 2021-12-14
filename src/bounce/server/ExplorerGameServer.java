@@ -129,7 +129,7 @@ public class ExplorerGameServer extends StateBasedGame {
                 var spritey = (int) character_data_arr[1];
 
                 assert m.gamepos != null;
-                characters[(int) m.id] = (new Character(
+                characters[(int) m.id] = (new Warrior(
                         m.gamepos,
                         new Vector(0,0),
                         game_sprites.getSprite(spritex, spritey),
@@ -163,8 +163,8 @@ public class ExplorerGameServer extends StateBasedGame {
             case FIRE_PROJECTILE:
             {
                 var c = characters[(int)m.id];
-                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.curdir);
-                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, c.curdir, p.id, Message.ENTITY_TYPE.PROJECTILE);
+                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.getCurdir());
+                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, c.getCurdir(), p.id, Message.ENTITY_TYPE.PROJECTILE);
                 nm.gamepos = p.getGamepos();
                 nm.velocity = p.getVelocity();
                 projectiles.add(p);
@@ -174,7 +174,7 @@ public class ExplorerGameServer extends StateBasedGame {
             case SET_DIR:
             {
                 if(m.etype == Message.ENTITY_TYPE.CHARACTER){
-                    characters[(int) m.id].curdir = m.dir;
+                    characters[(int) m.id].setCurdir(m.dir);
                 }
                 out_messages.add(m);
                 break;

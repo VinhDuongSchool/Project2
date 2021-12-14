@@ -22,7 +22,9 @@ public class Message implements Serializable {
     public enum ENTITY_TYPE{
         CHARACTER,
         ENEMY,
-        PROJECTILE
+        PROJECTILE,
+        SHADOWARCHER,
+        ZOMBIE
     }
     public final MSG_TYPE type;
     public ENTITY_TYPE etype;
