@@ -1,6 +1,5 @@
 package bounce.common;
 
-import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
 import jig.Vector;
 import org.newdawn.slick.Image;
@@ -24,22 +23,22 @@ public class Warrior extends Character {
     }
 
     @Override
-    public Optional<ArrayList<Projectile>> primary(int diridx) {
+    public Optional<ArrayList<Projectile>> primary() {
         //0 and 8 map to the same value
         ArrayList<lib.DIRS> attack_dirs;
-        if (diridx == 0 || diridx == 8){
+        if (lookingDirIdx == 0 || lookingDirIdx == 8){
             //Kevin, deal with edge case
             attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
         } else {
             //Kevin, otherwise get neighbors directly
-            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
+            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[lookingDirIdx-1], lib.angle_index_to_dir[lookingDirIdx], lib.angle_index_to_dir[lookingDirIdx+1]}));
         }
 
         //Kevin, if we already attacked cant attack again
         if (attack_timer > 0)
             return Optional.empty();
 
-        temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
+        temp_im = lib.game_sprites.getSprite(0,11);
         addImage(temp_im);
         countdown = 500;
 

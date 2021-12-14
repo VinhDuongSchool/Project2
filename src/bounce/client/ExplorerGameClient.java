@@ -211,7 +211,7 @@ public class ExplorerGameClient extends StateBasedGame {
                 }
             }
 
-        }
+    }
     }
 
     public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
@@ -256,13 +256,13 @@ public class ExplorerGameClient extends StateBasedGame {
 		// attempt to do in the startUp() method.
 
 		// preload all the resources to avoid warnings & minimize latency...
-
         ResourceManager.loadImage(SPRITES);
         ResourceManager.loadImage(PROJECTILE);
         ResourceManager.loadImage(UD);
         ResourceManager.loadImage(LR);
         ResourceManager.loadImage(UR);
         ResourceManager.loadImage(DR);
+
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;

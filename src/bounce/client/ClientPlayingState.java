@@ -172,10 +172,10 @@ public class ClientPlayingState extends BasicGameState {
 
 
             if(input.isKeyPressed(Input.KEY_F))
-                messages.add(Message.builder(Message.MSG_TYPE.FIRE_PROJECTILE, egc.ID));
+                messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
 
             if(diridx != lastMouseIdx){
-                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID));
+                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(diridx));
                 lastMouseIdx = diridx;
             }
 
@@ -192,8 +192,11 @@ public class ClientPlayingState extends BasicGameState {
 
         } else {
             //(Kevin) handle stuff when client isnt connected
+
+            egc.character.lookingDirIdx = diridx;
             egc.character.setCurdir(characterDir);
             egc.character.update(delta); //Update the position of the player
+
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
             egc.grid.getNeighbors(egc.character.getGamepos()).stream()
@@ -207,7 +210,7 @@ public class ClientPlayingState extends BasicGameState {
                     });
 
             if(input.isKeyPressed(Input.KEY_F))
-                egc.character.primary(diridx).ifPresent(egc.projectiles::addAll);
+                egc.character.primary().ifPresent(egc.projectiles::addAll);
 
 
             //(Kevin) update all other entities

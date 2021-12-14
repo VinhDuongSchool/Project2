@@ -2,8 +2,10 @@ package bounce.common;
 
 
 import jig.ConvexPolygon;
+import jig.ResourceManager;
 import jig.Shape;
 import jig.Vector;
+import org.newdawn.slick.SpriteSheet;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,6 +15,33 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class lib {
+    public static final String SPRITES = "bounce/resource/sprites.png";
+    public static final String PROJECTILE = "bounce/resource/projectile.png";
+    public static final String UD = "bounce/resource/UD.png";
+    public static final String LR = "bounce/resource/LR.png";
+    public static final String UR = "bounce/resource/UR.png";
+    public static final String DR = "bounce/resource/DR.png";
+
+
+
+    public static SpriteSheet game_sprites;
+
+    private static boolean LOADEDSPRITES;
+
+    public static void LOAD_SPRITES_ONCE(){
+        if(LOADEDSPRITES)
+            return;
+
+        ResourceManager.loadImage(SPRITES);
+        ResourceManager.loadImage(PROJECTILE);
+        ResourceManager.loadImage(UD);
+        ResourceManager.loadImage(LR);
+        ResourceManager.loadImage(UR);
+        ResourceManager.loadImage(DR);
+
+        game_sprites  = ResourceManager.getSpriteSheet(SPRITES, 64,64);
+        LOADEDSPRITES = true;
+    }
 
     //Kevin, a square, to be used to make collision shapes for entities, so we dont have float arrays everywhere when all we want is offset squares
     public static Shape sqr = new ConvexPolygon(new float[]{

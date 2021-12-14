@@ -160,15 +160,24 @@ public class ExplorerGameServer extends StateBasedGame {
 
                 break;
             }
-            case FIRE_PROJECTILE:
+            case PRIMARY:
             {
-                var c = characters[(int)m.id];
-                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.getCurdir());
-                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, c.getCurdir(), p.id, Message.ENTITY_TYPE.PROJECTILE);
-                nm.gamepos = p.getGamepos();
-                nm.velocity = p.getVelocity();
-                projectiles.add(p);
-                out_messages.add(nm);
+                characters[(int)m.id].primary().ifPresent(projs -> {
+                    projectiles.addAll(projs);
+                    projs.stream().map(p -> (
+                        Message.builder(Message.MSG_TYPE.ADD_ENTITY, p.id)
+                                .setEtype(Message.ENTITY_TYPE.PROJECTILE)
+                                .setGamepos(p.getGamepos())
+                                .setDir(p.curdir)
+                                .setVelocity(p.getVelocity())
+                    )).forEach(out_messages::add);
+                });
+//                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.getCurdir());
+//                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, , p.id, Message.ENTITY_TYPE.PROJECTILE);
+//                nm.gamepos = p.getGamepos();
+//                nm.velocity = p.getVelocity();
+//                projectiles.add(p);
+//                out_messages.add(nm);
                 break;
             }
             case SET_DIR:
@@ -178,6 +187,10 @@ public class ExplorerGameServer extends StateBasedGame {
                 }
                 out_messages.add(m);
                 break;
+            }
+            case MOUSE_IDX:
+            {
+                characters[(int) m.id].lookingDirIdx = m.intData;
             }
         }
     }
@@ -198,6 +211,7 @@ public class ExplorerGameServer extends StateBasedGame {
         ResourceManager.loadImage(SPRITES);
         ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
+        lib.LOAD_SPRITES_ONCE();
         grid = new TileMap(100,100, game_sprites);
 
         //(Kevin) dont start run server until all clients are connected

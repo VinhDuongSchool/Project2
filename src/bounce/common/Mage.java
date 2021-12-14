@@ -22,7 +22,7 @@ public class Mage extends Character {
     }
 
     @Override
-    public Optional<ArrayList<Projectile>> primary(int dir_index) { //Primary attack
+    public Optional<ArrayList<Projectile>> primary() { //Primary attack
         temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
         addImage(temp_im);
         countdown = 500;

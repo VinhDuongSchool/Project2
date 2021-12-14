@@ -18,7 +18,7 @@ public class Projectile extends Entity {
     private Vector velocity; //Velocity vectore.
     private boolean hit;
     public int damage;
-    private Vector gamepos;
+    protected Vector gamepos;
     public lib.DIRS curdir;
     public Object sender;
 

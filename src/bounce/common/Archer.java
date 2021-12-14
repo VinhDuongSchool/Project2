@@ -22,14 +22,14 @@ public class Archer extends Character {
     }
 
     @Override
-    public Optional<ArrayList<Projectile>> primary(int dir_index) { //Primary attack
+    public Optional<ArrayList<Projectile>> primary() { //Primary attack
 //                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
         temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
         addImage(temp_im);
         countdown = 500;
 
         //Kevin, make a new projectile with the proper stats and return it
-        var d = lib.angle_index_to_dir[dir_index];
+        var d = lib.angle_index_to_dir[lookingDirIdx];
         var p = new Projectile(gamepos, lib.dir_enum_to_unit_vector(d).scale(0.4f), d, 0, this);
         var ar = new ArrayList<Projectile>();
         ar.add(p);

@@ -68,7 +68,7 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public Optional<ArrayList<Projectile>> primary(int dir_index){
+    public Optional<ArrayList<Projectile>> primary(){
         throw new IllegalStateException("don't call Character melee call some class melee");
     }
 

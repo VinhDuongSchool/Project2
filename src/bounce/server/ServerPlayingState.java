@@ -2,6 +2,7 @@ package bounce.server;
 
 import bounce.common.Character;
 import bounce.common.*;
+import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -40,14 +41,14 @@ public class ServerPlayingState extends BasicGameState {
         Enemy e;
         Message m;
         //TODO do better
-//        e = new Zombie(new Vector(64,32), new Vector(0, 0), egs.game_sprites.getSprite(0, 9));
-//        egs.enemies.add(e);
-//        egs.out_messages.add(Message.builder(
-//                Message.MSG_TYPE.ADD_ENTITY, e.id)
-//                .setEtype(Message.ENTITY_TYPE.ZOMBIE)
-//                .setGamepos(e.getGamepos())
-//                .setVelocity(e.getVelocity())
-//                .setData(new Object[]{0,9}));
+        e = new Zombie(new Vector(64,32), new Vector(0, 0), egs.game_sprites.getSprite(0, 9));
+        egs.enemies.add(e);
+        egs.out_messages.add(Message.builder(
+                Message.MSG_TYPE.ADD_ENTITY, e.id)
+                .setEtype(Message.ENTITY_TYPE.ZOMBIE)
+                .setGamepos(e.getGamepos())
+                .setVelocity(e.getVelocity())
+                .setData(new Object[]{0,9}));
 //        e = new Enemy(32*3,32*5, 0, 0, egs.game_sprites.getSprite(0, 9));
 //        egs.enemies.add(e);
 //        egs.out_messages.add( Message.add_entity(e.gamepos, e.getVelocity(),0,9, e.id, Message.ENTITY_TYPE.ENEMY));
@@ -103,6 +104,7 @@ public class ServerPlayingState extends BasicGameState {
             egs.enemies.remove(e);
             egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null,  e.id, Message.ENTITY_TYPE.ENEMY));
         }
+
 
 
         //Kevin, update enemies

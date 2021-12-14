@@ -12,11 +12,11 @@ public class Message implements Serializable {
         INIT_CHARACTER,
         ADD_ENTITY,
         REMOVE_ENTITY,
-        FIRE_PROJECTILE,
         MOUSE_IDX,
         SET_DIR,
         INIT_GRID,
-        SET_HP
+        SET_HP,
+        PRIMARY
     }
 
     public enum ENTITY_TYPE{
@@ -34,6 +34,7 @@ public class Message implements Serializable {
     public Vector velocity;
     public lib.DIRS dir;
     public int HP;
+    public int intData;
 
     public Message(MSG_TYPE t, Object d, long _id) {
         type = t;
@@ -117,6 +118,11 @@ public class Message implements Serializable {
 
     public Message setHP(int hp) {
         this.HP = hp;
+        return this;
+    }
+
+    public Message setIntData(int d) {
+        this.intData = d;
         return this;
     }
 }
