@@ -1,14 +1,18 @@
 package bounce.common;
 
+import jig.ConvexPolygon;
 import jig.Vector;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class TileMap {
     public final Tile[][] tiles;
@@ -17,8 +21,11 @@ public class TileMap {
     private int[][] d;
     private int[][] pi;
 
-    private int[][] costs;
-    private Vector[][] DirToNext;
+    private float[][] ranged_costs;
+    private float[][] costs;
+    private lib.DIRS[][] DirToNext;
+    private lib.DIRS[][] ranged_DirToNext;
+
 
 
     public enum TYPE{
@@ -26,6 +33,8 @@ public class TileMap {
         WALL,
         DOOR
     }
+
+    public ArrayList<Room> rooms;
 
     private final int maxx;
     private final int maxy;
@@ -36,9 +45,12 @@ public class TileMap {
         maxx = tilesx;
         maxy = tilesy;
 
+        rooms = new ArrayList<>();
         tiles = new Tile[tilesx][tilesy];
-        costs = new int[tilesx][tilesy];
-        DirToNext = new Vector[tilesx][tilesy];
+        costs = new float[tilesx][tilesy];
+        ranged_costs = new float[tilesx][tilesy];
+        DirToNext = new lib.DIRS[tilesx][tilesy];
+        ranged_DirToNext = new lib.DIRS[tilesx][tilesy];
 
         for (int x = 0; x < tiles.length; x++){
             for (int y = 0; y < tiles[0].length; y++){
@@ -47,43 +59,76 @@ public class TileMap {
                 TYPE t;
                 if(y == 0 || x == 0){
                     i = ss.getSprite(0,2);
-                    tileType = "Wall";
                     t = TYPE.WALL;
                 } else {
                     i = ss.getSprite(10, 4);
-                    tileType = "Floor";
                     t= TYPE.FLOOR;
                 }
-                tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i,tileType);
+                tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i);
                 tiles[x][y].type = t;
             }
         }
         //(Kevin) test tile
-        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2), "WALL");
-//        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
-        t.type = TYPE.WALL;
-        tiles[10][10] = t;
 //        t = new Tile(0,0, new Vector(11*32, 10*32), ss.getSprite(0,2), "WALL");
 //        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
-//        t.type = TYPE.WALL;
-//        tiles[11][10] = t;
 
         S = new int[tiles.length][tiles[0].length];
         d = new int[tiles.length][tiles[0].length];
         pi = new int[tiles.length][tiles[0].length];
+
+        //Kevin, load all defined rooms
+        //lazy and dont want to deal with searching for files and testing if they exist
+        int i = 1;
+        while (true){
+            try {
+                addRoom("room"+i, ss);
+            } catch (NullPointerException e) {
+                break;
+            }
+            i++;
+        }
+
+        int gpx = 6;
+        int gpy = 6;
+        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2));
+//        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
+        t.type = TYPE.WALL;
+        tiles[10][10] = t;
+
+        t.addShape(new ConvexPolygon(lib.sqr.getPoints()), Color.transparent, Color.blue);
+
     }
+
+    public void update(Character[] carr){
+
+        var r = rooms.get(0);
+
+//        System.out.println(r.room_hitbox.collides(carr[0]));
+        boolean all_in_room = Arrays.stream(carr).map(r.room_hitbox::collides).allMatch(Objects::nonNull);
+        if(all_in_room){
+            r.close();
+        }
+    }
+
     public Tile getTile(Vector gamexy){
         int x = (int)Math.floor( gamexy.getX()/32.0f);
         int y = (int)Math.floor( gamexy.getY()/32.0f);
         return tiles[x][y];
     }
+
     public Tile getTile(float gamex, float gamey){
         int x = (int)Math.floor(gamex/32.0f);
         int y = (int)Math.floor(gamey/32.0f);
         return tiles[x][y];
     }
 
-    public Vector getdir(Vector gamexy){
+    public lib.DIRS getranged_dir(Vector gamexy){
+        int x = (int)Math.floor( gamexy.getX()/32.0f);
+        int y = (int)Math.floor( gamexy.getY()/32.0f);
+        return ranged_DirToNext[x][y];
+    }
+
+    public lib.DIRS get_dir(Vector gamexy){
         int x = (int)Math.floor( gamexy.getX()/32.0f);
         int y = (int)Math.floor( gamexy.getY()/32.0f);
         return DirToNext[x][y];
@@ -109,9 +154,10 @@ public class TileMap {
 
     public void MakePath(ArrayList<Vector> goals){
         for(var arr : costs){
-            Arrays.fill(arr, Integer.MAX_VALUE - 100000);
+            Arrays.fill(arr, Float.MAX_VALUE - 100000); //Kevin, to prevent overflow errors probably
         }
-        PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingInt(v -> costs[v[0]][v[1]]));
+
+        PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingDouble(v -> costs[v[0]][v[1]]));
         //(Kevin) assuming goals are some game position
         goals.stream()
                 .filter(g -> // filter positions outside of the map (should be turned into an assertion later)
@@ -124,22 +170,96 @@ public class TileMap {
                         tocheck.add(new int[]{x,y});
                 });
 
-        //Kevin, set refernce for character tiles to themselves so when enemy reaches goal they dont error
-        tocheck.stream().forEach(t -> tiles[t[0]][t[1]].next = tiles[t[0]][t[1]]);
+        compute_paths(tocheck, costs, DirToNext);
+        /*
+//        direction validation testing code
+        for (int x = 0; x < tiles.length; x++){
+            for (int y = 0; y < tiles[0].length; y++){
+                var d = DirToNext[x][y];
+                if(d == null)
+                    continue;
+                if(d.val %2 == 0 ){
+                    var v = lib.dir_enum_to_dir_vector(d);
+                    assert tiles[x+(int) v.getX()][y+(int) v.getY()].type == TYPE.FLOOR;
+
+                } else {
+
+                    var v = lib.dir_enum_to_dir_vector(d);
+                    assert tiles[x+(int) v.getX()][y].type == TYPE.FLOOR;
+                    assert tiles[x][y+(int) v.getY()].type == TYPE.FLOOR;
+
+                }
+
+            }
+        }
+*/
+        MakeRangedPath(goals);
+    }
+
+    public void MakeRangedPath(ArrayList<Vector> goals){
+
+        //Kevin, make raycasted ranged path
+        for(var arr : ranged_costs){
+            Arrays.fill(arr, Float.MAX_VALUE - 100000); //Kevin, to prevent overflow errors probably
+        }
+
+        for(var arr : ranged_DirToNext){
+            Arrays.fill(arr, null); //Kevin, to prevent overflow errors probably
+        }
+
+
+        var tocheck = new PriorityQueue<int[]>(maxx, Comparator.comparingDouble(v -> ranged_costs[v[0]][v[1]]));
+        goals.stream()
+                .filter(g -> // filter positions outside of the map (should be turned into an assertion later)
+                        (0 <= g.getX() && g.getX() < maxx*32) &&
+                                (0 <= g.getY() && g.getY() < maxy*32))
+                .forEach(g -> { // initialize goal tiles to 0 and add them to queue
+                    int xs = (int)Math.floor(g.getX()/32.0f);
+                    int ys = (int)Math.floor(g.getY()/32.0f);
+                    ranged_costs[xs][ys] = 0;
+                    tocheck.add(new int[]{xs,ys});
+                    for (int x = -1; x <= 1; x++) {
+                        for (int y = -1; y <= 1; y++) {
+                            if(x == 0 && y == 0)
+                                continue;
+                            int xp = xs + x;
+                            int yp = ys + y;
+                            while (
+                                    (0 <= xp && xp < maxy) &&
+                                    (0 <= yp && yp < maxx) &&
+                                    (tiles[xp][yp].type != TYPE.DOOR) &&
+                                    (tiles[xp][yp].type != TYPE.WALL)
+                            ){
+                                ranged_costs[xp][yp] = 0;
+                                tocheck.add(new int[]{xp,yp});
+                                xp += x;
+                                yp += y;
+                            }
+                        }
+                    }
+                });
+
+        compute_paths(tocheck, ranged_costs, ranged_DirToNext);
+
+
+//        Arrays.stream(ranged_costs).map(Arrays::toString).forEach(System.out::println);
+//        Arrays.stream(ranged_DirToNext).map(Arrays::toString).forEach(System.out::println);
+//        System.out.println();
+    }
+
+    private void compute_paths(PriorityQueue<int[]> tocheck, float[][] costs, lib.DIRS[][] dirToNext) {
         while (!tocheck.isEmpty()){
             var cur = tocheck.poll();
-            var curt = tiles[cur[0]][cur[1]];
             var curcost = costs[cur[0]][cur[1]];
             getNeighbors(cur)
                     .stream()
                     .forEach(t -> {
-                        // (Kevin) ignore walls and set cost to +1
-//                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE-10 : costs[t[0]][t[1]];
-                        int cost = costs[t[0]][t[1]];
-                        if (tiles[t[0]][t[1]].type != TYPE.WALL && curcost + 1 < cost){
-                            costs[t[0]][t[1]] = curcost + 1;
-                            DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
-                            tiles[t[0]][t[1]].next = curt;
+                        // (Kevin) ignore paths to walls and add correct cost
+                        float cost = costs[t[0]][t[1]];
+                        float new_cost = curcost + ((((cur[0] - t[0]) == 0) != ((cur[1] - t[1]) == 0)) ? 1 : (float) Math.sqrt(2));
+                        if (tiles[t[0]][t[1]].type == TYPE.FLOOR && new_cost < cost){
+                            costs[t[0]][t[1]] = new_cost;
+                            dirToNext[t[0]][t[1]] = lib.dir_from_point_to_point(new Vector(cur[0], cur[1]), new Vector(t[0], t[1]));
                             tocheck.add(t);
                         }
                     });
@@ -164,7 +284,7 @@ public class TileMap {
                 ){
                     //Kevin, would love to use a goto to do it all with 1 set of loops but no goto :/
                     //Kevin, check if wall is an edge
-                    if ((x == 0) != (y == 0) && tiles[gpx][gpy].type == TYPE.WALL){
+                    if ((x == 0) != (y == 0) && (tiles[gpx][gpy].type != TYPE.FLOOR)){
                         wall_neighbor = true;
                         break outer;
                     }
@@ -501,7 +621,136 @@ public class TileMap {
         }
     }
 
+    private void addRoom(String room, SpriteSheet ss) throws NullPointerException {
+        /*
+        Kevin, parsing a level file:
+
+        first line = room definition in rectangle x y w h form
+
+        second line = door positions, they are defined S,W,N,E, -1 means that side does not have a door
+        cords are relative to the room start position
+
+        all other lines define inner stuff:
+        first number: type 1 = wall
+        second: number of tiles to insert
+        third: direction to insert tiles, y = 1, x = 0
+        fourth: start tile, it must be within the walls of the room, relative to room cords
+         */
+
+        var f =  getClass().getResourceAsStream("../resource/" + room);
+        var ft = new BufferedReader(new InputStreamReader(f));
+        System.out.println(room);
+
+        //Kevin, convert lines to int arrays instead of array list
+        //because indexing is cleaner than .get() on an array list
+        var lines  = ft.lines()
+                .map(s -> Arrays.stream(s.split(" "))
+                        .map(Integer::parseInt)
+                        .toArray(Integer[]::new))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        var cords = lines.get(0);
+        var r = new Room(cords);
+        System.out.println(Arrays.toString(cords));
+
+        final int x1 = cords[0];
+        final int y1 = cords[1];
+        cords[2] += cords[0];
+        cords[3] += cords[1];
+        final int x2 = cords[2];
+        final int y2 = cords[3];
+
+
+        for(int x = x1; x < x2; x++){
+            for(int y = y1; y < y2; y++){
+                //Kevin, add room edges
+                if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
+                    tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
+                } else {
+                    tiles[x][y] = new Tile(x*32, y*32, ss.getSprite(10, 4), TYPE.FLOOR, r);
+                }
+            }
+        }
+
+        //S,W,N,E
+        var doors =  lines.get(1);
+
+        //Kevin, insert doors by walking though defined cords (x1 y1 x2 y2)
+        for(int i = 0; i < 4; i ++){
+            int edgeBound = cords[i] - ((i > 1) ? 1 : 0);
+            int dir = doors[i];
+
+            if(dir <= 0)
+                continue;
+
+            dir += cords[i%2 == 0 ? 1 : 0];
+            //Kevin, get correct rotation of door based on if y cords or x cords
+            var img = ss.getSprite(12 - i % 2 ,4);
+            var t = TYPE.DOOR;
+
+            //Kevin, add door to the right edge and add the door to the room list
+            Function<Boolean, BiConsumer<Integer, Integer>> set_v = (v) -> { // EHHHHH it works
+                final boolean vt = v;
+                return (Integer a, Integer b) -> {
+                    var tl =  new Door(a*32, b*32, img, t, r, vt);
+                    r.doors.add(tl);
+                    tiles[a][b] = tl;
+                };
+            };
+            BiConsumer<Integer, Integer> addDoor;
+            if(i % 2 == 0){
+                addDoor = set_v.apply(false);
+                addDoor.accept(edgeBound, dir);
+                dir += 1;
+                addDoor.accept(edgeBound, dir);
+            } else {
+                addDoor = set_v.apply(true);
+                addDoor.accept(dir, edgeBound);
+                dir += 1;
+                addDoor.accept(dir, edgeBound);
+            }
+        }
+
+        lines.stream().skip(2).filter(l -> l.length >= 1).forEach(l -> {
+            System.out.println(Arrays.toString(l));
+            int type = l[0];
+            int count = l[1];
+            int dir = l[2];
+            int xp = l[3]+x1;
+            int yp = l[4]+y1;
+
+            //Kevin, 0 or 1 depending on dir
+            int xdir = 1 & ~(0 ^ dir);
+            int ydir = 1 & ~(1 ^ dir);
+
+            TYPE t;
+            Image img;
+            switch (type){
+                case 1:
+                   t = TYPE.WALL;
+                   img = ss.getSprite(0,2);
+                   break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + type);
+            }
+
+            //Kevin, assert tile are within the room bounds
+            assert x1 < xp && (xp + count * xdir) < x2-1;
+            assert y1 < yp && (yp + count * ydir) < y2-1;
+
+            //Kevin, insert the tile line into the map
+            for(int i = 0; i < count; i++){
+                tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
+                xp += xdir;
+                yp += ydir;
+            }
+        });
+
+        rooms.add(r);
+    }
+
     public int[][] getPiArray() {
         return pi;
     }
 }
+

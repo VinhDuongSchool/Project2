@@ -2,9 +2,12 @@ package bounce.common;
 
 import jig.ConvexPolygon;
 import jig.Entity;
+import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -14,12 +17,15 @@ public class Enemy extends Entity {
     private static final AtomicLong ID_COUNTER = new AtomicLong(0);
     public final long id;
 
-    private Vector velocity; //Velocity vectore.
-    private Vector gamepos;
+    protected Vector velocity; //Velocity vectore.
+    protected Vector gamepos;
     private int health;
     public Tile goal;
     public float speed;
+    public long attack_timer;
     public Vector dir;
+    public ArrayList<Shape> attack_shapes;
+    public lib.DIRS curdir;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -29,6 +35,7 @@ public class Enemy extends Entity {
         id = _id;
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
+        attack_shapes = new ArrayList<>();
     }
 
     public Enemy(Vector pos, Vector vel, Image img, long _id){
@@ -51,24 +58,60 @@ public class Enemy extends Entity {
         return velocity;
     } //Get the velocity
 
-    public void update(final int delta, Tile curt) {
-        if (goal == null){
-            goal = curt.next;
+    public Optional<ArrayList<Projectile>> attack(Character c){
+        throw new IllegalStateException("dont call base enemy attack");
+    }
+
+    public Optional<ArrayList<Projectile>> update(final int delta, Character[] characterks, lib.DIRS td) {
+        throw new IllegalStateException("dont call base enemy update");
+
+        //Kevin, commented and not deleted for reference, yes i know git exists
+        /*
+        var c = Arrays.stream(characterVector)
+                .min((a,b)-> (int)(gamepos.distance(a.getGamepos()) - gamepos.distance(b.getGamepos()))).get();
+        float distance = gamepos.distance(c.getGamepos());
+
+        if (distance <= 40 && attack_timer <= 0) { //If the distance is less than 40
+            System.out.println("attacked");
+            attack(c);
         }
 
-        //Kevin, if the distance to the next goal is less than how much we move setup next goal
-        var vs = velocity.scale(delta);
-        if(gamepos.distanceSquared(goal.gamepos) < vs.lengthSquared() || gamepos.equals(goal.gamepos)){
-            gamepos = goal.gamepos;
-            goal = curt.next;
-        }else {
-            gamepos = gamepos.add(velocity.scale(delta));
+        //Kevin, if we are done attacking remove shapes
+        if(attack_shapes.size() > 0 && attack_timer <= 0){
+            attack_shapes.stream().forEach(this::removeShape);
+            attack_shapes.clear();
         }
-        //Kevin, setup next goal direction
-        velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+
+        //Kevin, do movement stuff
+        if (attack_timer <= 0) { //If the enemy is still moving then continue getting close to the player.
+            if (goal == null){
+                goal = curt.next;
+            }
+
+            //Kevin, if the distance to the next goal is less than how much we move setup next goal
+            var vs = velocity.scale(delta);
+            var gp = goal.gamepos;
+            if(gamepos.distanceSquared(gp) < vs.lengthSquared() || gamepos.equals(gp)){
+                gamepos = goal.gamepos;
+                goal = curt.next;
+                curdir = lib.dir_from_point_to_point(goal.gamepos, gamepos);
+                System.out.println(curdir);
+            }else {
+                gamepos = gamepos.add(velocity.scale(delta));
+            }
+            //Kevin, setup next goal direction
+            velocity = goal.gamepos.subtract(gamepos).unit().scale(0.05f);
+
+        } else { //attack timer is  > 0 so decrement it
+            attack_timer -= delta;
+        }
+
         setPosition(gamepos);
 
-    } //Update base off of the velocity
+        return Optional.empty();
+
+         */
+    }
 
     public void setHealth(final int i) {health = i; } //Add health and check if enemy is dead.
     public int getHealth() { return health; }

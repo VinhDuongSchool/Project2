@@ -2,17 +2,18 @@ package bounce.client;
 
 import bounce.common.*;
 import jig.Vector;
-
-import org.newdawn.slick.*;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-
+import java.util.Optional;
 
 
 /**
@@ -27,8 +28,7 @@ import java.util.Objects;
  */
 public class ClientPlayingState extends BasicGameState {
 
-
-
+    Vector mp = new Vector(0,0);
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -43,9 +43,16 @@ public class ClientPlayingState extends BasicGameState {
 
         container.setSoundOn(true);
 
-        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.getGamepos())));
 
-        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+//        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new Zombie(
+                new Vector(64,32),
+                new Vector(0, 0),
+                ExplorerGameClient.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new ShadowArcher(
+                new Vector(64,32),
+                new Vector(0, 0),
+                ExplorerGameClient.game_sprites.getSprite(3, 8))); //Add the enemies
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
@@ -70,13 +77,14 @@ public class ClientPlayingState extends BasicGameState {
 //        var v = lib.to_screen(egc.character.gamepos, new Vector(egc.screenox, egc.screenoy));
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
-        g.setColor(Color.blue);
-        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
-        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
-        for (var e : egc.enemies){
-            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
-        }
-        g.setColor(Color.gray);
+//        g.setColor(Color.blue);
+//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
+//        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
+//        for (var e : egc.enemies){
+//            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
+//        }
+//        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
+//        g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
 //        var p = new Polygon();
@@ -93,7 +101,10 @@ public class ClientPlayingState extends BasicGameState {
 //        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
 //        p.addPoint(v2.getX(), v2.getY());
 //        g.draw(p);
-
+//        egc.grid.rooms.get(0).room_hitbox.render(g);
+//        var r = egc.grid.rooms.get(0);
+//        g.drawRect(r.x, r.y, r.width, r.height);
+//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
             e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
@@ -115,6 +126,7 @@ public class ClientPlayingState extends BasicGameState {
             }
         }
         //System.out.println(egc.character.gamepos);
+
 	}
 
 	@Override
@@ -128,68 +140,23 @@ public class ClientPlayingState extends BasicGameState {
 
 
         //(Kevin) deal with user input
-        // will need to change movement stuff to make it easier to do different sprites for different directions
         Vector characterVector = new Vector(0,0);
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         var characterDir = lib.wasd_to_dir(inp);
-        if (characterDir != null){
-//            System.out.println(d);
-            var UP_V = new Vector(0.2f,0).unit().scale(.2f);
-            var LEFT_V = new Vector(0,-.2f).unit().scale(.2f);
-            // todo fix long ass switch
-            switch (characterDir){
-                case NORTH:
-                    characterVector = UP_V;
-                    break;
-                case SOUTH:
-                    characterVector = UP_V.scale(-1);
-                    break;
-                case WEST:
-                    characterVector = LEFT_V;
-                    break;
-                case EAST:
-                    characterVector = LEFT_V.scale(-1);
-                    break;
-                case NORTHEAST:
-                    characterVector = UP_V.add(LEFT_V.scale(-1));
-                    break;
-                case NORTHWEST:
-                    characterVector = UP_V.add(LEFT_V);
-                    break;
-                case SOUTHEAST:
-                    characterVector = UP_V.scale(-1).add(LEFT_V.scale(-1));
-                    break;
-                case SOUTHWEST:
-                    characterVector = UP_V.scale(-1).add(LEFT_V);
-                    break;
-                default:
-                    assert false : "unreachable";
-                    break;
-            }
 
-        }
+        if (characterDir != null)
+            characterVector = lib.dir_enum_to_unit_vector(characterDir).scale(0.3f);
 
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
+
+
+//        System.out.println(lib.dir_from_point_to_point(mousePos, egc.screen_center));
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
         //angleto gives the angle in degrees rotated by 180 for some reason,
         //divide by 45 to convert into 8 directions, then round to get the angle index,
         int diridx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
 
-        //Kevin, attack when left mouse or I is pressed, (my mouse isnt recognized so i needed the i key lol)
-        if(input.isKeyPressed(Input.MOUSE_LEFT_BUTTON) || input.isKeyPressed(Input.KEY_I)){
-            //0 and 8 map to the same value
-            ArrayList<lib.DIRS> attack_dirs;
-            if (diridx == 0 || diridx == 8){
-                //Kevin, deal with edge case
-                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
-            } else {
-                //Kevin, otherwise get neighbors directly
-                attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
-            }
-            //Kevin, player melee converts directions into the correct hit boxes
-            egc.character.playermelee(attack_dirs);
-        }
 
 //        Kevin, commented out until its used for something
 //        for(Enemy e : egc.enemies){
@@ -197,6 +164,7 @@ public class ClientPlayingState extends BasicGameState {
 //                System.out.println("character collided with an enemy");
 //            }
 //        }
+
 
 
         if(egc.is_connected){ //Kevin, run with a server
@@ -228,32 +196,45 @@ public class ClientPlayingState extends BasicGameState {
                 egc.handle_message(m);
             }
 
-        } else { //Kevin, update stuff as a solo program
-            egc.character.curdir  =  characterDir;
-            if(input.isKeyPressed(Input.KEY_F))
-                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
-
+        } else {
             //(Kevin) handle stuff when client isnt connected
+            egc.character.curdir = characterDir;
             egc.character.setVelocity(characterVector);
             egc.character.update(delta); //Update the position of the player
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
             egc.grid.getNeighbors(egc.character.getGamepos()).stream()
-                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .filter(t -> t.type == TileMap.TYPE.WALL || (t.type == TileMap.TYPE.DOOR && !((Door)t).is_open)) //hmmmmmmmmmmmmmm
                     .map(egc.character::collides) // stream of collisions that may be null
                     .filter(Objects::nonNull)
                     .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
                         egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                         egc.character.update(delta);
+                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                     });
+
+            if(input.isKeyPressed(Input.KEY_F))
+                egc.character.primary(diridx).ifPresent(egc.projectiles::addAll);
 
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
-            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos())));
+
+            //Kevin, make  an array of characters because thats what the server would give to the method
+            egc.enemies.stream().map(e -> e.update(delta, new bounce.common.Character[] {egc.character},
+                    //Kevin, may be cleaned up eventually
+                    e.getClass() == ShadowArcher.class ? egc.grid.getranged_dir(e.getGamepos()) : egc.grid.get_dir(e.getGamepos())))
+
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(egc.projectiles::addAll);
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
+                //Kevin, if projectile isnt sent by archer dont hit enemies
+                if(p.sender.getClass() != Archer.class)
+                    continue;
+
                 for (Enemy e : egc.enemies) {
                     if (p.collides(e) != null){
                         e.setHealth(e.getHealth() - p.damage);
@@ -262,6 +243,15 @@ public class ClientPlayingState extends BasicGameState {
                     }
                 }
             }
+
+//            egc.grid.update(new Character[]{egc.character});
+
+            //Kevin, temp room open/close keys
+            if(input.isKeyPressed(Input.KEY_O))
+                egc.grid.rooms.forEach(Room::open);
+            if(input.isKeyPressed(Input.KEY_P))
+                egc.grid.rooms.forEach(Room::close);
+
 
             //(Kevin) remove dead/hit/etc stuff
             egc.enemies.removeIf(e -> e.getHealth() <=0);
