@@ -7,7 +7,7 @@ import jig.Vector;
 import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -17,14 +17,14 @@ public class Enemy extends Entity {
     private static final AtomicLong ID_COUNTER = new AtomicLong(0);
     public final long id;
 
-    private Vector velocity; //Velocity vectore.
-    private Vector gamepos;
+    protected Vector velocity; //Velocity vectore.
+    protected Vector gamepos;
     private int health;
     public Tile goal;
     public float speed;
     public long attack_timer;
     public Vector dir;
-    private ArrayList<Shape> attack_shapes;
+    public ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
@@ -58,30 +58,22 @@ public class Enemy extends Entity {
         return velocity;
     } //Get the velocity
 
-    public void attack(Vector cp){
-        attack_timer = 3000; //Set a timer.
-
-        //Kevin, attack in the direction of the player
-        //not using lib.dir_from_point_to_point incase we need to add multiple shapes depending on direction
-
-        double ang = (cp.angleTo(gamepos)+180 + 360 - 45)%360;
-        int diridx = (int)Math.round((ang)/45);
-        var offsetdir = lib.dir_enum_to_dir_vector(lib.angle_index_to_dir[diridx]);
-        var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
-        attack_shapes.add(s);
-        addShape(s, offsetdir.scale(32.0f));
+    public Optional<ArrayList<Projectile>> attack(Character c){
+        throw new IllegalStateException("dont call base enemy attack");
     }
 
-    public void update(final int delta, Tile curt, Character[] characterVector) {
-        Vector cp = Arrays.stream(characterVector)
-                .map(Character::getGamepos)
-                .min((a,b)-> (int)(gamepos.distance(a) - gamepos.distance(b))).get();
+    public Optional<ArrayList<Projectile>> update(final int delta, Character[] characterks, lib.DIRS td) {
+        throw new IllegalStateException("dont call base enemy update");
 
-       float distance = gamepos.distance(cp);
+        //Kevin, commented and not deleted for reference, yes i know git exists
+        /*
+        var c = Arrays.stream(characterVector)
+                .min((a,b)-> (int)(gamepos.distance(a.getGamepos()) - gamepos.distance(b.getGamepos()))).get();
+        float distance = gamepos.distance(c.getGamepos());
 
         if (distance <= 40 && attack_timer <= 0) { //If the distance is less than 40
             System.out.println("attacked");
-            attack(cp);
+            attack(c);
         }
 
         //Kevin, if we are done attacking remove shapes
@@ -116,7 +108,10 @@ public class Enemy extends Entity {
 
         setPosition(gamepos);
 
-    } //Update base off of the velocity
+        return Optional.empty();
+
+         */
+    }
 
     public void setHealth(final int i) {health = i; } //Add health and check if enemy is dead.
     public int getHealth() { return health; }

@@ -21,8 +21,11 @@ public class TileMap {
     private int[][] d;
     private int[][] pi;
 
+    private float[][] ranged_costs;
     private float[][] costs;
-    private Vector[][] DirToNext;
+    private lib.DIRS[][] DirToNext;
+    private lib.DIRS[][] ranged_DirToNext;
+
 
 
     public enum TYPE{
@@ -45,7 +48,9 @@ public class TileMap {
         rooms = new ArrayList<>();
         tiles = new Tile[tilesx][tilesy];
         costs = new float[tilesx][tilesy];
-        DirToNext = new Vector[tilesx][tilesy];
+        ranged_costs = new float[tilesx][tilesy];
+        DirToNext = new lib.DIRS[tilesx][tilesy];
+        ranged_DirToNext = new lib.DIRS[tilesx][tilesy];
 
         for (int x = 0; x < tiles.length; x++){
             for (int y = 0; y < tiles[0].length; y++){
@@ -117,7 +122,13 @@ public class TileMap {
         return tiles[x][y];
     }
 
-    public Vector getdir(Vector gamexy){
+    public lib.DIRS getranged_dir(Vector gamexy){
+        int x = (int)Math.floor( gamexy.getX()/32.0f);
+        int y = (int)Math.floor( gamexy.getY()/32.0f);
+        return ranged_DirToNext[x][y];
+    }
+
+    public lib.DIRS get_dir(Vector gamexy){
         int x = (int)Math.floor( gamexy.getX()/32.0f);
         int y = (int)Math.floor( gamexy.getY()/32.0f);
         return DirToNext[x][y];
@@ -145,6 +156,7 @@ public class TileMap {
         for(var arr : costs){
             Arrays.fill(arr, Float.MAX_VALUE - 100000); //Kevin, to prevent overflow errors probably
         }
+
         PriorityQueue<int[]> tocheck = new PriorityQueue<>(maxx, Comparator.comparingDouble(v -> costs[v[0]][v[1]]));
         //(Kevin) assuming goals are some game position
         goals.stream()
@@ -158,23 +170,96 @@ public class TileMap {
                         tocheck.add(new int[]{x,y});
                 });
 
-        //Kevin, set refernce for character tiles to themselves so when enemy reaches goal they dont error
-        tocheck.stream().forEach(t -> tiles[t[0]][t[1]].next = tiles[t[0]][t[1]]);
+        compute_paths(tocheck, costs, DirToNext);
+        /*
+//        direction validation testing code
+        for (int x = 0; x < tiles.length; x++){
+            for (int y = 0; y < tiles[0].length; y++){
+                var d = DirToNext[x][y];
+                if(d == null)
+                    continue;
+                if(d.val %2 == 0 ){
+                    var v = lib.dir_enum_to_dir_vector(d);
+                    assert tiles[x+(int) v.getX()][y+(int) v.getY()].type == TYPE.FLOOR;
+
+                } else {
+
+                    var v = lib.dir_enum_to_dir_vector(d);
+                    assert tiles[x+(int) v.getX()][y].type == TYPE.FLOOR;
+                    assert tiles[x][y+(int) v.getY()].type == TYPE.FLOOR;
+
+                }
+
+            }
+        }
+*/
+        MakeRangedPath(goals);
+    }
+
+    public void MakeRangedPath(ArrayList<Vector> goals){
+
+        //Kevin, make raycasted ranged path
+        for(var arr : ranged_costs){
+            Arrays.fill(arr, Float.MAX_VALUE - 100000); //Kevin, to prevent overflow errors probably
+        }
+
+        for(var arr : ranged_DirToNext){
+            Arrays.fill(arr, null); //Kevin, to prevent overflow errors probably
+        }
+
+
+        var tocheck = new PriorityQueue<int[]>(maxx, Comparator.comparingDouble(v -> ranged_costs[v[0]][v[1]]));
+        goals.stream()
+                .filter(g -> // filter positions outside of the map (should be turned into an assertion later)
+                        (0 <= g.getX() && g.getX() < maxx*32) &&
+                                (0 <= g.getY() && g.getY() < maxy*32))
+                .forEach(g -> { // initialize goal tiles to 0 and add them to queue
+                    int xs = (int)Math.floor(g.getX()/32.0f);
+                    int ys = (int)Math.floor(g.getY()/32.0f);
+                    ranged_costs[xs][ys] = 0;
+                    tocheck.add(new int[]{xs,ys});
+                    for (int x = -1; x <= 1; x++) {
+                        for (int y = -1; y <= 1; y++) {
+                            if(x == 0 && y == 0)
+                                continue;
+                            int xp = xs + x;
+                            int yp = ys + y;
+                            while (
+                                    (0 <= xp && xp < maxy) &&
+                                    (0 <= yp && yp < maxx) &&
+                                    (tiles[xp][yp].type != TYPE.DOOR) &&
+                                    (tiles[xp][yp].type != TYPE.WALL)
+                            ){
+                                ranged_costs[xp][yp] = 0;
+                                tocheck.add(new int[]{xp,yp});
+                                xp += x;
+                                yp += y;
+                            }
+                        }
+                    }
+                });
+
+        compute_paths(tocheck, ranged_costs, ranged_DirToNext);
+
+
+//        Arrays.stream(ranged_costs).map(Arrays::toString).forEach(System.out::println);
+//        Arrays.stream(ranged_DirToNext).map(Arrays::toString).forEach(System.out::println);
+//        System.out.println();
+    }
+
+    private void compute_paths(PriorityQueue<int[]> tocheck, float[][] costs, lib.DIRS[][] dirToNext) {
         while (!tocheck.isEmpty()){
             var cur = tocheck.poll();
-            var curt = tiles[cur[0]][cur[1]];
             var curcost = costs[cur[0]][cur[1]];
             getNeighbors(cur)
                     .stream()
                     .forEach(t -> {
-                        // (Kevin) ignore walls and set cost to +1
-//                        int cost = (tiles[t[0]][t[1]].type == TYPE.WALL) ? Integer.MAX_VALUE-10 : costs[t[0]][t[1]];
+                        // (Kevin) ignore paths to walls and add correct cost
                         float cost = costs[t[0]][t[1]];
                         float new_cost = curcost + ((((cur[0] - t[0]) == 0) != ((cur[1] - t[1]) == 0)) ? 1 : (float) Math.sqrt(2));
-                        if (tiles[t[0]][t[1]].type != TYPE.WALL && new_cost < cost){
+                        if (tiles[t[0]][t[1]].type == TYPE.FLOOR && new_cost < cost){
                             costs[t[0]][t[1]] = new_cost;
-                            DirToNext[t[0]][t[1]] = new Vector(cur[0] - t[0], cur[1] - t[1]);
-                            tiles[t[0]][t[1]].next = curt;
+                            dirToNext[t[0]][t[1]] = lib.dir_from_point_to_point(new Vector(cur[0], cur[1]), new Vector(t[0], t[1]));
                             tocheck.add(t);
                         }
                     });
@@ -199,7 +284,7 @@ public class TileMap {
                 ){
                     //Kevin, would love to use a goto to do it all with 1 set of loops but no goto :/
                     //Kevin, check if wall is an edge
-                    if ((x == 0) != (y == 0) && tiles[gpx][gpy].type == TYPE.WALL){
+                    if ((x == 0) != (y == 0) && (tiles[gpx][gpy].type != TYPE.FLOOR)){
                         wall_neighbor = true;
                         break outer;
                     }

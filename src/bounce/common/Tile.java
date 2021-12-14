@@ -12,7 +12,6 @@ public class Tile extends Entity {
     public int gridx;
     public int gridy;
     public TileMap.TYPE type;
-    public Tile next;
     public Room room;
     public Image curim;
 

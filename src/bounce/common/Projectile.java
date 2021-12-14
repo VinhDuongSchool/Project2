@@ -20,6 +20,7 @@ public class Projectile extends Entity {
     public int damage;
     private Vector gamepos;
     public lib.DIRS curdir;
+    public Object sender;
 
 
     public Projectile(final float x, final float y, final float vx, final float vy, long _id, final lib.DIRS d) {
@@ -27,6 +28,7 @@ public class Projectile extends Entity {
         velocity = new Vector(vx, vy);
         gamepos = new Vector(x,y);
         damage = 1;
+        sender = this;
 
         // add image with offset to it renders from top left corner
         if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
@@ -47,6 +49,7 @@ public class Projectile extends Entity {
 
     public Projectile(Vector pos, Vector vel, long _id, final lib.DIRS d){
         this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id, d);
+        velocity = vel;
     }
 
     public Projectile(Vector pos, Vector vel, final lib.DIRS d){
@@ -56,6 +59,17 @@ public class Projectile extends Entity {
     public Projectile(final float x, final float y, final float vx, final float vy, final lib.DIRS d) {
         this(x,y,vx,vy,  ID_COUNTER.getAndIncrement(),d);
     }
+
+    public Projectile(Vector pos, Vector vel, lib.DIRS d, Object s){
+        this(pos, vel, d);
+        sender = s;
+    }
+
+    public Projectile(Vector pos, Vector vel, lib.DIRS d, long i,  Object s){
+        this(pos, vel, i, d);
+        sender = s;
+    }
+
 
     public void setVelocity(final Vector v) {
         velocity = v;

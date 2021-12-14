@@ -33,7 +33,7 @@ public class lib {
         SOUTHWEST(5),
         SOUTHEAST(3);
 
-        private final int val;
+        public final int val;
 
         DIRS(int value){
             this.val = value;

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -42,9 +43,16 @@ public class ClientPlayingState extends BasicGameState {
 
         container.setSoundOn(true);
 
-        egc.grid.MakePath(new ArrayList<Vector>( List.of(egc.character.getGamepos())));
 
-        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+//        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new Zombie(
+                new Vector(64,32),
+                new Vector(0, 0),
+                ExplorerGameClient.game_sprites.getSprite(0, 9))); //Add the enemies
+        egc.enemies.add(new ShadowArcher(
+                new Vector(64,32),
+                new Vector(0, 0),
+                ExplorerGameClient.game_sprites.getSprite(3, 8))); //Add the enemies
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
@@ -211,11 +219,22 @@ public class ClientPlayingState extends BasicGameState {
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
+
             //Kevin, make  an array of characters because thats what the server would give to the method
-            egc.enemies.stream().forEach(e -> e.update(delta, egc.grid.getTile(e.getGamepos()), new bounce.common.Character[] {egc.character}));
+            egc.enemies.stream().map(e -> e.update(delta, new bounce.common.Character[] {egc.character},
+                    //Kevin, may be cleaned up eventually
+                    e.getClass() == ShadowArcher.class ? egc.grid.getranged_dir(e.getGamepos()) : egc.grid.get_dir(e.getGamepos())))
+
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(egc.projectiles::addAll);
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
+                //Kevin, if projectile isnt sent by archer dont hit enemies
+                if(p.sender.getClass() != Archer.class)
+                    continue;
+
                 for (Enemy e : egc.enemies) {
                     if (p.collides(e) != null){
                         e.setHealth(e.getHealth() - p.damage);

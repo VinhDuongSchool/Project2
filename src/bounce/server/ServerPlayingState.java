@@ -100,10 +100,14 @@ public class ServerPlayingState extends BasicGameState {
         }
 
 
+        //Kevin, update enemies
         egs.enemies.stream().forEach(e -> {
-            e.update(delta, egs.grid.getTile(e.getGamepos()),egs.characters);
+            e.update(delta, egs.characters,
+                    //Kevin, may be cleaned up eventually
+                    e.getClass() == ShadowArcher.class ? egs.grid.getranged_dir(e.getGamepos()) : egs.grid.get_dir(e.getGamepos()));
             egs.out_messages.add(Message.builder(Message.MSG_TYPE.NEW_POSITION, e.id).setEtype(Message.ENTITY_TYPE.ENEMY).setGamepos(e.getGamepos()));
         });
+
         for (int i = egs.projectiles.size()-1; i >= 0; i--){
             var p = egs.projectiles.get(i);
             if (p.getHit()){
