@@ -1,11 +1,11 @@
 package bounce.client;
 
 import bounce.common.*;
+import bounce.common.items.BaseItem;
+import bounce.common.items.PileOfGold;
+import bounce.common.items.Potion;
 import jig.Vector;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -28,11 +28,6 @@ import java.util.Optional;
  */
 public class ClientPlayingState extends BasicGameState {
 
-    Vector mp = new Vector(0,0);
-    PileOfGold tempGoldHolder = null; //To hold gold pile to be deleted
-    int goldAmount = 0;
-    Potion tempPotionHolder = null; //To hold potion to be deleted.
-	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
 	}
@@ -59,10 +54,10 @@ public class ClientPlayingState extends BasicGameState {
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
-        egc.golds.add(new PileOfGold(244,109)); //Add the potions
-        egc.golds.add(new PileOfGold(348,394));
-        egc.potions.add(new Potion(415,461));
-        egc.potions.add(new Potion(81,265));
+        egc.items.add(new PileOfGold(244,109)); //Add the potions
+        egc.items.add(new PileOfGold(348,394));
+        egc.items.add(new Potion(415,461));
+        egc.items.add(new Potion(81,265));
 
 
 	}
@@ -78,8 +73,10 @@ public class ClientPlayingState extends BasicGameState {
         egc.screenoy = screen_offset.getY();
 
         egc.grid.render(g,screen_offset, egc.character.getGamepos());
-        g.drawString("Gold: " + goldAmount, 10, 50);
+        g.setColor(Color.white);
+        g.drawString("Gold: " + egc.gold, 10, 50);
         g.drawString("Health: " + egc.character.health, 10, 70);
+        g.setColor(Color.gray);
 
 
 
@@ -119,14 +116,10 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawRect(r.x, r.y, r.width, r.height);
 //        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
-        for (PileOfGold pg : egc.golds) {
-            pg.setPosition(lib.to_screen(pg.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
-            pg.render(g);
-        }
 
-        for (Potion pot : egc.potions) {
-            pot.setPosition(lib.to_screen(pot.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
-            pot.render(g);
+        for (BaseItem e : egc.items) {
+            e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
+            e.render(g);
         }
 
         for (Enemy e : egc.enemies) {//Render all the enemies.
@@ -222,27 +215,20 @@ public class ClientPlayingState extends BasicGameState {
             }
 
         } else {
-            for (PileOfGold pg : egc.golds) { //Check if player picks up gold
-                if (egc.character.collides(pg) != null) {
-                    tempGoldHolder = pg;
-                    goldAmount += 50;
-
-                }
-            }
-            if (tempGoldHolder != null) { //Remove picked pu gold
-                egc.golds.remove(tempGoldHolder);
-            }
-
-            for (Potion p : egc.potions) { //Check if player picks up potion
-                if (egc.character.collides(p) != null) {
-                    tempPotionHolder = p;
+            egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
+                //Kevin, for when items have more complex function we need to cast them
+                if(item instanceof PileOfGold){
+                    var ci = (PileOfGold) item;
+                    egc.gold += 50;
+                } else if (item instanceof Potion){
+                    var ci = (Potion) item;
                     egc.character.health += 50;
-
+                } else {
+                    assert false : "unknown item";
                 }
-            }
-            if (tempPotionHolder != null) { //Remove picked up potion.
-                egc.potions.remove(tempPotionHolder);
-            }
+                egc.items.remove(item);
+            });
+
             //(Kevin) handle stuff when client isnt connected
             egc.character.curdir = characterDir;
             egc.character.setVelocity(characterVector);

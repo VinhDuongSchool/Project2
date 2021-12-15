@@ -2,6 +2,7 @@ package bounce.client;
 
 import bounce.common.Character;
 import bounce.common.*;
+import bounce.common.items.BaseItem;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
@@ -42,8 +43,6 @@ public class ExplorerGameClient extends StateBasedGame {
     public static final String PILEOFGOLD = "bounce/resource/PileOfGold.png";
     public static final String POTION = "bounce/resource/Potion.png";
 
-
-
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 
@@ -62,8 +61,9 @@ public class ExplorerGameClient extends StateBasedGame {
     public TileMap grid;
     public HashMap<Long, Character> allies;
 
-    public ArrayList<PileOfGold> golds;
-    public ArrayList<Potion> potions;
+    public ArrayList<BaseItem> items;
+
+    public int gold;
 
 
 
@@ -95,8 +95,7 @@ public class ExplorerGameClient extends StateBasedGame {
         projectiles = new ArrayList<>();
         screen_center = new Vector(ScreenWidth/2.0f,ScreenHeight/2.0f);
         System.out.println(ID);
-        golds = new ArrayList<>();
-        potions = new ArrayList<>();
+        items = new ArrayList<>();
 	}
 
     private void server_setup() throws IOException {

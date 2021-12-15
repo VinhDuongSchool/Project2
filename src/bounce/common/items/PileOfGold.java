@@ -1,16 +1,14 @@
-package bounce.common;
+package bounce.common.items;
 
 import bounce.client.ExplorerGameClient;
+import bounce.common.lib;
 import jig.ConvexPolygon;
-import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
 
-import java.util.concurrent.atomic.AtomicLong;
 
-
-public class PileOfGold extends Entity {
-    private Vector gamepos;
+public class PileOfGold extends BaseItem {
+    public int amt;
 
     public PileOfGold(final float x, final float y) {
         super(x,y);
