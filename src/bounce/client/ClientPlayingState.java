@@ -29,6 +29,9 @@ import java.util.Optional;
 public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
+    PileOfGold tempGoldHolder = null; //To hold gold pile to be deleted
+    int goldAmount = 0;
+    Potion tempPotionHolder = null; //To hold potion to be deleted.
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
@@ -56,6 +59,11 @@ public class ClientPlayingState extends BasicGameState {
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
+        egc.golds.add(new PileOfGold(244,109)); //Add the potions
+        egc.golds.add(new PileOfGold(348,394));
+        egc.potions.add(new Potion(415,461));
+        egc.potions.add(new Potion(81,265));
+
 
 	}
 	@Override
@@ -70,6 +78,11 @@ public class ClientPlayingState extends BasicGameState {
         egc.screenoy = screen_offset.getY();
 
         egc.grid.render(g,screen_offset, egc.character.getGamepos());
+        g.drawString("Gold: " + goldAmount, 10, 50);
+        g.drawString("Health: " + egc.character.health, 10, 70);
+
+
+
 
 
 
@@ -106,6 +119,16 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawRect(r.x, r.y, r.width, r.height);
 //        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
+        for (PileOfGold pg : egc.golds) {
+            pg.setPosition(lib.to_screen(pg.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
+            pg.render(g);
+        }
+
+        for (Potion pot : egc.potions) {
+            pot.setPosition(lib.to_screen(pot.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
+            pot.render(g);
+        }
+
         for (Enemy e : egc.enemies) {//Render all the enemies.
             e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             e.render(g);
@@ -116,6 +139,8 @@ public class ClientPlayingState extends BasicGameState {
             p.setPosition(lib.to_screen(p.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             p.render(g);
         });
+
+
 
         if(egc.is_connected){
             for (var c : egc.allies.values()){
@@ -197,6 +222,27 @@ public class ClientPlayingState extends BasicGameState {
             }
 
         } else {
+            for (PileOfGold pg : egc.golds) { //Check if player picks up gold
+                if (egc.character.collides(pg) != null) {
+                    tempGoldHolder = pg;
+                    goldAmount += 50;
+
+                }
+            }
+            if (tempGoldHolder != null) { //Remove picked pu gold
+                egc.golds.remove(tempGoldHolder);
+            }
+
+            for (Potion p : egc.potions) { //Check if player picks up potion
+                if (egc.character.collides(p) != null) {
+                    tempPotionHolder = p;
+                    egc.character.health += 50;
+
+                }
+            }
+            if (tempPotionHolder != null) { //Remove picked up potion.
+                egc.potions.remove(tempPotionHolder);
+            }
             //(Kevin) handle stuff when client isnt connected
             egc.character.curdir = characterDir;
             egc.character.setVelocity(characterVector);
@@ -244,6 +290,8 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
 
+
+
 //            egc.grid.update(new Character[]{egc.character});
 
             //Kevin, temp room open/close keys
@@ -257,6 +305,8 @@ public class ClientPlayingState extends BasicGameState {
             egc.enemies.removeIf(e -> e.getHealth() <=0);
             egc.projectiles.removeIf(Projectile::getHit);
         }
+
+
     }
 
 

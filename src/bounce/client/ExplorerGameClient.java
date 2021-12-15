@@ -39,6 +39,10 @@ public class ExplorerGameClient extends StateBasedGame {
     public static final String LR = "bounce/resource/LR.png";
     public static final String UR = "bounce/resource/UR.png";
     public static final String DR = "bounce/resource/DR.png";
+    public static final String PILEOFGOLD = "bounce/resource/PileOfGold.png";
+    public static final String POTION = "bounce/resource/Potion.png";
+
+
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -57,6 +61,9 @@ public class ExplorerGameClient extends StateBasedGame {
     public long ID;
     public TileMap grid;
     public HashMap<Long, Character> allies;
+
+    public ArrayList<PileOfGold> golds;
+    public ArrayList<Potion> potions;
 
 
 
@@ -88,6 +95,8 @@ public class ExplorerGameClient extends StateBasedGame {
         projectiles = new ArrayList<>();
         screen_center = new Vector(ScreenWidth/2.0f,ScreenHeight/2.0f);
         System.out.println(ID);
+        golds = new ArrayList<>();
+        potions = new ArrayList<>();
 	}
 
     private void server_setup() throws IOException {
@@ -231,6 +240,8 @@ public class ExplorerGameClient extends StateBasedGame {
         ResourceManager.loadImage(LR);
         ResourceManager.loadImage(UR);
         ResourceManager.loadImage(DR);
+        ResourceManager.loadImage(PILEOFGOLD);
+        ResourceManager.loadImage(POTION);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         screenox = 0;
         screenoy = 0;
