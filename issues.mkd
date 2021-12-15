@@ -36,6 +36,8 @@
 35 ranged enemy mechanics
 16 make firing a projectile integrated with character/enemy and use their current direction
 29 set dir enum for enemy while path finding
+44 Make potion and gold items that can be collected.
+42 potions
 
 ## Open Issues ##
 7 attacks can collide with wall
@@ -45,7 +47,6 @@
 32 add dir to projectile message
 40 entity graphics
 41 server stuff again
-42 potions
 43 condense projectile constructors from 6 to like 2 lol
 
 

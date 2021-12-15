@@ -1,11 +1,11 @@
 package bounce.client;
 
 import bounce.common.*;
+import bounce.common.items.BaseItem;
+import bounce.common.items.PileOfGold;
+import bounce.common.items.Potion;
 import jig.Vector;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -28,8 +28,6 @@ import java.util.Optional;
  */
 public class ClientPlayingState extends BasicGameState {
 
-    Vector mp = new Vector(0,0);
-	@Override
 	public void init(GameContainer container, StateBasedGame game)
 			throws SlickException {
 	}
@@ -56,6 +54,11 @@ public class ClientPlayingState extends BasicGameState {
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
+        egc.items.add(new PileOfGold(244,109)); //Add the potions
+        egc.items.add(new PileOfGold(348,394));
+        egc.items.add(new Potion(415,461));
+        egc.items.add(new Potion(81,265));
+
 
 	}
 	@Override
@@ -70,6 +73,13 @@ public class ClientPlayingState extends BasicGameState {
         egc.screenoy = screen_offset.getY();
 
         egc.grid.render(g,screen_offset, egc.character.getGamepos());
+        g.setColor(Color.white);
+        g.drawString("Gold: " + egc.gold, 10, 50);
+        g.drawString("Health: " + egc.character.health, 10, 70);
+        g.setColor(Color.gray);
+
+
+
 
 
 
@@ -106,6 +116,12 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawRect(r.x, r.y, r.width, r.height);
 //        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
+
+        for (BaseItem e : egc.items) {
+            e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
+            e.render(g);
+        }
+
         for (Enemy e : egc.enemies) {//Render all the enemies.
             e.setPosition(lib.to_screen(e.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             e.render(g);
@@ -116,6 +132,8 @@ public class ClientPlayingState extends BasicGameState {
             p.setPosition(lib.to_screen(p.getGamepos(), new Vector(egc.screenox, egc.screenoy)));
             p.render(g);
         });
+
+
 
         if(egc.is_connected){
             for (var c : egc.allies.values()){
@@ -197,6 +215,20 @@ public class ClientPlayingState extends BasicGameState {
             }
 
         } else {
+            egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
+                //Kevin, for when items have more complex function we need to cast them
+                if(item instanceof PileOfGold){
+                    var ci = (PileOfGold) item;
+                    egc.gold += 50;
+                } else if (item instanceof Potion){
+                    var ci = (Potion) item;
+                    egc.character.health += 50;
+                } else {
+                    assert false : "unknown item";
+                }
+                egc.items.remove(item);
+            });
+
             //(Kevin) handle stuff when client isnt connected
             egc.character.curdir = characterDir;
             egc.character.setVelocity(characterVector);
@@ -244,6 +276,8 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
 
+
+
 //            egc.grid.update(new Character[]{egc.character});
 
             //Kevin, temp room open/close keys
@@ -257,6 +291,8 @@ public class ClientPlayingState extends BasicGameState {
             egc.enemies.removeIf(e -> e.getHealth() <=0);
             egc.projectiles.removeIf(Projectile::getHit);
         }
+
+
     }
 
 
