@@ -171,8 +171,10 @@ public class ClientPlayingState extends BasicGameState {
             }
 
 
-            if(input.isKeyPressed(Input.KEY_F))
+            if(input.isKeyPressed(Input.KEY_F)) {
+//                egc.character.primary(); //Kevin, call primary on character so it makes the images
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
+            }
 
             if(diridx != lastMouseIdx){
                 messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(diridx));

@@ -21,6 +21,8 @@ public class Message implements Serializable {
 
     public enum ENTITY_TYPE{
         CHARACTER,
+        WARRIOR,
+        ARCHER,
         ENEMY,
         PROJECTILE,
         SHADOWARCHER,

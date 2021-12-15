@@ -6,6 +6,7 @@ import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -38,6 +39,17 @@ public class Character extends Entity {
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         attack_shapes = new ArrayList<>();
+    }
+
+
+    public static Character dyn(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy, long id){
+        var im = lib.game_sprites.getSprite(sx, sy);
+        try {
+            return (Character) ct.getConstructors()[0].newInstance(gp,v,im, id);
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+            throw new IllegalArgumentException("character initialization failed");
+        }
     }
 
     public Character(Vector pos, Vector vel, Image img, long id){

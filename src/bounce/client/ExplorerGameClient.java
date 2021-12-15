@@ -5,13 +5,15 @@ import bounce.common.*;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
-import org.newdawn.slick.*;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,17 +117,15 @@ public class ExplorerGameClient extends StateBasedGame {
                 //(Kevin) retrieve a character initialization object from the server
                 //(might be some better way to do this, but cant send entities directly they arnt serializable)
                 assert m.gamepos != null;
+                assert m.velocity != null;
+
                 if(m.id != ID){
                     var character_data_arr = (Object[]) m.data;
                     var spritex = (int) character_data_arr[0];
                     var spritey = (int) character_data_arr[1];
+                    var ct = (Class<? extends Character>) character_data_arr[2];
 
-                    allies.put(m.id, (new Character(
-                            m.gamepos,
-                            new Vector(0,0),
-                            game_sprites.getSprite(spritex, spritey),
-                            m.id
-                    )));
+                    allies.put(m.id, Character.dyn(ct, m.gamepos, m.velocity, spritex, spritey, m.id));
                 }
                 break;
             }
@@ -214,24 +214,18 @@ public class ExplorerGameClient extends StateBasedGame {
     }
     }
 
-    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
-        var im = game_sprites.getSprite(sx, sy);
-        var constructorType = new Class[]{Vector.class, Vector.class, Image.class, long.class};
 
-        try {
-             character = ct.getConstructor(constructorType).newInstance(gp,v,im,ID);
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e){
-            e.printStackTrace();
-            throw new IllegalArgumentException("character initialization failed");
-        }
+    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
+        character = Character.dyn(ct,gp,v,sx,sy, ID);
 
         //(Kevin) send this clients character to everyone else
         if (is_connected) {
             allies.put(ID, character);
             try {
-                var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sx, sy}, ID);
-                m.gamepos = character.getGamepos();
-                out_stream.writeObject(m);
+                out_stream.writeObject(Message.builder(Message.MSG_TYPE.INIT_CHARACTER, ID)
+                        .setGamepos(character.getGamepos())
+                        .setVelocity(character.getVelocity())
+                        .setData(new Object[]{sx, sy, ct}));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -263,9 +257,11 @@ public class ExplorerGameClient extends StateBasedGame {
         ResourceManager.loadImage(UR);
         ResourceManager.loadImage(DR);
 
+
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
-        screenox = 0;
-        screenoy = 0;
+        lib.LOAD_SPRITES_ONCE();
+//        screenox = 0;
+//        screenoy = 0;;
 
         // character will always render in the center of the screen
 //        int sprite_x = 0;

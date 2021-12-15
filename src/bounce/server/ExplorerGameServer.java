@@ -127,14 +127,10 @@ public class ExplorerGameServer extends StateBasedGame {
                 var character_data_arr = (Object[]) m.data;
                 var spritex = (int) character_data_arr[0];
                 var spritey = (int) character_data_arr[1];
+                var ct = (Class<? extends Character>) character_data_arr[2];
 
-                assert m.gamepos != null;
-                characters[(int) m.id] = (new Warrior(
-                        m.gamepos,
-                        new Vector(0,0),
-                        game_sprites.getSprite(spritex, spritey),
-                        m.id
-                ));
+
+                characters[(int) m.id] = Character.dyn(ct, m.gamepos, m.velocity, spritex, spritey, m.id);
                 out_messages.add(m);
                 break;
             }
@@ -164,13 +160,12 @@ public class ExplorerGameServer extends StateBasedGame {
             {
                 characters[(int)m.id].primary().ifPresent(projs -> {
                     projectiles.addAll(projs);
-                    projs.stream().map(p -> (
-                        Message.builder(Message.MSG_TYPE.ADD_ENTITY, p.id)
+                    projs.stream().map(p -> (Message.builder(Message.MSG_TYPE.ADD_ENTITY, p.id)
                                 .setEtype(Message.ENTITY_TYPE.PROJECTILE)
                                 .setGamepos(p.getGamepos())
                                 .setDir(p.curdir)
-                                .setVelocity(p.getVelocity())
-                    )).forEach(out_messages::add);
+                                .setVelocity(p.getVelocity())))
+                            .forEach(out_messages::add);
                 });
 //                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.getCurdir());
 //                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, , p.id, Message.ENTITY_TYPE.PROJECTILE);

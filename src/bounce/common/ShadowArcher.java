@@ -22,7 +22,7 @@ public class ShadowArcher extends Enemy{
         attack_timer = 3000;
         var d = lib.dir_from_point_to_point(character.getGamepos(), gamepos);
         curdir = d;
-        var p = new Projectile(super.getGamepos(), lib.dir_enum_to_unit_vector(d).scale(0.05f), d, 0, this);
+        var p = new Projectile(super.getGamepos(), lib.dir_enum_to_unit_vector(d).scale(0.05f), d, this);
         var ar = new ArrayList<Projectile>();
         ar.add(p);
         return Optional.of(ar);
@@ -30,6 +30,8 @@ public class ShadowArcher extends Enemy{
 
     @Override
     public Optional<ArrayList<Projectile>> update(final int delta, Character[] characters, lib.DIRS td){
+        setPosition(gamepos);
+
         //Kevin, if stunned by attack or player is on top of us
         if(attack_timer > 0) {
             attack_timer -= delta;
