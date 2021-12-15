@@ -1,9 +1,9 @@
-package bounce.common;
+package bounce.common.level;
 
 import bounce.client.ExplorerGameClient;
 import org.newdawn.slick.Image;
 
-public class Door extends Tile{
+public class Door extends Tile {
     public boolean is_open = true;
     public boolean is_on_n_or_s;
 

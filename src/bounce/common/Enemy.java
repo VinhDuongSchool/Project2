@@ -1,5 +1,6 @@
 package bounce.common;
 
+import bounce.common.level.Tile;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Shape;

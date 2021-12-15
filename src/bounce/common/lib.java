@@ -21,6 +21,7 @@ public class lib {
             16, -16,
             16, 16
     });
+    public static Vector v0 = new Vector(0,0);
 
     public static enum DIRS {
         //Kevin, values number clockwise from NORTH
