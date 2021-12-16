@@ -34,7 +34,7 @@ public class Character extends Entity {
         client_id = id;
 
         // add image with offset to it renders from top left corner
-        addImage(img);
+        //addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         attack_shapes = new ArrayList<>();
     }

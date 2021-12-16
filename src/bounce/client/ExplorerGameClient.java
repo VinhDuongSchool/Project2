@@ -44,6 +44,29 @@ public class ExplorerGameClient extends StateBasedGame {
     public static final String PILEOFGOLD = "bounce/resource/PileOfGold.png";
     public static final String POTION = "bounce/resource/Potion.png";
 
+    public static final String SpearManIdle = "bounce/resource/bSpearman/bSpearman_Idle_strip8.png";
+
+    public static final String SpearManAttackNorth="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Up_strip8.png";
+    public static final String SpearManAttackNorthEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_UpR_strip8.png";
+    public static final String SpearManAttackEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Right_strip8.png";
+    public static final String SpearManAttackSouthEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_DownR_strip8.png";
+    public static final String SpearManAttackSouth="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Down_strip8.png";
+    public static final String SpearManAttackSouthWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_DownL_strip8.png";
+    public static final String SpearManAttackWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Left_strip8.png";
+    public static final String SpearManAttackNorthWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_UpL_strip8.png";
+
+    public static final String SpearManWalkingNorth="bounce/resource/bSpearman/_walk/bSpearman_Walk_Up_strip10.png";
+    public static final String SpearManWalkingNorthEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_UpR_strip10.png";
+    public static final String SpearManWalkingEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_Right_strip10.png";
+    public static final String SpearManWalkingSouthEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_DownR_strip10.png";
+    public static final String SpearManWalkingSouth="bounce/resource/bSpearman/_walk/bSpearman_Walk_Down_strip10.png";
+    public static final String SpearManWalkingSouthWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_DownL_strip10.png";
+    public static final String SpearManWalkingWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_Left_strip10.png";
+    public static final String SpearManWalkingNorthWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_UpL_strip10.png";
+
+    public static final String SpearManDeath = "bounce/resource/bSpearman/_death/bSpearman_Die_Down_strip8.png";
+
+
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 
@@ -233,6 +256,28 @@ public class ExplorerGameClient extends StateBasedGame {
 		// attempt to do in the startUp() method.
 
 		// preload all the resources to avoid warnings & minimize latency...
+
+        ResourceManager.loadImage(SpearManIdle);
+
+        ResourceManager.loadImage(SpearManAttackNorth);
+        ResourceManager.loadImage(SpearManAttackNorthEast);
+        ResourceManager.loadImage(SpearManAttackEast);
+        ResourceManager.loadImage(SpearManAttackSouthEast);
+        ResourceManager.loadImage(SpearManAttackSouth);
+        ResourceManager.loadImage(SpearManAttackSouthWest);
+        ResourceManager.loadImage(SpearManAttackWest);
+        ResourceManager.loadImage(SpearManAttackNorthWest);
+
+        ResourceManager.loadImage(SpearManWalkingNorth);
+        ResourceManager.loadImage(SpearManWalkingNorthEast);
+        ResourceManager.loadImage(SpearManWalkingEast);
+        ResourceManager.loadImage(SpearManWalkingSouthEast);
+        ResourceManager.loadImage(SpearManWalkingSouth);
+        ResourceManager.loadImage(SpearManWalkingSouthWest);
+        ResourceManager.loadImage(SpearManWalkingWest);
+        ResourceManager.loadImage(SpearManWalkingNorthWest);
+
+        ResourceManager.loadImage(SpearManDeath);
 
         ResourceManager.loadImage(SPRITES);
         ResourceManager.loadImage(PROJECTILE);
