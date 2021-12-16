@@ -5,12 +5,10 @@ import bounce.common.*;
 import bounce.common.items.BaseItem;
 import bounce.common.level.TileMap;
 import jig.Entity;
-import jig.ResourceManager;
 import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
@@ -35,43 +33,10 @@ public class ExplorerGameClient extends StateBasedGame {
 	public static final int GAMEOVERSTATE = 2;
     public static final int CHARACTERSELECTSTATE = 3;
 
-    public static final String SPRITES = "bounce/resource/sprites.png";
-    public static final String PROJECTILE = "bounce/resource/projectile.png";
-    public static final String UD = "bounce/resource/UD.png";
-    public static final String LR = "bounce/resource/LR.png";
-    public static final String UR = "bounce/resource/UR.png";
-    public static final String DR = "bounce/resource/DR.png";
-    public static final String PILEOFGOLD = "bounce/resource/PileOfGold.png";
-    public static final String POTION = "bounce/resource/Potion.png";
-
-    public static final String SpearManIdle = "bounce/resource/bSpearman/bSpearman_Idle_strip8.png";
-
-    public static final String SpearManAttackNorth="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Up_strip8.png";
-    public static final String SpearManAttackNorthEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_UpR_strip8.png";
-    public static final String SpearManAttackEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Right_strip8.png";
-    public static final String SpearManAttackSouthEast="bounce/resource/bSpearman/_attack/bSpearman_Attack01_DownR_strip8.png";
-    public static final String SpearManAttackSouth="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Down_strip8.png";
-    public static final String SpearManAttackSouthWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_DownL_strip8.png";
-    public static final String SpearManAttackWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_Left_strip8.png";
-    public static final String SpearManAttackNorthWest="bounce/resource/bSpearman/_attack/bSpearman_Attack01_UpL_strip8.png";
-
-    public static final String SpearManWalkingNorth="bounce/resource/bSpearman/_walk/bSpearman_Walk_Up_strip10.png";
-    public static final String SpearManWalkingNorthEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_UpR_strip10.png";
-    public static final String SpearManWalkingEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_Right_strip10.png";
-    public static final String SpearManWalkingSouthEast="bounce/resource/bSpearman/_walk/bSpearman_Walk_DownR_strip10.png";
-    public static final String SpearManWalkingSouth="bounce/resource/bSpearman/_walk/bSpearman_Walk_Down_strip10.png";
-    public static final String SpearManWalkingSouthWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_DownL_strip10.png";
-    public static final String SpearManWalkingWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_Left_strip10.png";
-    public static final String SpearManWalkingNorthWest="bounce/resource/bSpearman/_walk/bSpearman_Walk_UpL_strip10.png";
-
-    public static final String SpearManDeath = "bounce/resource/bSpearman/_death/bSpearman_Die_Down_strip8.png";
-
-
 	public final int ScreenWidth;
 	public final int ScreenHeight;
 
     public final Vector screen_center;
-    public static SpriteSheet game_sprites;
     public float screenox;
     public float screenoy;
     public boolean is_connected;
@@ -149,12 +114,9 @@ public class ExplorerGameClient extends StateBasedGame {
                 assert m.velocity != null;
 
                 if(m.id != ID){
-                    var character_data_arr = (Object[]) m.data;
-                    var spritex = (int) character_data_arr[0];
-                    var spritey = (int) character_data_arr[1];
-                    var ct = (Class<? extends Character>) character_data_arr[2];
+                    var ct = (Class<? extends Character>) m.data;
 
-                    allies.put(m.id, Character.dyn(ct, m.gamepos, m.velocity, spritex, spritey, m.id));
+                    allies.put(m.id, Character.dyn(ct, m.gamepos, m.velocity, m.id));
                 }
                 break;
             }
@@ -193,7 +155,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new Zombie(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new Zombie(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
                         break;
                     }
                     case SHADOWARCHER:
@@ -201,7 +163,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
                         break;
                     }
                     case PROJECTILE:
@@ -246,8 +208,8 @@ public class ExplorerGameClient extends StateBasedGame {
     }
 
 
-    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
-        character = Character.dyn(ct,gp,v,sx,sy, ID);
+    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v){
+        character = Character.dyn(ct,gp,v, ID);
 
         //(Kevin) send this clients character to everyone else
         if (is_connected) {
@@ -256,7 +218,7 @@ public class ExplorerGameClient extends StateBasedGame {
                 out_stream.writeObject(Message.builder(Message.MSG_TYPE.INIT_CHARACTER, ID)
                         .setGamepos(character.getGamepos())
                         .setVelocity(character.getVelocity())
-                        .setData(new Object[]{sx, sy, ct}));
+                        .setData(ct));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -281,52 +243,10 @@ public class ExplorerGameClient extends StateBasedGame {
 		// attempt to do in the startUp() method.
 
 		// preload all the resources to avoid warnings & minimize latency...
-
-        ResourceManager.loadImage(SpearManIdle);
-
-        ResourceManager.loadImage(SpearManAttackNorth);
-        ResourceManager.loadImage(SpearManAttackNorthEast);
-        ResourceManager.loadImage(SpearManAttackEast);
-        ResourceManager.loadImage(SpearManAttackSouthEast);
-        ResourceManager.loadImage(SpearManAttackSouth);
-        ResourceManager.loadImage(SpearManAttackSouthWest);
-        ResourceManager.loadImage(SpearManAttackWest);
-        ResourceManager.loadImage(SpearManAttackNorthWest);
-
-        ResourceManager.loadImage(SpearManWalkingNorth);
-        ResourceManager.loadImage(SpearManWalkingNorthEast);
-        ResourceManager.loadImage(SpearManWalkingEast);
-        ResourceManager.loadImage(SpearManWalkingSouthEast);
-        ResourceManager.loadImage(SpearManWalkingSouth);
-        ResourceManager.loadImage(SpearManWalkingSouthWest);
-        ResourceManager.loadImage(SpearManWalkingWest);
-        ResourceManager.loadImage(SpearManWalkingNorthWest);
-
-        ResourceManager.loadImage(SpearManDeath);
-
-        ResourceManager.loadImage(SPRITES);
-        ResourceManager.loadImage(PROJECTILE);
-        ResourceManager.loadImage(UD);
-        ResourceManager.loadImage(LR);
-        ResourceManager.loadImage(UR);
-        ResourceManager.loadImage(DR);
-        ResourceManager.loadImage(PILEOFGOLD);
-        ResourceManager.loadImage(POTION);
-        game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         lib.LOAD_SPRITES_ONCE();
-//        screenox = 0;
-//        screenoy = 0;;
 
-        // character will always render in the center of the screen
-//        int sprite_x = 0;
-//        int sprite_y = 10;
-//        character = new Warrior(
-//                32*5, 32*5,
-//                0,0,
-//                game_sprites.getSprite(sprite_x, sprite_y),
-//                ID);  //Set up the character.
-
-        grid = new TileMap(100,100, game_sprites);
+        //Kevin, also initialize grid
+        grid = new TileMap(100,100);
     }
 
 	public static void main(String[] args) {

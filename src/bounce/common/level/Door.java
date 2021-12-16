@@ -1,6 +1,6 @@
 package bounce.common.level;
 
-import bounce.client.ExplorerGameClient;
+import bounce.common.lib;
 import org.newdawn.slick.Image;
 
 public class Door extends Tile {
@@ -17,14 +17,14 @@ public class Door extends Tile {
     public void open(){
         is_open = true;
         removeImage(curim);
-        var i = ExplorerGameClient.game_sprites.getSprite(is_on_n_or_s ? 11 : 12, 4);
+        var i = lib.game_sprites.getSprite(is_on_n_or_s ? 11 : 12, 4);
         addImage(i);
     }
 
     public void close(){
         is_open = false;
         removeImage(curim);
-        var i = ExplorerGameClient.game_sprites.getSprite(is_on_n_or_s ? 1 : 2, 2);
+        var i = lib.game_sprites.getSprite(is_on_n_or_s ? 1 : 2, 2);
         addImage(i);
 
     }

@@ -1,6 +1,5 @@
 package bounce.common.level;
 
-import bounce.client.ExplorerGameClient;
 import bounce.common.Character;
 import bounce.common.Enemy;
 import bounce.common.lib;
@@ -9,7 +8,6 @@ import jig.Vector;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SpriteSheet;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -46,7 +44,7 @@ public class TileMap {
 
     PriorityQueue<int[]> Q = new PriorityQueue<>(100, (a,b) -> Integer.compare(a[2],b[2])); //Priority queue for the dijkstra algorithm.
 
-    public TileMap(int tilesx, int tilesy, SpriteSheet ss) {
+    public TileMap(int tilesx, int tilesy) {
         maxx = tilesx;
         maxy = tilesy;
 
@@ -63,10 +61,10 @@ public class TileMap {
                 String tileType;
                 TYPE t;
                 if(y == 0 || x == 0){
-                    i = ss.getSprite(0,2);
+                    i = lib.game_sprites.getSprite(0,2);
                     t = TYPE.WALL;
                 } else {
-                    i = ss.getSprite(10, 4);
+                    i = lib.game_sprites.getSprite(10, 4);
                     t= TYPE.FLOOR;
                 }
                 tiles[x][y] = new Tile(x*32,y*32, new Vector(x*32, y*32),i);
@@ -74,7 +72,7 @@ public class TileMap {
             }
         }
         //(Kevin) test tile
-//        t = new Tile(0,0, new Vector(11*32, 10*32), ss.getSprite(0,2), "WALL");
+//        t = new Tile(0,0, new Vector(11*32, 10*32), lib.game_sprites.getSprite(0,2), "WALL");
 //        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
 
         S = new int[tiles.length][tiles[0].length];
@@ -86,7 +84,7 @@ public class TileMap {
         int i = 1;
         while (true){
             try {
-                addRoom("room"+i, ss);
+                addRoom("room"+i);
             } catch (NullPointerException e) {
                 System.out.println("done loading rooms");
                 break;
@@ -96,7 +94,7 @@ public class TileMap {
 
         int gpx = 6;
         int gpy = 6;
-        var t = new Tile(320,320, new Vector(10*32, 10*32), ss.getSprite(0,2));
+        var t = new Tile(320,320, new Vector(10*32, 10*32), lib.game_sprites.getSprite(0,2));
 //        t.addShape(new ConvexPolygon(new float[]{16,-16,16,16,-16,16,-16,-16}));
         t.type = TYPE.WALL;
         tiles[10][10] = t;
@@ -637,7 +635,7 @@ public class TileMap {
         }
     }
 
-    private void addRoom(String room, SpriteSheet ss) throws NullPointerException {
+    private void addRoom(String room) throws NullPointerException {
         /*
         Kevin, parsing a level file:
 
@@ -685,9 +683,9 @@ public class TileMap {
                 if(tiles[x][y].type == TYPE.DOOR)
                     continue;
                 if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
-                    tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
+                    tiles[x][y] = new Tile(x*32,y*32, lib.game_sprites.getSprite(0,2), TYPE.WALL, r);
                 } else {
-                    tiles[x][y] = new Tile(x*32, y*32, ss.getSprite(10, 4), TYPE.FLOOR, r);
+                    tiles[x][y] = new Tile(x*32, y*32, lib.game_sprites.getSprite(10, 4), TYPE.FLOOR, r);
                 }
             }
         }
@@ -705,7 +703,7 @@ public class TileMap {
 
             dir += cords[i%2 == 0 ? 1 : 0];
             //Kevin, get correct rotation of door based on if y cords or x cords
-            var img = ss.getSprite(12 - i % 2 ,4);
+            var img = lib.game_sprites.getSprite(12 - i % 2 ,4);
             var t = TYPE.DOOR;
 
             //Kevin, add door to the right edge and add the door to the room list
@@ -770,7 +768,7 @@ public class TileMap {
         switch (type) {
             case 1:
                 t = TYPE.WALL;
-                img = ExplorerGameClient.game_sprites.getSprite(0, 2);
+                img = lib.game_sprites.getSprite(0, 2);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);

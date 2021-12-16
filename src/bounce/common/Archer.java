@@ -10,8 +10,9 @@ import java.util.Optional;
 public class Archer extends Character {
     Image temp_im;
 
-    public Archer(Vector gp, Vector v, Image img, long id) {
-        super(gp,v,img,id);
+    public Archer(Vector gp, Vector v, long id) {
+        super(gp,v,id);
+        addImage(lib.game_sprites.getSprite(1,10));
         health = 75;
         defense = 25;
         stamina = 100;
@@ -36,7 +37,7 @@ public class Archer extends Character {
     }
 
     @Override
-    public void update(int delta) { //To end the timer.
+    public void update(final int delta) { //To end the timer.
         super.update(delta);
         if (countdown <= 0) {
             removeImage(temp_im);

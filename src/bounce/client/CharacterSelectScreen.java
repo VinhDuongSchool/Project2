@@ -9,11 +9,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 
 /**
  * This is used to select a character using the 1,2,3,4 keys
@@ -51,16 +46,16 @@ public class CharacterSelectScreen extends BasicGameState {
         var startpos = new Vector(32*5, 32*5);
 
         if (input.isKeyPressed(Input.KEY_1)) { //Choose the character by selecting the information that is already in the character and load the appropiate image.
-            egc.setCharacter(Warrior.class, startpos, lib.v0, 0, 10);
+            egc.setCharacter(Warrior.class, startpos, lib.v0);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyPressed(Input.KEY_2)) {
-            egc.setCharacter(Archer.class, startpos, lib.v0, 1, 10);
+            egc.setCharacter(Archer.class, startpos, lib.v0);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         } else if (input.isKeyPressed(Input.KEY_3)) {
-            egc.setCharacter(Rogue.class, startpos, lib.v0, 2, 10);
+            egc.setCharacter(Rogue.class, startpos, lib.v0);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }else if (input.isKeyPressed(Input.KEY_4)) {
-            egc.setCharacter(Mage.class, startpos, lib.v0, 3, 10);
+            egc.setCharacter(Mage.class, startpos, lib.v0);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }
     }

@@ -8,10 +8,7 @@ import bounce.common.items.Potion;
 import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import jig.Vector;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -175,13 +172,13 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        var characterDir = lib.wasd_to_dir(inp);
+        var cMovDir = lib.wasd_to_dir(inp);
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
         //angleto gives the angle in degrees rotated by 180 for some reason,
         //divide by 45 to convert into 8 directions, then round to get the angle index,
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
-        int diridx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
+        int cLookingDirIdx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
 
 //        Kevin, commented out until its used for something
 //        for(Enemy e : egc.enemies){
@@ -193,9 +190,9 @@ public class ClientPlayingState extends BasicGameState {
         if(egc.is_connected){ //Kevin, run with a server
             var messages = new ArrayList<Message>();
 
-            if(egc.character.getCurdir() != characterDir){
-                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(characterDir));
-                egc.character.setCurdir(characterDir);
+            if(egc.character.getCurdir() != cMovDir){
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(cMovDir));
+                egc.character.setCurdir(cMovDir);
             }
 
 
@@ -204,9 +201,9 @@ public class ClientPlayingState extends BasicGameState {
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
 
-            if(diridx != lastMouseIdx){
-                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(diridx));
-                lastMouseIdx = diridx;
+            if(cLookingDirIdx != lastMouseIdx){
+                messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(cLookingDirIdx));
+                lastMouseIdx = cLookingDirIdx;
             }
 
             messages.stream().forEach(m -> {
@@ -238,26 +235,28 @@ public class ClientPlayingState extends BasicGameState {
                 egc.items.remove(item);
             });
 
+
             //(Kevin) handle stuff when client isnt connected
+            egc.character.setCurdir(cMovDir);
+            egc.character.lookingDirIdx = cLookingDirIdx;
 
-            egc.character.lookingDirIdx = diridx;
-            egc.character.setCurdir(characterDir);
-            egc.character.update(delta); //Update the position of the player
+            {// this is in this order for a reason otherwise colliding with walls will move the player backwards
+                egc.character.update(delta);
 
-            //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
-            egc.grid.getNeighbors(egc.character.getGamepos()).stream()
-                    .filter(t -> t.type == TileMap.TYPE.WALL || (t.type == TileMap.TYPE.DOOR && !((Door)t).is_open)) //hmmmmmmmmmmmmmm
-                    .map(egc.character::collides) // stream of collisions that may be null
-                    .filter(Objects::nonNull)
-                    .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
-                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
-                        egc.character.update(delta);
-                        egc.character.setVelocity(egc.character.getVelocity().scale(-1));
-                    });
+                //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
+                egc.grid.getNeighbors(egc.character.getGamepos()).stream()
+                        .filter(t -> t.type == TileMap.TYPE.WALL || (t.type == TileMap.TYPE.DOOR && !((Door) t).is_open)) //hmmmmmmmmmmmmmm
+                        .map(egc.character::collides) // stream of collisions that may be null
+                        .filter(Objects::nonNull)
+                        .findAny().ifPresent(c -> { // the actual collision object isnt useful, the minpentration doesnt work at all
+                            if (egc.character.attack_timer <= 0) // when attacking we dont move
+                                egc.character.setGamepos(egc.character.getGamepos().add(egc.character.getVelocity().scale(-1).scale(delta)));
+                        });
 
-            //Kevin, primary attack
-            if(input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
-                egc.character.primary(diridx).ifPresent(egc.projectiles::addAll);
+                //Kevin, primary attack
+                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
+                    egc.character.primary().ifPresent(egc.projectiles::addAll);
+            }
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
@@ -265,8 +264,8 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, make  an array of characters because thats what the server would give to the method
             egc.enemies.stream().map(e -> e.update(delta, egs_characters,
                     //Kevin, may be cleaned up eventually
-                    e.getClass() == ShadowArcher.class ? egc.grid.getranged_dir(e.getGamepos()) : egc.grid.get_dir(e.getGamepos())))
-
+                    e.getClass() == ShadowArcher.class ? egc.grid.getranged_dir(e.getGamepos()) : egc.grid.get_dir(e.getGamepos()))
+                    )
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(egc.projectiles::addAll);

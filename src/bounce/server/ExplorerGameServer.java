@@ -125,16 +125,13 @@ public class ExplorerGameServer extends StateBasedGame {
             //(Kevin) read a character from one client and broadcast it to all the others
             case INIT_CHARACTER:
             {
-                var character_data_arr = (Object[]) m.data;
-                var spritex = (int) character_data_arr[0];
-                var spritey = (int) character_data_arr[1];
-                var ct = (Class<? extends Character>) character_data_arr[2];
+                var ct = (Class<? extends Character>) m.data;
 
-
-                characters[(int) m.id] = Character.dyn(ct, m.gamepos, m.velocity, spritex, spritey, m.id);
+                characters[(int) m.id] = Character.dyn(ct, m.gamepos, m.velocity, m.id);
                 out_messages.add(m);
                 break;
             }
+            /* old, client shouldnt create stuff on server
             case ADD_ENTITY:
             {
                 assert false : "unreachable m = " + m.type;
@@ -157,6 +154,7 @@ public class ExplorerGameServer extends StateBasedGame {
 
                 break;
             }
+             */
             case PRIMARY:
             {
                 characters[(int)m.id].primary().ifPresent(projs -> {
@@ -208,7 +206,7 @@ public class ExplorerGameServer extends StateBasedGame {
         ResourceManager.loadImage(PROJECTILE);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         lib.LOAD_SPRITES_ONCE();
-        grid = new TileMap(100,100, game_sprites);
+        grid = new TileMap(100,100);
 
         //(Kevin) dont start run server until all clients are connected
         while (Arrays.stream(characters).anyMatch(Objects::isNull)){

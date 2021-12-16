@@ -1,6 +1,5 @@
 package bounce.common.items;
 
-import bounce.client.ExplorerGameClient;
 import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.ResourceManager;
@@ -13,7 +12,7 @@ public class PileOfGold extends BaseItem {
     public PileOfGold(final float x, final float y) {
         super(x,y);
         gamepos = new Vector(x,y);
-        addImage(ResourceManager.getImage(ExplorerGameClient.PILEOFGOLD)); //Add the image.
+        addImage(ResourceManager.getImage(lib.PILEOFGOLD)); //Add the image.
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
     }
 

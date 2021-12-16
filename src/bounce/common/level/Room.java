@@ -1,6 +1,5 @@
 package bounce.common.level;
 
-import bounce.client.ExplorerGameClient;
 import bounce.common.Enemy;
 import bounce.common.ShadowArcher;
 import bounce.common.Zombie;
@@ -109,7 +108,7 @@ public class Room {
         public Spawner(Class<? extends Enemy> t, Vector gp, int c) {
 
             count = c;
-            im = (t.getName().equals(Zombie.class.getName())) ? ExplorerGameClient.game_sprites.getSprite(0, 9) :  ExplorerGameClient.game_sprites.getSprite(3, 8);
+            im = (t.getName().equals(Zombie.class.getName())) ? lib.game_sprites.getSprite(0, 9) :  lib.game_sprites.getSprite(3, 8);
             gamepos = gp;
             try {
                 maker = t.getConstructor(Vector.class, Vector.class, Image.class);

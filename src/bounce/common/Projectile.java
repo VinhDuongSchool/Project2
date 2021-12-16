@@ -1,6 +1,5 @@
 package bounce.common;
 
-import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.ResourceManager;
@@ -32,13 +31,13 @@ public class Projectile extends Entity {
 
         // add image with offset to it renders from top left corner
         if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
-            addImage(ResourceManager.getImage(ExplorerGameClient.UD));
+            addImage(ResourceManager.getImage(lib.UD));
         } else if (d == lib.DIRS.SOUTHWEST || d == lib.DIRS.NORTHEAST) {
-            addImage(ResourceManager.getImage(ExplorerGameClient.LR));
+            addImage(ResourceManager.getImage(lib.LR));
         } else if (d == lib.DIRS.WEST || d == lib.DIRS.EAST) {
-            addImage(ResourceManager.getImage(ExplorerGameClient.DR));
+            addImage(ResourceManager.getImage(lib.DR));
         } else if (d == lib.DIRS.NORTH || d == lib.DIRS.SOUTH) {
-            addImage(ResourceManager.getImage(ExplorerGameClient.UR));
+            addImage(ResourceManager.getImage(lib.UR));
         }
 
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
@@ -55,7 +54,8 @@ public class Projectile extends Entity {
         sender = s;
     }
 
-    // this should be needed?
+    // this shouldnt be needed?
+    // id + sender means its for creating a projectile entity on the client which means it shouldnt need the sender information ever
 //    public Projectile(Vector pos, Vector vel, lib.DIRS d, long i,  Object s){
 //        this(pos, vel, i, d);
 //        sender = s;

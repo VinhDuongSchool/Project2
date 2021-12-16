@@ -4,14 +4,13 @@ import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Shape;
 import jig.Vector;
-import org.newdawn.slick.Image;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 
-public class Character extends Entity {
+public abstract class Character extends Entity {
 
     protected Vector velocity; //Velocity vectore.
     protected Vector gamepos;
@@ -27,9 +26,10 @@ public class Character extends Entity {
     protected float speed;
     public int countdown;
     public int lookingDirIdx;
+    public boolean doingAttackAnim;
 
 
-    public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
+    public Character(final float x, final float y, final float vx, final float vy, long id) {
         super(x,y);
         gamepos = new Vector(x,y);
         velocity = new Vector(vx, vy);
@@ -42,29 +42,26 @@ public class Character extends Entity {
     }
 
 
-    public static Character dyn(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy, long id){
-        var im = lib.game_sprites.getSprite(sx, sy);
+    //Kevin, make a character give a class
+    public static Character dyn(Class<? extends Character> ct, Vector gp, Vector v, long id){
         try {
-            return (Character) ct.getConstructors()[0].newInstance(gp,v,im, id);
+            //this works because characters only have a single constructor
+            return (Character) ct.getConstructors()[0].newInstance(gp,v,id);
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e){
             e.printStackTrace();
             throw new IllegalArgumentException("character initialization failed");
         }
     }
 
-    public Character(Vector pos, Vector vel, Image img, long id){
-        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), img, id);
+    public Character(Vector pos, Vector vel, long id){
+        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), id);
     }
 
+    //Kevin, set current dir and update velocity accordingly
+    //null dir means no keys are pressed so no movement
     public void setCurdir(lib.DIRS curdir) {
-
         this.curdir = curdir;
-        if(curdir == null) {
-            velocity = new Vector(0, 0);
-        } else {
-            velocity = lib.dir_enum_to_unit_vector(curdir).scale(speed);
-
-        }
+        velocity = (curdir == null) ? lib.v0 : lib.dir_enum_to_unit_vector(curdir).scale(speed);
     }
 
     public lib.DIRS getCurdir() {
@@ -80,25 +77,17 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public Optional<ArrayList<Projectile>> primary(){
-        throw new IllegalStateException("don't call Character melee call some class melee");
-    }
+    public abstract Optional<ArrayList<Projectile>> primary();
 
     public void update(final int delta) {
-        //Kevin, update the attack timer and if its 0 remove the attack shapes from the entity
-        if (attack_timer <= 0){
-            attack_shapes.stream().forEach(this::removeShape);
-            attack_shapes.clear();
-        } else {
+
+        if(attack_timer > 0) {
             attack_timer -= delta;
+        } else {
+            gamepos = gamepos.add(velocity.scale(delta));
         }
 
-        gamepos = gamepos.add(velocity.scale(delta));
         setPosition(gamepos);
-    } //Update base off of the velocity
-
-    public long getClient_id() {
-        return client_id;
     }
 
     public void setGamepos(Vector gamepos) {

@@ -1,6 +1,5 @@
 package bounce.common;
 
-import bounce.client.ExplorerGameClient;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
@@ -11,8 +10,9 @@ import java.util.Optional;
 public class Mage extends Character {
     Image temp_im;
 
-    public Mage(Vector gp, Vector v, Image img, long id) {
-        super(gp,v,img,id);
+    public Mage(Vector gp, Vector v, long id) {
+        super(gp,v,id);
+        addImage(lib.game_sprites.getSprite(3,10));
         health = 25;
         defense = 10;
         stamina = 100;
@@ -23,7 +23,7 @@ public class Mage extends Character {
 
     @Override
     public Optional<ArrayList<Projectile>> primary() { //Primary attack
-        temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
+        temp_im = lib.game_sprites.getSprite(0,11);
         addImage(temp_im);
         countdown = 500;
 
@@ -31,7 +31,7 @@ public class Mage extends Character {
     }
 
     @Override
-    public void update(int delta) { //To check the countdown timer.
+    public void update(final int delta) { //To check the countdown timer.
         super.update(delta);
         if (countdown <= 0) {
             removeImage(temp_im);
