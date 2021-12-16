@@ -72,18 +72,18 @@ public class Warrior extends Character {
         attackNorthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackNorthWest).getScaledCopy(.5f),99,66);// vector offset -5 f-1
 
         //same with these
-//        WalkingNorthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorth).getScaledCopy(),,);
-//        WalkingNorthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthEast).getScaledCopy(),,);
-//        WalkingEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingEast).getScaledCopy(),,);
-//        WalkingSouthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthEast).getScaledCopy(),,);
-//        WalkingSouthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouth).getScaledCopy(),,);
-//        WalkingSouthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthWest).getScaledCopy(),,);
-//        WalkingWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingWest).getScaledCopy(),,);
-//        WalkingNorthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthWest).getScaledCopy(),,);
-//
-//        // same with this one
-//        DeathSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManDeath).getScaledCopy(),,);
-        test = new Animation(attackNorthWestSpriteSheet,50);
+        WalkingNorthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorth).getScaledCopy(.5f),49,79); // vector offset -10 -1
+        WalkingNorthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthEast).getScaledCopy(.5f),75,69);// vector unchanged
+        WalkingEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingEast).getScaledCopy(.5f),95,61);// vector unchanged
+        WalkingSouthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthEast).getScaledCopy(.5f),75,66); // vector unchanged
+        WalkingSouthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouth).getScaledCopy(.5f),52,67); // vector unchanged
+        WalkingSouthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthWest).getScaledCopy(.5f),79,66);// vector offset -15 -1
+        WalkingWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingWest).getScaledCopy(.5f),101,61);// vector unchanged
+        WalkingNorthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthWest).getScaledCopy(.5f),82,71);// vector unchanged
+
+        // same with this one
+        DeathSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManDeath).getScaledCopy(.5f),77,79); // vector offset -10 -1
+        test = new Animation(DeathSpriteSheet,50);
 
 
     }
@@ -91,7 +91,7 @@ public class Warrior extends Character {
     @Override
     public Optional<ArrayList<Projectile>> primary(int diridx) {
         removeImage(temp_im);
-        addAnimation(test, new Vector(-5.0f,1f));
+        addAnimation(test, new Vector(-10.0f,1f));
         test.setLooping(false);
         test.restart();
 //        //0 and 8 map to the same value
