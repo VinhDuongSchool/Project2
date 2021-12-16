@@ -221,6 +221,17 @@ public class ClientPlayingState extends BasicGameState {
         } else {
             //Kevin, character array to imitate server so its easier to copy functionality
             var egs_characters = new Character[]{egc.character};
+            if (input.isKeyPressed(Input.KEY_L)) { //If L key is pressed then game resumes as normal.
+                egc.character.dead = false;
+            }
+
+            if (egc.character.dead == true) { //If character is dead then don't do anything.
+                return;
+            }
+
+            if (input.isKeyPressed(Input.KEY_K) || egc.character.health <= 0) { //If k key is pressed or player runs out of health the do death scene.
+                egc.character.dieScene();
+            }
 
             for (Enemy e: egc.enemies) { //If zombie enemy is attacking and collides with the character then decrease the character health by 4.
                 if (e.getClass() == Zombie.class) {

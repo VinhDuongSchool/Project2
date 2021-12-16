@@ -27,6 +27,7 @@ public abstract class Character extends Entity {
     public int countdown;
     public int lookingDirIdx;
     public boolean doingAttackAnim;
+    public boolean dead = false;
 
 
 
@@ -98,6 +99,10 @@ public abstract class Character extends Entity {
 
     public Vector getGamepos() {
         return gamepos;
+    }
+
+    public void dieScene() {
+
     }
 }
 
