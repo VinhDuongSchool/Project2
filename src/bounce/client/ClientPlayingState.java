@@ -158,11 +158,22 @@ public class ClientPlayingState extends BasicGameState {
 
 	}
 
+//    public void controllerButtonPressed(int controller, int button){
+//
+//    }
+
+
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
+
+        if(input.isButtonPressed(2,2)){ // left joycon down button pressed is one 1
+            System.out.println("you pressed a button on the joycon");
+        }
+
+
 
         if(egc.character == null)
             throw new IllegalStateException("character not initialized");
@@ -194,6 +205,7 @@ public class ClientPlayingState extends BasicGameState {
                 messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(cMovDir));
                 egc.character.setCurdir(cMovDir);
             }
+
 
 
             if(input.isKeyPressed(Input.KEY_F)) {
