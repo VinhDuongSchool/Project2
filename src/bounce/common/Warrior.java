@@ -2,6 +2,8 @@ package bounce.common;
 
 import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
+import jig.ResourceManager;
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SpriteSheet;
 
@@ -24,7 +26,7 @@ public class Warrior extends Character {
     SpriteSheet attackEastSpriteSheet;
     SpriteSheet attackNorthEastSpriteSheet;
 
-    SpriteSheet walkingNorthSpriteSheet;
+    SpriteSheet WalkingNorthSpriteSheet;
     SpriteSheet WalkingNorthWestSpriteSheet;
     SpriteSheet WalkingWestSpriteSheet;
     SpriteSheet WalkingSouthWestSpriteSheet;
@@ -47,6 +49,31 @@ public class Warrior extends Character {
         magic = 0;
         attack = 50;
         speed = 25;
+        // load all animaions
+
+        IdleSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManIdle).getScaledCopy(), ,);
+
+        attackNorthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackNorth).getScaledCopy(),,);
+        attackNorthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackNorthEast).getScaledCopy(),,);
+        attackEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackEast).getScaledCopy(),,);
+        attackSouthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackSouthEast).getScaledCopy(),,);
+        attackSouthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackSouth).getScaledCopy(),,);
+        attackSouthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackSouthWest).getScaledCopy(),,);
+        attackWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackWest).getScaledCopy(),,);
+        attackNorthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManAttackNorthWest).getScaledCopy(),,);
+
+        WalkingNorthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorth).getScaledCopy(),,);
+        WalkingNorthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthEast).getScaledCopy(),,);
+        WalkingEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingEast).getScaledCopy(),,);
+        WalkingSouthEastSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthEast).getScaledCopy(),,);
+        WalkingSouthSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouth).getScaledCopy(),,);
+        WalkingSouthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingSouthWest).getScaledCopy(),,);
+        WalkingWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingWest).getScaledCopy(),,);
+        WalkingNorthWestSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManWalkingNorthWest).getScaledCopy(),,);
+
+        DeathSpriteSheet = new SpriteSheet(ResourceManager.getImage(ExplorerGameClient.SpearManDeath).getScaledCopy(),,);
+
+
     }
 
     @Override
