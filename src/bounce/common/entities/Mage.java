@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
@@ -19,6 +20,10 @@ public class Mage extends Character {
         magic = 100;
         attack = 100;
         speed = 0.3f;
+    }
+
+    public void doAnim() {
+
     }
 
     @Override

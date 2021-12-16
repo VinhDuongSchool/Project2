@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Vector;
 import org.newdawn.slick.Image;

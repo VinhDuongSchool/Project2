@@ -1,17 +1,15 @@
 package bounce.common.level;
 
 import bounce.common.lib;
-import org.newdawn.slick.Image;
 
 public class Door extends Tile {
-    public boolean is_open = true;
+    public boolean is_open = false;
     public boolean is_on_n_or_s;
 
-    public Door(float x, float y, Image img, TileMap.TYPE t, Room r, boolean is_vert){
-        super(x, y, img, t, r);
+    public Door(float x, float y, TileMap.TYPE t, Room r, boolean is_vert){
+        super(x, y, lib.game_sprites.getSprite(is_vert ? 1 : 2, 2), t, r);
         assert t == TileMap.TYPE.DOOR;
-        this.is_on_n_or_s  =is_vert;
-
+        this.is_on_n_or_s  = is_vert;
     }
 
     public void open(){

@@ -1,7 +1,11 @@
 package bounce.server;
 
-import bounce.common.Character;
-import bounce.common.*;
+import bounce.common.Message;
+import bounce.common.entities.Character;
+import bounce.common.entities.Enemy;
+import bounce.common.entities.Projectile;
+import bounce.common.entities.ShadowArcher;
+import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
  */
 public class ServerPlayingState extends BasicGameState {
 
+    Integer next_to_open = null;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -74,39 +79,66 @@ public class ServerPlayingState extends BasicGameState {
         egs.grid.MakePath(Arrays.stream(egs.characters).map(Character::getGamepos).collect(Collectors.toCollection(ArrayList::new)));
 
         //(Kevin) read all the messages
-        for(var m = egs.in_messages.poll(); m != null; m = egs.in_messages.poll()){
+        for (var m = egs.in_messages.poll(); m != null; m = egs.in_messages.poll()) {
             egs.handle_message(m);
         }
 
         //(Kevin) update all the characters
-        Arrays.stream(egs.characters).forEach((c) ->{
+        Arrays.stream(egs.characters).forEach((c) -> {
             var oldpos = c.getGamepos();
+            var oldAT = c.attack_timer;
             c.update(delta);
 
             //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
             egs.grid.getNeighbors(c.getGamepos()).stream()
-                    .filter(t -> t.type == TileMap.TYPE.WALL)
+                    .filter(t -> t.type == TileMap.TYPE.WALL || t.type == TileMap.TYPE.DOOR && !((Door) t).is_open)
                     .map(c::collides) // stream of collisions that may be null
                     .filter(Objects::nonNull)
                     .findAny().ifPresent(collision -> { // the actual collision object isnt useful, the minpentration doesnt work at all
-                        c.setVelocity(c.getVelocity().scale(-1));
-                        c.update(delta);
-                        c.setVelocity(c.getVelocity().scale(-1));
+                        if (c.attack_timer <= 0) // when attacking we dont move
+                            c.setGamepos(c.getGamepos().add(c.getVelocity().scale(-1).scale(delta)));
                     });
 
-            if(!oldpos.equals(c.getGamepos()))
+            if (!oldpos.equals(c.getGamepos()))
                 egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, c.getGamepos(), c.client_id, Message.ENTITY_TYPE.CHARACTER));
+            if (oldAT != c.attack_timer)
+                egs.out_messages.add(Message.builder(Message.MSG_TYPE.SET_ATTACK_TIMER, c.client_id).setIntData(c.attack_timer));
         });
 
 
-        //(Kevin) remove dead/hit/etc stuff
-        var toremove =  egs.enemies.stream().filter(e -> e.getHealth() <=0).collect(Collectors.toList());
-        for (Enemy e : toremove) {
-            egs.enemies.remove(e);
-            egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null,  e.id, Message.ENTITY_TYPE.ENEMY));
+
+        {
+            Boolean[] bfr = egs.grid.rooms.stream().map(r -> r.completed).toArray(Boolean[]::new);
+
+            //Kevin, update grid
+            egs.grid.update(delta, egs.characters, egs.enemies.isEmpty()).ifPresent(enems ->
+                    enems.stream().forEach(e -> {
+                        egs.enemies.add(e);
+                        egs.out_messages.add(Message.builder(
+                                        Message.MSG_TYPE.ADD_ENTITY, e.id)
+                                .setEtype(Message.ENTITY_TYPE.ZOMBIE)
+                                .setGamepos(e.getGamepos())
+                                .setVelocity(e.getVelocity())
+                                .setData(new Object[]{0, 9}));
+                    }));
+            var aft = egs.grid.rooms.stream().map(r -> r.completed).toArray(Boolean[]::new);
+
+            for (int i = 0; i < bfr.length; i++)
+                if (bfr[i] != aft[i])
+                    next_to_open = i;
+
+            if(next_to_open != null && egs.enemies.isEmpty()){
+                egs.out_messages.add(Message.builder(Message.MSG_TYPE.COMPLETE_ROOM, next_to_open));
+                next_to_open = null;
+            }
         }
 
-
+        //(Kevin) remove dead/hit/etc stuff
+        var toremove = egs.enemies.stream().filter(e -> e.getHealth() <= 0).collect(Collectors.toList());
+        for (Enemy e : toremove) {
+            egs.enemies.remove(e);
+            egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null, e.id, Message.ENTITY_TYPE.ENEMY));
+        }
 
         //Kevin, update enemies
         egs.enemies.stream().forEach(e -> {
@@ -116,9 +148,22 @@ public class ServerPlayingState extends BasicGameState {
             egs.out_messages.add(Message.builder(Message.MSG_TYPE.NEW_POSITION, e.id).setEtype(Message.ENTITY_TYPE.ENEMY).setGamepos(e.getGamepos()));
         });
 
-        for (int i = egs.projectiles.size()-1; i >= 0; i--){
+        //check player attacks, must be after both player and character are updated
+        Arrays.stream(egs.characters).filter(c -> !c.hit_in_this_attack && c.attack_timer > 0).forEach(c -> {
+            for(var e : egs.enemies){
+                if(c.collides(e) != null){
+                    e.setHealth(e.getHealth() - c.attack);
+                    //player attack freeze is 500ms
+                    e.attack_timer += 450;
+                    c.hit_in_this_attack = true;
+                    break;
+                }
+            }
+        });
+
+        for (int i = egs.projectiles.size() - 1; i >= 0; i--) {
             var p = egs.projectiles.get(i);
-            if (p.getHit()){
+            if (p.getHit()) {
                 egs.projectiles.remove(i);
                 egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE));
             }
@@ -128,7 +173,7 @@ public class ServerPlayingState extends BasicGameState {
         //(Kevin) update all other entities
         egs.projectiles.forEach(p -> {
             p.update(delta);
-            egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION,  p.getGamepos(), p.id, Message.ENTITY_TYPE.PROJECTILE));
+            egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, p.getGamepos(), p.id, Message.ENTITY_TYPE.PROJECTILE));
         });
 
         //Kevin, check if projectiles collide with enemies
@@ -141,11 +186,14 @@ public class ServerPlayingState extends BasicGameState {
                     break; // each projectile should only collide with a single entity
                 }
             }
+
+            var currentProjectileTile = egs.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.
+            if (currentProjectileTile.type == TileMap.TYPE.WALL && p.collides(currentProjectileTile) != null)  //If the tile is a wallh
+                p.setHit(true);
         }
+    }
 
-	}
-
-	@Override
+    @Override
 	public int getID() {
 		return ExplorerGameServer.PLAYINGSTATE;
 	}

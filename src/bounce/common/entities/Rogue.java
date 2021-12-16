@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
@@ -21,7 +22,10 @@ public class Rogue extends Character {
         speed = 0.3f;
     }
 
-    @Override
+    public void doAnim() {
+
+    }
+
     public Optional<ArrayList<Projectile>> primary() { //Primary attack
         temp_im = lib.game_sprites.getSprite(0,11);
         addImage(temp_im);

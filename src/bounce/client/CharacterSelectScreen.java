@@ -1,6 +1,10 @@
 package bounce.client;
 
-import bounce.common.*;
+import bounce.common.entities.Archer;
+import bounce.common.entities.Mage;
+import bounce.common.entities.Rogue;
+import bounce.common.entities.Warrior;
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;

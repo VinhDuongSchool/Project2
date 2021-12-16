@@ -16,7 +16,9 @@ public class Message implements Serializable {
         SET_DIR,
         INIT_GRID,
         SET_HP,
-        PRIMARY
+        PRIMARY,
+        SET_ATTACK_TIMER,
+        COMPLETE_ROOM
     }
 
     public enum ENTITY_TYPE{
@@ -62,20 +64,6 @@ public class Message implements Serializable {
         assert velocity == null ^ gamepos == null;
         etype = et;
         id = _id;
-    }
-
-
-    //(Kevin) create a message that will add an entity with the specified stats
-    public static Message add_entity(Vector pos, Vector vel, int spritex, int spritey, long _id, ENTITY_TYPE et){
-        Object[] dat = new Object[]{
-                spritex,
-                spritey
-        };
-        var m =  new Message(MSG_TYPE.ADD_ENTITY, dat, -1,  et);
-        m.gamepos = pos;
-        m.velocity = vel;
-        m.id = _id;
-        return m;
     }
 
     //Kevin, message builder stuff

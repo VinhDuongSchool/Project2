@@ -1,22 +1,21 @@
 package bounce.client;
 
-import bounce.common.Character;
-import bounce.common.*;
+import bounce.common.Message;
+import bounce.common.entities.Character;
+import bounce.common.entities.*;
 import bounce.common.items.BaseItem;
 import bounce.common.items.PileOfGold;
 import bounce.common.items.Potion;
 import bounce.common.level.Door;
 import bounce.common.level.TileMap;
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -106,6 +105,7 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
 //        egc.character.setPosition(egc.character.getGamepos());
 //        egc.character.getShapes().forEach(s -> g.draw(new Polygon(s.getPoints())));
+//        egc.character.attack_collider.render(g);
 //        g.drawRect(egc.character.getGamepos().getX()-16, egc.character.getGamepos().getY()-16, 32,32);
 //        for(var r : egc.grid.rooms){
 //            r.room_hitbox.render(g);
@@ -154,7 +154,6 @@ public class ClientPlayingState extends BasicGameState {
                 }
             }
         }
-        //System.out.println(egc.character.gamepos);
 
 	}
 
@@ -180,30 +179,24 @@ public class ClientPlayingState extends BasicGameState {
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
         int cLookingDirIdx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
 
-//        Kevin, commented out until its used for something
-//        for(Enemy e : egc.enemies){
-//            if(egc.character.collides(e)!= null){
-//                System.out.println("character collided with an enemy");
-//            }
-//        }
 
         if(egc.is_connected){ //Kevin, run with a server
             var messages = new ArrayList<Message>();
 
             if(egc.character.getCurdir() != cMovDir){
-                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(cMovDir));
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setDir(cMovDir));
                 egc.character.setCurdir(cMovDir);
             }
 
 
             if(input.isKeyPressed(Input.KEY_F)) {
-//                egc.character.primary(); //Kevin, call primary on character so it makes the images
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
 
             if(cLookingDirIdx != lastMouseIdx){
                 messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(cLookingDirIdx));
                 lastMouseIdx = cLookingDirIdx;
+                egc.character.lookingDirIdx = lastMouseIdx;
             }
 
             messages.stream().forEach(m -> {
@@ -216,6 +209,8 @@ public class ClientPlayingState extends BasicGameState {
             for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
                 egc.handle_message(m);
             }
+
+            egc.allies.values().forEach(Character::doAnim);
 
         } else {
             //Kevin, character array to imitate server so its easier to copy functionality
@@ -242,6 +237,7 @@ public class ClientPlayingState extends BasicGameState {
 
             {// this is in this order for a reason otherwise colliding with walls will move the player backwards
                 egc.character.update(delta);
+                egc.character.doAnim();
 
                 //Kevin, check collision with the 8 neighbor tiles of the character and undo their movement if there is a collision
                 egc.grid.getNeighbors(egc.character.getGamepos()).stream()
@@ -256,6 +252,7 @@ public class ClientPlayingState extends BasicGameState {
                 //Kevin, primary attack
                 if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
+
             }
 
             //(Kevin) update all other entities
@@ -269,6 +266,19 @@ public class ClientPlayingState extends BasicGameState {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(egc.projectiles::addAll);
+
+            //check player attacks, must be after both player and character are updated
+            Arrays.stream(egs_characters).filter(c -> !c.hit_in_this_attack && c.attack_timer > 0).forEach(c -> {
+                for(var e : egc.enemies){
+                    if(c.collides(e) != null){
+                        e.setHealth(e.getHealth() - c.attack);
+                        //player attack freeze is 500ms
+                        e.attack_timer += 450;
+                        c.hit_in_this_attack = true;
+                        break;
+                    }
+                }
+            });
 
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){

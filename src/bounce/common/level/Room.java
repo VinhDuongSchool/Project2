@@ -1,8 +1,8 @@
 package bounce.common.level;
 
-import bounce.common.Enemy;
-import bounce.common.ShadowArcher;
-import bounce.common.Zombie;
+import bounce.common.entities.Enemy;
+import bounce.common.entities.ShadowArcher;
+import bounce.common.entities.Zombie;
 import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Entity;
@@ -22,12 +22,11 @@ public class Room {
     ArrayList<Spawner> spawners;
     final public Entity room_hitbox;
     final public int x, y, width, height;
-    public boolean completed;
+    public boolean completed = false;
 
     public Room(int x, int y, int width, int height){
         doors = new ArrayList<>();
         spawners = new ArrayList<>();
-        completed = false;
 
         x *= 32;
         y *= 32;

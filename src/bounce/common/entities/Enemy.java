@@ -1,6 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
-import bounce.common.level.Tile;
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Shape;
@@ -21,7 +21,6 @@ public class Enemy extends Entity {
     protected Vector velocity; //Velocity vectore.
     protected Vector gamepos;
     private int health;
-    public Tile goal;
     public float speed;
     public long attack_timer;
     public Vector dir;

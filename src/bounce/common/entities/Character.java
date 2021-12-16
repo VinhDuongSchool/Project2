@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Shape;
@@ -15,7 +16,7 @@ public abstract class Character extends Entity {
     protected Vector velocity; //Velocity vectore.
     protected Vector gamepos;
     public final long client_id;
-    public long attack_timer;
+    public int attack_timer;
     public ArrayList<Shape> attack_shapes;
     protected lib.DIRS curdir;
     public int health;
@@ -27,6 +28,9 @@ public abstract class Character extends Entity {
     public int countdown;
     public int lookingDirIdx;
     public boolean doingAttackAnim;
+
+    public Entity attack_collider;
+    public boolean hit_in_this_attack;
 
 
     public Character(final float x, final float y, final float vx, final float vy, long id) {
@@ -76,8 +80,13 @@ public abstract class Character extends Entity {
         return velocity;
     } //Get the velocity
 
+    public boolean Hits(Enemy e){
+        //some characters dont implement an attack collider
+        return attack_collider != null && e.collides(attack_collider) != null;
+    }
 
     public abstract Optional<ArrayList<Projectile>> primary();
+    public abstract void doAnim();
 
     public void update(final int delta) {
 
@@ -87,6 +96,7 @@ public abstract class Character extends Entity {
             gamepos = gamepos.add(velocity.scale(delta));
         }
 
+        attack_collider.setPosition(gamepos);
         setPosition(gamepos);
     }
 

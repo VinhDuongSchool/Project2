@@ -1,7 +1,7 @@
 package bounce.common.level;
 
-import bounce.common.Character;
-import bounce.common.Enemy;
+import bounce.common.entities.Character;
+import bounce.common.entities.Enemy;
 import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Vector;
@@ -218,7 +218,7 @@ public class TileMap {
         }
 
         for(var arr : ranged_DirToNext){
-            Arrays.fill(arr, null); //Kevin, to prevent overflow errors probably
+            Arrays.fill(arr, null);
         }
 
 
@@ -331,7 +331,6 @@ public class TileMap {
         }
         return neighbors;
     }
-
 
     public ArrayList<Tile> getNeighbors(Vector agamepos) {
         int[] t = new int[]{
@@ -713,7 +712,7 @@ public class TileMap {
                     if (tiles[a][b].type == TYPE.DOOR){
                         r.doors.add((Door) tiles[a][b]);
                     } else {
-                        var tl =  new Door(a*32, b*32, img, t, r, vt);
+                        var tl =  new Door(a*32, b*32, t, r, vt);
                         r.doors.add(tl);
                         tiles[a][b] = tl;
                     }

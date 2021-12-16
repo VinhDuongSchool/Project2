@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.ResourceManager;
 import jig.Vector;
@@ -44,8 +45,9 @@ public class Warrior extends Character {
         defense = 50;
         stamina = 100;
         magic = 0;
-        attack = 50;
+        attack = 1;
         speed = 0.3f;
+
         // load all animaions
 
         //this spritesheet will not be used as an animation
@@ -121,6 +123,7 @@ public class Warrior extends Character {
         }
 
         if(curdir != animdir){
+            doingAttackAnim = false;
             removeAnimation(curanim);
             switch (curdir){
                 // GAME NORTH IS SCREEN NORTHWEST
@@ -175,13 +178,14 @@ public class Warrior extends Character {
         //Kevin, set attack timer, for each dir in the list create a new shape,
         //keep a reference to the shape so we can delete it later,
         //add the shape to the entity with the specific offset for the dir it should be in
-        attack_timer = 500;
         for(var d : attack_dirs){
             var s = new ConvexPolygon(lib.sqr.getPoints());
             attack_shapes.add(s);
             addShape(s,lib.dir_enum_to_dir_vector(d).scale(32));
         }
 
+        attack_timer = 500;
+        hit_in_this_attack = false;
         doAnim();
         return Optional.empty();
     }
@@ -190,14 +194,12 @@ public class Warrior extends Character {
     public void update(final int delta) { //To check the countdown timer.
         super.update(delta);
 
-        doAnim();
 
         if(attack_timer > 0)
             return;
 
         // if we reach here we are done doing an attack
         if (attack_shapes.size() > 0){
-            doingAttackAnim = false;
             attack_shapes.stream().forEach(this::removeShape);
             attack_shapes.clear();
         }

@@ -1,9 +1,11 @@
 package bounce.client;
 
-import bounce.common.Character;
-import bounce.common.*;
+import bounce.common.Message;
+import bounce.common.entities.Character;
+import bounce.common.entities.*;
 import bounce.common.items.BaseItem;
 import bounce.common.level.TileMap;
+import bounce.common.lib;
 import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
@@ -191,6 +193,13 @@ public class ExplorerGameClient extends StateBasedGame {
                 }
                 break;
             }
+            case MOUSE_IDX:
+            {
+                if (m.id != ID) {
+                    allies.get(m.id).lookingDirIdx = m.intData;
+                }
+                break;
+            }
             case SET_HP:
             {
                 switch (m.etype){
@@ -200,8 +209,21 @@ public class ExplorerGameClient extends StateBasedGame {
                                 .findFirst()
                                 .ifPresentOrElse(
                                         e -> e.setHealth(m.HP),
-                                        () -> System.out.println("missed entity id"));
+//                                        () -> System.out.println("missed entity id"));
+                                        // if this throws you can comment it out, but it shouldnt throw
+                                        () -> {throw new RuntimeException("enemy id missing");});
                 }
+                break;
+            }
+            case SET_ATTACK_TIMER:
+            {
+                allies.get(m.id).attack_timer = m.intData;
+                break;
+            }
+            case COMPLETE_ROOM:
+            {
+                grid.rooms.get((int) m.id).open();
+                break;
             }
 
         }
@@ -216,6 +238,7 @@ public class ExplorerGameClient extends StateBasedGame {
             allies.put(ID, character);
             try {
                 out_stream.writeObject(Message.builder(Message.MSG_TYPE.INIT_CHARACTER, ID)
+
                         .setGamepos(character.getGamepos())
                         .setVelocity(character.getVelocity())
                         .setData(ct));
