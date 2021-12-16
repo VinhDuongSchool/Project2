@@ -43,6 +43,7 @@
 41 server stuff again
 43 condense projectile constructors from 6 to like 2 lol
 42 potions
+47 player collision with enemies and damages.
 
 ## Open Issues ##
 7 projectiles should collide with walls
@@ -52,5 +53,6 @@
 32 add dir to projectile message
 40 entity graphics
 45 server <-> client image messages
+48 do player death animation when their life reaches zero.
 
 

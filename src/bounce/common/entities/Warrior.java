@@ -204,4 +204,14 @@ public class Warrior extends Character {
             attack_shapes.clear();
         }
     }
+    @Override
+    public void dieScene() { //Play the death scene
+        removeAnimation(curanim);
+        curanim = new Animation(DeathSpriteSheet, 50);
+        addAnimation(curanim);
+        curanim.setLooping(false);
+        curanim.start();
+        dead = true;
+
+    }
 }

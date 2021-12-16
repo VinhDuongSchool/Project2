@@ -105,7 +105,6 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
 //        egc.character.setPosition(egc.character.getGamepos());
 //        egc.character.getShapes().forEach(s -> g.draw(new Polygon(s.getPoints())));
-//        egc.character.attack_collider.render(g);
 //        g.drawRect(egc.character.getGamepos().getX()-16, egc.character.getGamepos().getY()-16, 32,32);
 //        for(var r : egc.grid.rooms){
 //            r.room_hitbox.render(g);
@@ -215,6 +214,28 @@ public class ClientPlayingState extends BasicGameState {
         } else {
             //Kevin, character array to imitate server so its easier to copy functionality
             var egs_characters = new Character[]{egc.character};
+            if (input.isKeyPressed(Input.KEY_L)) { //If L key is pressed then game resumes as normal.
+                egc.character.dead = false;
+            }
+
+            if (egc.character.dead == true) { //If character is dead then don't do anything.
+                return;
+            }
+
+            if (input.isKeyPressed(Input.KEY_K) || egc.character.health <= 0) { //If k key is pressed or player runs out of health the do death scene.
+                egc.character.dieScene();
+            }
+
+            for (Enemy e: egc.enemies) { //If zombie enemy is attacking and collides with the character then decrease the character health by 4.
+                if (e.getClass() == Zombie.class) {
+                    if (e.attacking == true) {
+                        if (e.collides(egc.character) != null) {
+                            egc.character.health -= 4;
+                            e.attacking = false;
+                        }
+                    }
+                }
+            }
 
             egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
                 //Kevin, for when items have more complex function we need to cast them
@@ -252,7 +273,6 @@ public class ClientPlayingState extends BasicGameState {
                 //Kevin, primary attack
                 if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
-
             }
 
             //(Kevin) update all other entities
@@ -283,16 +303,21 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-                if(p.sender.getClass() != Archer.class)
-                    continue;
+                if(p.sender.getClass().getName().equals(Archer.class.getName())) {
 
-                for (Enemy e : egc.enemies) {
-                    if (p.collides(e) != null){
-                        e.setHealth(e.getHealth() - p.damage);
-                        p.setHit(true);
-                        break; // each projectile should only collide with a single entity
+                    for (Enemy e : egc.enemies) {
+                        if (p.collides(e) != null) {
+                            e.setHealth(e.getHealth() - p.damage);
+                            p.setHit(true);
+                            break; // each projectile should only collide with a single entity
+                        }
                     }
+                } else { // must be an enemy projectile
+                    egc.character.health -= p.damage;
+                    p.setHit(true);
+                    break;
                 }
+
                 bounce.common.level.Tile currentProjectileTile = egc.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.
                 if (currentProjectileTile.type == TileMap.TYPE.WALL) { //If the tile is a wall
                     if (p.collides(currentProjectileTile) != null) { //Remove projectile if it collides with wall.
