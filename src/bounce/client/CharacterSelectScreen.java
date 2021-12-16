@@ -45,16 +45,16 @@ public class CharacterSelectScreen extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
-        if (input.isKeyDown(Input.KEY_1)) { //Choose the character by selecting the information that is already in the character and load the appropiate image.
+        if (input.isKeyPressed(Input.KEY_1)) { //Choose the character by selecting the information that is already in the character and load the appropiate image.
             egc.character = new Warrior(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(0,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
-        } else if (input.isKeyDown(Input.KEY_2)) {
+        } else if (input.isKeyPressed(Input.KEY_2)) {
             egc.character = new Archer(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(1,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
-        } else if (input.isKeyDown(Input.KEY_3)) {
+        } else if (input.isKeyPressed(Input.KEY_3)) {
             egc.character = new Rogue(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(2,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
-        }else if (input.isKeyDown(Input.KEY_4)) {
+        }else if (input.isKeyPressed(Input.KEY_4)) {
             egc.character = new Mage(egc.character.getX(),egc.character.getY(),egc.character.getVelocity().getX(),egc.character.getVelocity().getY(),egc.game_sprites.getSprite(3,10), egc.character.client_id);
             egc.enterState(ExplorerGameClient.PLAYINGSTATE);
         }

@@ -283,7 +283,14 @@ public class ClientPlayingState extends BasicGameState {
                         break; // each projectile should only collide with a single entity
                     }
                 }
+                bounce.common.level.Tile currentProjectileTile = egc.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.
+                if (currentProjectileTile.type == TileMap.TYPE.WALL) { //If the tile is a wall
+                    if (p.collides(currentProjectileTile) != null) { //Remove projectile if it collides with wall.
+                        p.setHit(true);
+                    }
+                }
             }
+
 
             //Kevin, update grid
             egc.grid.update(delta, egs_characters, egc.enemies.isEmpty()).ifPresent(egc.enemies::addAll);
