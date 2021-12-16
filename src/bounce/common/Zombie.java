@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class Zombie extends Enemy{
+    Image temp_im;
 
     public Zombie(Vector pos, Vector vel, Image img){
         super(pos, vel, img);
@@ -56,9 +57,14 @@ public class Zombie extends Enemy{
         curdir = td;
         if(distance <= 40){
             attack(c);
+            attacking = true;
+            temp_im = lib.game_sprites.getSprite(0,11); //Add an explosion image when attacking.
+            addImage(temp_im);
         } else {
             velocity = lib.dir_enum_to_unit_vector(curdir).scale(0.04f);
             gamepos = gamepos.add(velocity.scale(delta));
+            attacking = false;
+            removeImage(temp_im); //Remove the image when it can move again.
         }
 
         setPosition(gamepos);

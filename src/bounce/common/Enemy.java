@@ -24,6 +24,7 @@ public class Enemy extends Entity {
     public Tile goal;
     public float speed;
     public long attack_timer;
+    public boolean attacking = false;
     public Vector dir;
     public ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;

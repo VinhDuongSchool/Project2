@@ -52,5 +52,5 @@
 32 add dir to projectile message
 40 entity graphics
 45 server <-> client image messages
-
+47 player collision with enemies and damages.
 

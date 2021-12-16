@@ -7,6 +7,7 @@ import bounce.common.items.PileOfGold;
 import bounce.common.items.Potion;
 import bounce.common.level.Door;
 import bounce.common.level.TileMap;
+import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -221,6 +222,17 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, character array to imitate server so its easier to copy functionality
             var egs_characters = new Character[]{egc.character};
 
+            for (Enemy e: egc.enemies) { //If zombie enemy is attacking and collides with the character then decrease the character health by 4.
+                if (e.getClass() == Zombie.class) {
+                    if (e.attacking == true) {
+                        if (e.collides(egc.character) != null) {
+                            egc.character.health -= 4;
+                            e.attacking = false;
+                        }
+                    }
+                }
+            }
+
             egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
                 //Kevin, for when items have more complex function we need to cast them
                 if(item instanceof PileOfGold){
@@ -254,8 +266,9 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
+                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0)) {
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
+                }
             }
 
             //(Kevin) update all other entities
@@ -273,15 +286,21 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-                if(p.sender.getClass() != Archer.class)
-                    continue;
-
-                for (Enemy e : egc.enemies) {
-                    if (p.collides(e) != null){
-                        e.setHealth(e.getHealth() - p.damage);
+                if(p.sender.getClass() != Archer.class) {
+                    if (p.collides(egc.character) != null) { //If enemy projectile hits player then do damge
+                        egc.character.health -= p.damage;
                         p.setHit(true);
-                        break; // each projectile should only collide with a single entity
+                        break;
                     }
+                } else if (p.sender.getClass() == Archer.class) {
+                    for (Enemy e : egc.enemies) {
+                        if (p.collides(e) != null){ //If player projectile hit enemy then do damage.
+                            e.setHealth(e.getHealth() - p.damage);
+                            p.setHit(true);
+                            break; // each projectile should only collide with a single entity
+                        }
+                    }
+
                 }
                 bounce.common.level.Tile currentProjectileTile = egc.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.
                 if (currentProjectileTile.type == TileMap.TYPE.WALL) { //If the tile is a wall

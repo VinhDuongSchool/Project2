@@ -29,6 +29,7 @@ public abstract class Character extends Entity {
     public boolean doingAttackAnim;
 
 
+
     public Character(final float x, final float y, final float vx, final float vy, long id) {
         super(x,y);
         gamepos = new Vector(x,y);
