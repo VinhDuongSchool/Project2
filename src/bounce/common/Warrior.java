@@ -3,6 +3,7 @@ package bounce.common;
 import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SpriteSheet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,32 @@ import java.util.Optional;
 
 public class Warrior extends Character {
     Image temp_im;
+
+    SpriteSheet IdleSpriteSheet;
+
+    SpriteSheet attackNorthSpriteSheet;
+    SpriteSheet attackNorthWestSpriteSheet;
+    SpriteSheet attackWestSpriteSheet;
+    SpriteSheet attackSouthWestSpriteSheet;
+    SpriteSheet attackSouthSpriteSheet;
+    SpriteSheet attackSouthEastSpriteSheet;
+    SpriteSheet attackEastSpriteSheet;
+    SpriteSheet attackNorthEastSpriteSheet;
+
+    SpriteSheet walkingNorthSpriteSheet;
+    SpriteSheet WalkingNorthWestSpriteSheet;
+    SpriteSheet WalkingWestSpriteSheet;
+    SpriteSheet WalkingSouthWestSpriteSheet;
+    SpriteSheet WalkingSouthSpriteSheet;
+    SpriteSheet WalkingSouthEastSpriteSheet;
+    SpriteSheet WalkingEastSpriteSheet;
+    SpriteSheet WalkingNorthEastSpriteSheet;
+
+    SpriteSheet DeathSpriteSheet;
+
+
+
+
 
     public Warrior(final float x, final float y, final float vx, final float vy, Image img, long id) {
         super(x,y,vx,vy,img,id);
