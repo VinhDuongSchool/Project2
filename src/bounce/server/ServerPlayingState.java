@@ -2,6 +2,7 @@ package bounce.server;
 
 import bounce.common.Character;
 import bounce.common.*;
+import bounce.common.level.TileMap;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;

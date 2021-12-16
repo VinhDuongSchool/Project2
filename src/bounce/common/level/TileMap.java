@@ -1,5 +1,9 @@
-package bounce.common;
+package bounce.common.level;
 
+import bounce.client.ExplorerGameClient;
+import bounce.common.Character;
+import bounce.common.Enemy;
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Vector;
 import org.newdawn.slick.Color;
@@ -27,6 +31,7 @@ public class TileMap {
     private lib.DIRS[][] ranged_DirToNext;
 
 
+    public Room curRoom;
 
     public enum TYPE{
         FLOOR,
@@ -83,6 +88,7 @@ public class TileMap {
             try {
                 addRoom("room"+i, ss);
             } catch (NullPointerException e) {
+                System.out.println("done loading rooms");
                 break;
             }
             i++;
@@ -99,15 +105,25 @@ public class TileMap {
 
     }
 
-    public void update(Character[] carr){
-
-        var r = rooms.get(0);
-
-//        System.out.println(r.room_hitbox.collides(carr[0]));
-        boolean all_in_room = Arrays.stream(carr).map(r.room_hitbox::collides).allMatch(Objects::nonNull);
-        if(all_in_room){
-            r.close();
+    public Optional<ArrayList<Enemy>> update(int delta, Character[] carr, boolean noEnemies){
+        if(curRoom != null && curRoom.completed && noEnemies){
+            System.out.println("room completed");
+            curRoom.open();
+            curRoom = null;
         }
+
+        if(curRoom == null){
+            rooms.stream().filter(r -> !r.completed).forEach(r -> {
+                if (Arrays.stream(carr).map(r.room_hitbox::collides).allMatch(Objects::nonNull)){
+                    curRoom = r;
+                    r.close();
+                }
+            });
+        } else {
+            return curRoom.update(delta);
+        }
+
+        return Optional.empty();
     }
 
     public Tile getTile(Vector gamexy){
@@ -637,7 +653,9 @@ public class TileMap {
         fourth: start tile, it must be within the walls of the room, relative to room cords
          */
 
-        var f =  getClass().getResourceAsStream("../resource/" + room);
+
+        System.out.println("loading " + room);
+        var f =  getClass().getResourceAsStream("../../resource/rooms/" + room);
         var ft = new BufferedReader(new InputStreamReader(f));
         System.out.println(room);
 
@@ -664,6 +682,8 @@ public class TileMap {
         for(int x = x1; x < x2; x++){
             for(int y = y1; y < y2; y++){
                 //Kevin, add room edges
+                if(tiles[x][y].type == TYPE.DOOR)
+                    continue;
                 if(x == x1 || x == x2-1 || y == y1 || y == y2-1){
                     tiles[x][y] = new Tile(x*32,y*32, ss.getSprite(0,2), TYPE.WALL, r);
                 } else {
@@ -692,9 +712,13 @@ public class TileMap {
             Function<Boolean, BiConsumer<Integer, Integer>> set_v = (v) -> { // EHHHHH it works
                 final boolean vt = v;
                 return (Integer a, Integer b) -> {
-                    var tl =  new Door(a*32, b*32, img, t, r, vt);
-                    r.doors.add(tl);
-                    tiles[a][b] = tl;
+                    if (tiles[a][b].type == TYPE.DOOR){
+                        r.doors.add((Door) tiles[a][b]);
+                    } else {
+                        var tl =  new Door(a*32, b*32, img, t, r, vt);
+                        r.doors.add(tl);
+                        tiles[a][b] = tl;
+                    }
                 };
             };
             BiConsumer<Integer, Integer> addDoor;
@@ -712,37 +736,12 @@ public class TileMap {
         }
 
         lines.stream().skip(2).filter(l -> l.length >= 1).forEach(l -> {
-            System.out.println(Arrays.toString(l));
-            int type = l[0];
-            int count = l[1];
-            int dir = l[2];
-            int xp = l[3]+x1;
-            int yp = l[4]+y1;
-
-            //Kevin, 0 or 1 depending on dir
-            int xdir = 1 & ~(0 ^ dir);
-            int ydir = 1 & ~(1 ^ dir);
-
-            TYPE t;
-            Image img;
-            switch (type){
-                case 1:
-                   t = TYPE.WALL;
-                   img = ss.getSprite(0,2);
-                   break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + type);
-            }
-
-            //Kevin, assert tile are within the room bounds
-            assert x1 < xp && (xp + count * xdir) < x2-1;
-            assert y1 < yp && (yp + count * ydir) < y2-1;
-
-            //Kevin, insert the tile line into the map
-            for(int i = 0; i < count; i++){
-                tiles[xp][yp] = new Tile(xp*32, yp*32, img, t, r);
-                xp += xdir;
-                yp += ydir;
+            if(l[0] == 0){
+               r.addSpawner(l, x1,y1,x2,y2);
+            } else if(l[0] == 1){
+                makeBarrier(l, x1, y1, x2,y2, r);
+            } else {
+                throw new RuntimeException("unknown tile type in room file");
             }
         });
 
@@ -751,6 +750,44 @@ public class TileMap {
 
     public int[][] getPiArray() {
         return pi;
+    }
+
+    private void makeBarrier(Integer[] l, int x1, int y1, int x2, int y2, Room r){
+        System.out.println(Arrays.toString(l));
+        int type = l[0];
+        int count = l[1];
+        int dir = l[2];
+        int xp = l[3]+x1;
+        int yp = l[4]+y1;
+
+
+        //Kevin, 0 or 1 depending on dir
+        int xdir = 1 & ~(0 ^ dir);
+        int ydir = 1 & ~(1 ^ dir);
+
+        TYPE t;
+        Image img;
+        switch (type) {
+            case 1:
+                t = TYPE.WALL;
+                img = ExplorerGameClient.game_sprites.getSprite(0, 2);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + type);
+        }
+
+        //Kevin, assert tile are within the room bounds
+        assert x1 < xp && (xp + count * xdir) <= x2;
+        assert y1 < yp && (yp + count * ydir) <= y2;
+
+        //Kevin, insert the tile line into the map
+        for (int i = 0; i < count; i++) {
+            if (tiles[xp][yp].type == TYPE.DOOR)
+                continue;
+            tiles[xp][yp] = new Tile(xp * 32, yp * 32, img, t, r);
+            xp += xdir;
+            yp += ydir;
+        }
     }
 }
 

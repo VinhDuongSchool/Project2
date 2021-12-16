@@ -1,9 +1,12 @@
 package bounce.client;
 
+import bounce.common.Character;
 import bounce.common.*;
 import bounce.common.items.BaseItem;
 import bounce.common.items.PileOfGold;
 import bounce.common.items.Potion;
+import bounce.common.level.Door;
+import bounce.common.level.TileMap;
 import jig.Vector;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -43,14 +46,14 @@ public class ClientPlayingState extends BasicGameState {
 
 
 //        egc.enemies.add(new Enemy(64,32, 0, 0, egc.game_sprites.getSprite(0, 9))); //Add the enemies
-        egc.enemies.add(new Zombie(
-                new Vector(64,32),
-                new Vector(0, 0),
-                ExplorerGameClient.game_sprites.getSprite(0, 9))); //Add the enemies
-        egc.enemies.add(new ShadowArcher(
-                new Vector(64,32),
-                new Vector(0, 0),
-                ExplorerGameClient.game_sprites.getSprite(3, 8))); //Add the enemies
+//        egc.enemies.add(new Zombie(
+//                new Vector(64,32),
+//                new Vector(0, 0),
+//                ExplorerGameClient.game_sprites.getSprite(0, 9))); //Add the enemies
+//        egc.enemies.add(new ShadowArcher(
+//                new Vector(64,32),
+//                new Vector(0, 0),
+//                ExplorerGameClient.game_sprites.getSprite(3, 8))); //Add the enemies
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
@@ -58,6 +61,7 @@ public class ClientPlayingState extends BasicGameState {
         egc.items.add(new PileOfGold(348,394));
         egc.items.add(new Potion(415,461));
         egc.items.add(new Potion(81,265));
+//        egc.character.setGamepos(new Vector(32*6, 32*34));
 
 
 	}
@@ -88,12 +92,18 @@ public class ClientPlayingState extends BasicGameState {
 //        g.drawLine(0,0, v.getX(), v.getY());
 //        draw game pos on screen
 //        g.setColor(Color.blue);
-//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32, 32);
 //        g.drawRect(egc.grid.tiles[10][10].gamepos.getX(),egc.grid.tiles[10][10].gamepos.getY(), 32,32);
 //        for (var e : egc.enemies){
 //            g.drawRect(e.getGamepos().getX(), e.getGamepos().getY(),32,32);
 //        }
 //        g.drawLine(mp.getX(), mp.getY(), egc.screen_center.getX(),  egc.screen_center.getY());
+//        egc.character.setPosition(egc.character.getGamepos());
+//        egc.character.getShapes().forEach(s -> g.draw(new Polygon(s.getPoints())));
+//        g.drawRect(egc.character.getGamepos().getX()-16, egc.character.getGamepos().getY()-16, 32,32);
+//        for(var r : egc.grid.rooms){
+//            r.room_hitbox.render(g);
+//            g.drawRect(r.x, r.y, r.width, r.height);
+//        }
 //        g.setColor(Color.gray);
 //        System.out.print(egc.character.gamepos + " ");
 //        System.out.println(Math.floor(egc.character.gamepos.getX() / 32.0f));
@@ -111,10 +121,6 @@ public class ClientPlayingState extends BasicGameState {
 //        v2 = lib.to_screen(v, new Vector(egc.screenox, egc.screenoy));
 //        p.addPoint(v2.getX(), v2.getY());
 //        g.draw(p);
-//        egc.grid.rooms.get(0).room_hitbox.render(g);
-//        var r = egc.grid.rooms.get(0);
-//        g.drawRect(r.x, r.y, r.width, r.height);
-//        g.drawRect(egc.character.getGamepos().getX(), egc.character.getGamepos().getY(), 32,32);
 
 
         for (BaseItem e : egc.items) {
@@ -215,6 +221,9 @@ public class ClientPlayingState extends BasicGameState {
             }
 
         } else {
+            //Kevin, character array to imitate server so its easier to copy functionality
+            var egs_characters = new Character[]{egc.character};
+
             egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
                 //Kevin, for when items have more complex function we need to cast them
                 if(item instanceof PileOfGold){
@@ -224,7 +233,7 @@ public class ClientPlayingState extends BasicGameState {
                     var ci = (Potion) item;
                     egc.character.health += 50;
                 } else {
-                    assert false : "unknown item";
+                    throw new IllegalArgumentException("unknown item");
                 }
                 egc.items.remove(item);
             });
@@ -245,15 +254,15 @@ public class ClientPlayingState extends BasicGameState {
                         egc.character.setVelocity(egc.character.getVelocity().scale(-1));
                     });
 
-            if(input.isKeyPressed(Input.KEY_F))
+            //Kevin, primary attack
+            if(input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                 egc.character.primary(diridx).ifPresent(egc.projectiles::addAll);
-
 
             //(Kevin) update all other entities
             egc.projectiles.stream().forEach(p -> p.update(delta));
 
             //Kevin, make  an array of characters because thats what the server would give to the method
-            egc.enemies.stream().map(e -> e.update(delta, new bounce.common.Character[] {egc.character},
+            egc.enemies.stream().map(e -> e.update(delta, egs_characters,
                     //Kevin, may be cleaned up eventually
                     e.getClass() == ShadowArcher.class ? egc.grid.getranged_dir(e.getGamepos()) : egc.grid.get_dir(e.getGamepos())))
 
@@ -274,24 +283,35 @@ public class ClientPlayingState extends BasicGameState {
                         break; // each projectile should only collide with a single entity
                     }
                 }
+                bounce.common.level.Tile currentProjectileTile = egc.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.
+                if (currentProjectileTile.type == TileMap.TYPE.WALL) { //If the tile is a wall
+                    if (p.collides(currentProjectileTile) != null) { //Remove projectile if it collides with wall.
+                        p.setHit(true);
+                    }
+                }
             }
 
 
-
-//            egc.grid.update(new Character[]{egc.character});
+            //Kevin, update grid
+            egc.grid.update(delta, egs_characters, egc.enemies.isEmpty()).ifPresent(egc.enemies::addAll);
 
             //Kevin, temp room open/close keys
-            if(input.isKeyPressed(Input.KEY_O))
-                egc.grid.rooms.forEach(Room::open);
+            if(input.isKeyPressed(Input.KEY_O)){
+                if( egc.grid.curRoom != null){
+                    egc.grid.curRoom.completed = true;
+                    egc.enemies.clear();
+                } else {
+                    System.out.println("no room");
+                }
+            }
             if(input.isKeyPressed(Input.KEY_P))
-                egc.grid.rooms.forEach(Room::close);
+                egc.grid.rooms.forEach(r -> r.completed = false);
 
 
             //(Kevin) remove dead/hit/etc stuff
-            egc.enemies.removeIf(e -> e.getHealth() <=0);
+            egc.enemies.removeIf(e -> e.getHealth() <= 0);
             egc.projectiles.removeIf(Projectile::getHit);
         }
-
 
     }
 

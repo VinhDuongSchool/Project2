@@ -38,6 +38,8 @@
 29 set dir enum for enemy while path finding
 44 Make potion and gold items that can be collected.
 42 potions
+45 room spawners
+46 make projectile disappear when hitting a wall.
 
 ## Open Issues ##
 7 attacks can collide with wall

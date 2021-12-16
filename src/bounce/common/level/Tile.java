@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.level;
 
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Entity;
 import jig.Vector;
@@ -9,8 +10,6 @@ import org.newdawn.slick.Image;
 public class Tile extends Entity {
 
     //(Kevin) index of this in the tilemap
-    public int gridx;
-    public int gridy;
     public TileMap.TYPE type;
     public Room room;
     public Image curim;

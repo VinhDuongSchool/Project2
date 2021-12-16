@@ -2,6 +2,7 @@ package bounce.server;
 
 import bounce.common.Character;
 import bounce.common.*;
+import bounce.common.level.TileMap;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;

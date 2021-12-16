@@ -3,6 +3,7 @@ package bounce.client;
 import bounce.common.Character;
 import bounce.common.*;
 import bounce.common.items.BaseItem;
+import bounce.common.level.TileMap;
 import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
