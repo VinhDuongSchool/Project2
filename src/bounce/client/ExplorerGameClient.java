@@ -78,15 +78,12 @@ public class ExplorerGameClient extends StateBasedGame {
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
     public ArrayList<Projectile> projectiles;
-
     public ConcurrentLinkedQueue<Message> in_messages;
     public ObjectOutputStream out_stream;
     public long ID;
     public TileMap grid;
     public HashMap<Long, Character> allies;
-
     public ArrayList<BaseItem> items;
-
     public int gold;
 
 
@@ -149,17 +146,15 @@ public class ExplorerGameClient extends StateBasedGame {
                 //(Kevin) retrieve a character initialization object from the server
                 //(might be some better way to do this, but cant send entities directly they arnt serializable)
                 assert m.gamepos != null;
+                assert m.velocity != null;
+
                 if(m.id != ID){
                     var character_data_arr = (Object[]) m.data;
                     var spritex = (int) character_data_arr[0];
                     var spritey = (int) character_data_arr[1];
+                    var ct = (Class<? extends Character>) character_data_arr[2];
 
-                    allies.put(m.id, (new Character(
-                            m.gamepos,
-                            new Vector(0,0),
-                            game_sprites.getSprite(spritex, spritey),
-                            m.id
-                    )));
+                    allies.put(m.id, Character.dyn(ct, m.gamepos, m.velocity, spritex, spritey, m.id));
                 }
                 break;
             }
@@ -193,12 +188,22 @@ public class ExplorerGameClient extends StateBasedGame {
                 assert m.gamepos != null;
 
                 switch (m.etype){
-                    case ENEMY:
+                    case ZOMBIE:
+                    {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new Zombie(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
                         break;
+                    }
+                    case SHADOWARCHER:
+                    {
+                        var e_data_arr = (Object[]) m.data;
+                        var spritex = (int) e_data_arr[0];
+                        var spritey = (int) e_data_arr[1];
+                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey), m.id));
+                        break;
+                    }
                     case PROJECTILE:
                         projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
                         break;
@@ -220,7 +225,7 @@ public class ExplorerGameClient extends StateBasedGame {
             case SET_DIR:
             {
                 if(m.etype == Message.ENTITY_TYPE.CHARACTER && m.id != ID){
-                    allies.get(m.id).curdir = m.dir;
+                    allies.get(m.id).setCurdir(m.dir);
                 }
                 break;
             }
@@ -239,6 +244,26 @@ public class ExplorerGameClient extends StateBasedGame {
 
         }
     }
+
+
+    public void setCharacter(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy){
+        character = Character.dyn(ct,gp,v,sx,sy, ID);
+
+        //(Kevin) send this clients character to everyone else
+        if (is_connected) {
+            allies.put(ID, character);
+            try {
+                out_stream.writeObject(Message.builder(Message.MSG_TYPE.INIT_CHARACTER, ID)
+                        .setGamepos(character.getGamepos())
+                        .setVelocity(character.getVelocity())
+                        .setData(new Object[]{sx, sy, ct}));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
@@ -288,31 +313,20 @@ public class ExplorerGameClient extends StateBasedGame {
         ResourceManager.loadImage(PILEOFGOLD);
         ResourceManager.loadImage(POTION);
         game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
-        screenox = 0;
-        screenoy = 0;
+        lib.LOAD_SPRITES_ONCE();
+//        screenox = 0;
+//        screenoy = 0;;
 
         // character will always render in the center of the screen
-        int sprite_x = 0;
-        int sprite_y = 10;
-        character = new Warrior(
-                32*5, 32*5,
-                0,0,
-                game_sprites.getSprite(sprite_x, sprite_y),
-                ID);  //Set up the character.
+//        int sprite_x = 0;
+//        int sprite_y = 10;
+//        character = new Warrior(
+//                32*5, 32*5,
+//                0,0,
+//                game_sprites.getSprite(sprite_x, sprite_y),
+//                ID);  //Set up the character.
 
         grid = new TileMap(100,100, game_sprites);
-        //(Kevin) send this clients character to everyone else
-        if (is_connected) {
-            allies.put(ID, character);
-            try {
-                var m = new Message(Message.MSG_TYPE.INIT_CHARACTER, new Object[]{sprite_x, sprite_y}, ID);
-                m.gamepos = character.getGamepos();
-                out_stream.writeObject(m);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
 	public static void main(String[] args) {

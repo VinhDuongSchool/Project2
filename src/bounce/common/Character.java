@@ -6,25 +6,27 @@ import jig.Shape;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 
 public class Character extends Entity {
 
-    private Vector velocity; //Velocity vectore.
-    private Vector gamepos;
+    protected Vector velocity; //Velocity vectore.
+    protected Vector gamepos;
     public final long client_id;
     public long attack_timer;
     public ArrayList<Shape> attack_shapes;
-    public lib.DIRS curdir;
+    protected lib.DIRS curdir;
     public int health;
     public int defense;
     public int stamina;
     public int magic;
     public int attack;
-    public int speed;
+    protected float speed;
     public int countdown;
+    public int lookingDirIdx;
 
 
     public Character(final float x, final float y, final float vx, final float vy, Image img, long id) {
@@ -39,10 +41,35 @@ public class Character extends Entity {
         attack_shapes = new ArrayList<>();
     }
 
+
+    public static Character dyn(Class<? extends Character> ct, Vector gp, Vector v, int sx, int sy, long id){
+        var im = lib.game_sprites.getSprite(sx, sy);
+        try {
+            return (Character) ct.getConstructors()[0].newInstance(gp,v,im, id);
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+            throw new IllegalArgumentException("character initialization failed");
+        }
+    }
+
     public Character(Vector pos, Vector vel, Image img, long id){
         this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), img, id);
     }
 
+    public void setCurdir(lib.DIRS curdir) {
+
+        this.curdir = curdir;
+        if(curdir == null) {
+            velocity = new Vector(0, 0);
+        } else {
+            velocity = lib.dir_enum_to_unit_vector(curdir).scale(speed);
+
+        }
+    }
+
+    public lib.DIRS getCurdir() {
+        return curdir;
+    }
 
     public void setVelocity(final Vector v) {
         velocity = v;
@@ -53,7 +80,7 @@ public class Character extends Entity {
     } //Get the velocity
 
 
-    public Optional<ArrayList<Projectile>> primary(int dir_index){
+    public Optional<ArrayList<Projectile>> primary(){
         throw new IllegalStateException("don't call Character melee call some class melee");
     }
 

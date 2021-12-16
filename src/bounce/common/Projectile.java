@@ -18,15 +18,15 @@ public class Projectile extends Entity {
     private Vector velocity; //Velocity vectore.
     private boolean hit;
     public int damage;
-    private Vector gamepos;
+    protected Vector gamepos;
     public lib.DIRS curdir;
     public Object sender;
 
 
-    public Projectile(final float x, final float y, final float vx, final float vy, long _id, final lib.DIRS d) {
-        super(x,y);
-        velocity = new Vector(vx, vy);
-        gamepos = new Vector(x,y);
+    public Projectile(Vector gp, Vector v, long _id, lib.DIRS d) {
+        super(gp);
+        velocity = v;
+        gamepos = gp;
         damage = 1;
         sender = this;
 
@@ -41,23 +41,13 @@ public class Projectile extends Entity {
             addImage(ResourceManager.getImage(ExplorerGameClient.UR));
         }
 
-        velocity = lib.dir_enum_to_unit_vector(d).scale(0.4f);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         id = _id;
-
-    }
-
-    public Projectile(Vector pos, Vector vel, long _id, final lib.DIRS d){
-        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(), _id, d);
-        velocity = vel;
+        curdir = d;
     }
 
     public Projectile(Vector pos, Vector vel, final lib.DIRS d){
-        this(pos.getX(), pos.getY(), vel.getX(), vel.getY(),  ID_COUNTER.getAndIncrement(), d);
-    }
-
-    public Projectile(final float x, final float y, final float vx, final float vy, final lib.DIRS d) {
-        this(x,y,vx,vy,  ID_COUNTER.getAndIncrement(),d);
+        this(pos, vel,  ID_COUNTER.getAndIncrement(), d);
     }
 
     public Projectile(Vector pos, Vector vel, lib.DIRS d, Object s){
@@ -65,10 +55,11 @@ public class Projectile extends Entity {
         sender = s;
     }
 
-    public Projectile(Vector pos, Vector vel, lib.DIRS d, long i,  Object s){
-        this(pos, vel, i, d);
-        sender = s;
-    }
+    // this should be needed?
+//    public Projectile(Vector pos, Vector vel, lib.DIRS d, long i,  Object s){
+//        this(pos, vel, i, d);
+//        sender = s;
+//    }
 
 
     public void setVelocity(final Vector v) {

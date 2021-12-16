@@ -2,6 +2,7 @@ package bounce.common;
 
 import bounce.client.ExplorerGameClient;
 import jig.ConvexPolygon;
+import jig.Vector;
 import jig.ResourceManager;
 import jig.Vector;
 import org.newdawn.slick.Animation;
@@ -44,14 +45,14 @@ public class Warrior extends Character {
 
 
 
-    public Warrior(final float x, final float y, final float vx, final float vy, Image img, long id) {
-        super(x,y,vx,vy,img,id);
+    public Warrior(Vector gp, Vector v, Image img, long id) {
+        super(gp,v,img,id);
         health = 100;
         defense = 50;
         stamina = 100;
         magic = 0;
         attack = 50;
-        speed = 25;
+        speed = 0.3f;
         // load all animaions
 
         //this spritesheet will not be used as an animation
@@ -89,38 +90,43 @@ public class Warrior extends Character {
     }
 
     @Override
-    public Optional<ArrayList<Projectile>> primary(int diridx) {
+    public Optional<ArrayList<Projectile>> primary() {
+
+
         removeImage(temp_im);
         addAnimation(test, new Vector(-10.0f,1f));
         test.setLooping(false);
         test.restart();
-//        //0 and 8 map to the same value
-//        ArrayList<lib.DIRS> attack_dirs;
-//        if (diridx == 0 || diridx == 8){
-//            //Kevin, deal with edge case
-//            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
-//        } else {
-//            //Kevin, otherwise get neighbors directly
-//            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[diridx-1], lib.angle_index_to_dir[diridx], lib.angle_index_to_dir[diridx+1]}));
-//        }
-//
-//        //Kevin, if we already attacked cant attack again
-//        if (attack_timer > 0)
-//            return Optional.empty();
-//
-//        temp_im = ExplorerGameClient.game_sprites.getSprite(0,11);
-//        addImage(temp_im);
-//        countdown = 500;
-//
-//        //Kevin, set attack timer, for each dir in the list create a new shape,
-//        //keep a reference to the shape so we can delete it later,
-//        //add the shape to the entity with the specific offset for the dir it should be in
-//        attack_timer = 1000;
-//        for(var d : attack_dirs){
-//            var s = new ConvexPolygon(lib.sqr.getPoints());
-//            attack_shapes.add(s);
-//            addShape(s,lib.dir_enum_to_dir_vector(d).scale(32));
-//        }
+        /*
+        //0 and 8 map to the same value
+        ArrayList<lib.DIRS> attack_dirs;
+        if (lookingDirIdx == 0 || lookingDirIdx == 8){
+            //Kevin, deal with edge case
+            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.DIRS.NORTHEAST, lib.DIRS.NORTH, lib.DIRS.EAST}));
+        } else {
+            //Kevin, otherwise get neighbors directly
+            attack_dirs = new ArrayList<>(List.of(new lib.DIRS[]{lib.angle_index_to_dir[lookingDirIdx-1], lib.angle_index_to_dir[lookingDirIdx], lib.angle_index_to_dir[lookingDirIdx+1]}));
+        }
+
+        //Kevin, if we already attacked cant attack again
+        if (attack_timer > 0)
+            return Optional.empty();
+
+        temp_im = lib.game_sprites.getSprite(0,11);
+        addImage(temp_im);
+        countdown = 500;
+
+        //Kevin, set attack timer, for each dir in the list create a new shape,
+        //keep a reference to the shape so we can delete it later,
+        //add the shape to the entity with the specific offset for the dir it should be in
+        attack_timer = 1000;
+        for(var d : attack_dirs){
+            var s = new ConvexPolygon(lib.sqr.getPoints());
+            attack_shapes.add(s);
+            addShape(s,lib.dir_enum_to_dir_vector(d).scale(32));
+        }
+
+         */
         return Optional.empty();
 
     }
