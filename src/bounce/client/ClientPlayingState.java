@@ -36,7 +36,7 @@ public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
-    boolean controllerused = true;
+    boolean controllerused = false;
     Controller rightcontroller;
     Controller leftcontroller;
 
