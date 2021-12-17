@@ -179,7 +179,7 @@ public class ClientPlayingState extends BasicGameState {
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
 
-        //todo need to add stuff for controller isolation
+
         if(controllerused){
              leftcontroller = Controllers.getController(5);
              rightcontroller = Controllers.getController(6);
