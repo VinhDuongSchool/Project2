@@ -45,6 +45,7 @@ public class ExplorerGameClient extends StateBasedGame {
     public float screenox;
     public float screenoy;
     public boolean is_connected;
+    public boolean controllerused;
 	public Character character; //The character class.
 	public ArrayList<Enemy> enemies; //Enemies
     public ArrayList<Projectile> projectiles;
@@ -55,9 +56,10 @@ public class ExplorerGameClient extends StateBasedGame {
     public HashMap<Long, Character> allies;
     public ArrayList<BaseItem> items;
 
-	public ExplorerGameClient(String title, int width, int height, boolean connected) throws IOException {
+	public ExplorerGameClient(String title, int width, int height, boolean connected, boolean ctrlused) throws IOException {
 		super(title);
 
+        controllerused = ctrlused;
         is_connected = connected;
         if(is_connected){
             server_setup();
@@ -294,16 +296,23 @@ public class ExplorerGameClient extends StateBasedGame {
 		AppGameContainer app;
         //(Kevin) is_connected may be passed through program args
         boolean connected;
+        boolean controllerused;
         if (args.length > 0){
             connected = Boolean.parseBoolean(args[0].toLowerCase());
         } else {
             connected = false;
         }
 
+        if(args.length > 1){
+            controllerused = Boolean.parseBoolean(args[1].toLowerCase());
+        } else {
+            controllerused = false;
+        }
+
 
 		try {
             System.out.println("making app");
-			app = new AppGameContainer(new ExplorerGameClient("Bounce!", 800, 600,connected));
+			app = new AppGameContainer(new ExplorerGameClient("Bounce!", 800, 600,connected, controllerused));
 			app.setDisplayMode(800, 600, false);
 			app.setVSync(true);
             System.out.println("starting");

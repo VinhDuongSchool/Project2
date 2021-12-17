@@ -7,7 +7,6 @@ import bounce.common.items.BaseItem;
 import bounce.common.items.PileOfGold;
 import bounce.common.items.Potion;
 import bounce.common.level.Door;
-import bounce.common.level.Room;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Vector;
@@ -33,9 +32,7 @@ import java.util.*;
  */
 public class ClientPlayingState extends BasicGameState {
 
-    Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
-    boolean controllerused;
     Controller rightcontroller;
     Controller leftcontroller;
 
@@ -44,10 +41,6 @@ public class ClientPlayingState extends BasicGameState {
 			throws SlickException {
 	}
 
-
-    public void setControllerused(boolean controller){
-        controllerused = controller;
-    }
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
@@ -188,7 +181,7 @@ public class ClientPlayingState extends BasicGameState {
         }
 
 
-        if(controllerused){
+        if(egc.controllerused){
             leftcontroller = Controllers.getController(5);
             rightcontroller = Controllers.getController(6);
         }
@@ -220,7 +213,7 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        if(controllerused) {
+        if(egc.controllerused) {
             inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)});
         }
 
@@ -243,7 +236,7 @@ public class ClientPlayingState extends BasicGameState {
             }
 
 
-            if(controllerused){
+            if(egc.controllerused){
                 if(rightcontroller.isButtonPressed(0)){
                     messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
                 }
@@ -285,21 +278,11 @@ public class ClientPlayingState extends BasicGameState {
             if (egc.character.dead) { //If character is dead then don't do anything.
                 egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
             }
-            //win condition
-            if(egc.enemies.isEmpty()){
-                boolean isdone = false;
-                for(Room r:egc.grid.rooms){
-                    if(!r.completed){
-                        isdone = false;
-                        break;
-                    }
-                    isdone = true;
-                }
-                if(isdone){
-                    egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
-                }
-            }
 
+            //win condition
+            if(egc.enemies.isEmpty() && egc.grid.rooms.stream().allMatch(r -> r.completed)){
+                egc.enterState(ExplorerGameClient.WINSTATE);
+            }
 
             if (input.isKeyPressed(Input.KEY_K) || egc.character.health <= 0) { //If k key is pressed or player runs out of health the do death scene.
                 egc.character.dieScene();
@@ -345,7 +328,7 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if(controllerused){
+                if(egc.controllerused){
                     if(rightcontroller.isButtonPressed(0)){
                         egc.character.primary().ifPresent(egc.projectiles::addAll);
                     }
