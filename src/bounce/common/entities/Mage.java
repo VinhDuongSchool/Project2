@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public class Mage extends Character {
     Image temp_im;
+    int attack_timer = 0;
 
     public Mage(Vector gp, Vector v, long id) {
         super(gp,v,id);
@@ -20,6 +21,7 @@ public class Mage extends Character {
         magic = 100;
         attack = 100;
         speed = 0.3f;
+        maxHealth = 25;
     }
 
     public void doAnim() {
@@ -28,20 +30,27 @@ public class Mage extends Character {
 
     @Override
     public Optional<ArrayList<Projectile>> primary() { //Primary attack
-        temp_im = lib.game_sprites.getSprite(0,11);
-        addImage(temp_im);
-        countdown = 500;
+//                egc.projectiles.add(new Projectile(egc.character.getGamepos(), egc.character.getVelocity(), 0, lib.angle_index_to_dir[diridx])); //Set the initial location to the player.
 
+        if (attack_timer <= 0) {
+            //Kevin, make a new projectile with the proper stats and return it
+            var d = lib.angle_index_to_dir[lookingDirIdx];
+            var p = new Projectile(gamepos, lib.dir_enum_to_unit_vector(d).scale(0.3f), d, this);
+            var ar = new ArrayList<Projectile>();
+            ar.add(p);
+            attack_timer = 1000;
+            return Optional.of(ar);
+        }
         return Optional.empty();
+
     }
 
     @Override
-    public void update(final int delta) { //To check the countdown timer.
+    public void update(final int delta) { //To end the timer.
         super.update(delta);
-        if (countdown <= 0) {
-            removeImage(temp_im);
-        } else {
-            countdown -= delta;
+        if (attack_timer > 0) {
+            attack_timer -= delta;
         }
     }
+
 }

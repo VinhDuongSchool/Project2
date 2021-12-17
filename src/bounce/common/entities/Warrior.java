@@ -47,6 +47,7 @@ public class Warrior extends Character {
         magic = 0;
         attack = 1;
         speed = 0.3f;
+        maxHealth = 100;
 
         // load all animaions
 
@@ -212,7 +213,7 @@ public class Warrior extends Character {
         addAnimation(curanim);
         curanim.setLooping(false);
         curanim.start();
-        dead = true;
+
 
     }
 }
