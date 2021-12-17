@@ -37,6 +37,9 @@ public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
+    boolean controllerused = true;
+    Controller rightcontroller;
+    Controller leftcontroller;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -177,11 +180,12 @@ public class ClientPlayingState extends BasicGameState {
 
 
         //todo need to add stuff for controller isolation
-        Controller leftcontroller = Controllers.getController(5);
-        Controller rightcontroller = Controllers.getController(6);
-        if(leftcontroller.isButtonPressed(1)){
-            System.out.println("this button was pushed");
+        if(controllerused){
+             leftcontroller = Controllers.getController(5);
+             rightcontroller = Controllers.getController(6);
         }
+
+
 
         //System.out.println("xaxis : " + leftcontroller.getAxisValue(1));
         //System.out.println("yaxis: " + leftcontroller.getXAxisValue());
@@ -206,7 +210,10 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
-        var coninp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)}); // todo controller scheme needs to be done
+        if(controllerused) {
+            inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)}); // todo controller scheme needs to be done
+        }
+
         var cMovDir = lib.wasd_to_dir(inp);
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
@@ -231,8 +238,11 @@ public class ClientPlayingState extends BasicGameState {
             }
 
 
-
-            if(input.isKeyPressed(Input.KEY_F) || rightcontroller.isButtonPressed(0)) { // todo isolation required
+            if(controllerused){
+                if(rightcontroller.isButtonPressed(0)){
+                    messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
+                }
+            }else if(input.isKeyPressed(Input.KEY_F) ) {
 //                egc.character.primary(); //Kevin, call primary on character so it makes the images
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
@@ -290,7 +300,12 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0) || rightcontroller.isButtonPressed(0)) // todo isolation required
+                if(controllerused){
+                    if(rightcontroller.isButtonPressed(0)){
+                        egc.character.primary().ifPresent(egc.projectiles::addAll);
+                    }
+
+                }else if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
             }
 
