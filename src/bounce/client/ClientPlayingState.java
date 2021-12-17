@@ -36,7 +36,7 @@ public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
-    boolean controllerused = false;
+    boolean controllerused;
     Controller rightcontroller;
     Controller leftcontroller;
 
@@ -45,6 +45,10 @@ public class ClientPlayingState extends BasicGameState {
 			throws SlickException {
 	}
 
+
+    public void setControllerused(boolean controller){
+        controllerused = controller;
+    }
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
