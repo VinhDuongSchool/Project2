@@ -8,10 +8,14 @@ import bounce.common.items.Potion;
 import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import jig.Vector;
+
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.awt.image.renderable.RenderableImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -158,8 +162,9 @@ public class ClientPlayingState extends BasicGameState {
 
 	}
 
+//    @Override
 //    public void controllerButtonPressed(int controller, int button){
-//
+//        System.out.println(button + " was pressed on "+ controller);
 //    }
 
 
@@ -167,11 +172,29 @@ public class ClientPlayingState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
         Input input = container.getInput();
+
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
-        if(input.isButtonPressed(2,2)){ // left joycon down button pressed is one 1
-            System.out.println("you pressed a button on the joycon");
+
+        //todo need to add stuff for controller isolation
+        Controller leftcontroller = Controllers.getController(5);
+        Controller rightcontroller = Controllers.getController(6);
+        if(leftcontroller.isButtonPressed(1)){
+            System.out.println("this button was pushed");
         }
+
+        //System.out.println("xaxis : " + leftcontroller.getAxisValue(1));
+        //System.out.println("yaxis: " + leftcontroller.getXAxisValue());
+
+        /*
+         * 1 is down dpad for left controler
+         * 0 is left dpad for left controller
+         * 3 is right dpad for left controller
+         * 2 is up dpad for left controller
+         *
+         * 0 is a for right controller
+         * 2 is b for right controller
+         */
 
 
 
@@ -183,6 +206,7 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
+        var coninp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)}); // todo controller scheme needs to be done
         var cMovDir = lib.wasd_to_dir(inp);
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
@@ -195,7 +219,7 @@ public class ClientPlayingState extends BasicGameState {
 //        for(Enemy e : egc.enemies){
 //            if(egc.character.collides(e)!= null){
 //                System.out.println("character collided with an enemy");
-//            }
+//            } F
 //        }
 
         if(egc.is_connected){ //Kevin, run with a server
@@ -208,7 +232,7 @@ public class ClientPlayingState extends BasicGameState {
 
 
 
-            if(input.isKeyPressed(Input.KEY_F)) {
+            if(input.isKeyPressed(Input.KEY_F) || rightcontroller.isButtonPressed(0)) { // todo isolation required
 //                egc.character.primary(); //Kevin, call primary on character so it makes the images
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
@@ -266,7 +290,7 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
+                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0) || rightcontroller.isButtonPressed(0)) // todo isolation required
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
             }
 
