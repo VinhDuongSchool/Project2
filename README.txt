@@ -21,11 +21,14 @@ Combat - partially complete
     Basic ranged and melee attack, characters only have a primary attack
 Multiplayer - complete
 Death system - partially complete
-    characters will die when they run out of health. they can revive them selves after n seconds.
+    characters will die when they run out of health and go to a defeated screen.
+    They can then go back to the character select screen and restart (in single player the map resets on the server it doesnt).
+
 Enemies - partially complete
     only ranged and melee enemies
 Status effects - not complete
-Victory condition - not complete
+Victory condition - complete
+    When all rooms are completed you go to a victory screen
 Point/Gold system - partially complete
 
 

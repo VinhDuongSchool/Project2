@@ -4,6 +4,7 @@ import bounce.common.entities.Archer;
 import bounce.common.entities.Mage;
 import bounce.common.entities.Rogue;
 import bounce.common.entities.Warrior;
+import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.GameContainer;
@@ -27,6 +28,12 @@ public class CharacterSelectScreen extends BasicGameState {
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
+        if(!egc.is_connected) {
+            egc.grid = new TileMap(100, 100);
+            egc.enemies.clear();
+            egc.projectiles.clear();
+            egc.items.clear();
+        }
 
     }
 
