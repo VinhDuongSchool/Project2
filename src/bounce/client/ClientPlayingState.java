@@ -318,7 +318,7 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-                if(p.sender.getClass() == Archer.class) {
+                if(p.sender.getClass().getName().equals(Archer.class.getName())) {
                     for (Enemy e : egc.enemies) {
                         if (p.collides(e) != null) {
                             e.setHealth(e.getHealth() - p.damage);

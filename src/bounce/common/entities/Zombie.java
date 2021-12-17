@@ -42,6 +42,8 @@ public class Zombie extends Enemy{
 
     @Override
     public Optional<ArrayList<Projectile>> update(final int delta, Character[] characters, lib.DIRS td){
+        setPosition(gamepos);
+
         //Kevin, if stunned by attack or player is on top of us
         if(td == null || attack_timer > 0) {
             attack_timer -= delta;

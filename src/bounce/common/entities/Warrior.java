@@ -202,6 +202,7 @@ public class Warrior extends Character {
         if (attack_shapes.size() > 0){
             attack_shapes.stream().forEach(this::removeShape);
             attack_shapes.clear();
+            doingAttackAnim = false;
         }
     }
     @Override
