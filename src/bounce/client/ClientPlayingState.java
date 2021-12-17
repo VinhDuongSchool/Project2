@@ -36,6 +36,9 @@ public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
+    boolean controllerused = true;
+    Controller rightcontroller;
+    Controller leftcontroller;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -170,11 +173,30 @@ public class ClientPlayingState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
         Input input = container.getInput();
+
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
-        if(input.isButtonPressed(2,2)){ // left joycon down button pressed is one 1
-            System.out.println("you pressed a button on the joycon");
+
+
+        if(controllerused){
+             leftcontroller = Controllers.getController(5);
+             rightcontroller = Controllers.getController(6);
         }
+
+
+
+        //System.out.println("xaxis : " + leftcontroller.getAxisValue(1));
+        //System.out.println("yaxis: " + leftcontroller.getXAxisValue());
+
+        /*
+         * 1 is down dpad for left controler
+         * 0 is left dpad for left controller
+         * 3 is right dpad for left controller
+         * 2 is up dpad for left controller
+         *
+         * 0 is a for right controller
+         * 2 is b for right controller
+         */
 
 
 
@@ -186,6 +208,10 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
+        if(controllerused) {
+            inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)});
+        }
+
         var cMovDir = lib.wasd_to_dir(inp);
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
@@ -210,8 +236,11 @@ public class ClientPlayingState extends BasicGameState {
             }
 
 
-
-            if(input.isKeyPressed(Input.KEY_F)) {
+            if(controllerused){
+                if(rightcontroller.isButtonPressed(0)){
+                    messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
+                }
+            }else if(input.isKeyPressed(Input.KEY_F) ) {
 //                egc.character.primary(); //Kevin, call primary on character so it makes the images
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
@@ -269,7 +298,12 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
+                if(controllerused){
+                    if(rightcontroller.isButtonPressed(0)){
+                        egc.character.primary().ifPresent(egc.projectiles::addAll);
+                    }
+
+                }else if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
             }
 
