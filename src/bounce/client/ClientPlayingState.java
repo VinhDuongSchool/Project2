@@ -7,6 +7,7 @@ import bounce.common.items.BaseItem;
 import bounce.common.items.PileOfGold;
 import bounce.common.items.Potion;
 import bounce.common.level.Door;
+import bounce.common.level.Room;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Vector;
@@ -284,8 +285,23 @@ public class ClientPlayingState extends BasicGameState {
             }
 
             if (egc.character.dead) { //If character is dead then don't do anything.
-                return;
+                egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
             }
+            //win condition
+            if(egc.enemies.isEmpty()){
+                boolean isdone = false;
+                for(Room r:egc.grid.rooms){
+                    if(!r.completed){
+                        isdone = false;
+                        break;
+                    }
+                    isdone = true;
+                }
+                if(isdone){
+                    egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
+                }
+            }
+
 
             if (input.isKeyPressed(Input.KEY_K) || egc.character.health <= 0) { //If k key is pressed or player runs out of health the do death scene.
                 egc.character.dieScene();
