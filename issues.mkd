@@ -51,10 +51,12 @@
 45 server <-> client image messages
 48 do player death animation when their life reaches zero.
 50 Mage and Rogue attacks
+49 win state
 
 ## Open Issues ##
 23 projectile images
-49 win state
+51 player cannot revive
+
 
 
 

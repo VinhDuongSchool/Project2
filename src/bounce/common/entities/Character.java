@@ -17,6 +17,7 @@ public abstract class Character extends Entity {
     protected Vector gamepos;
     public final long client_id;
     public int attack_timer;
+    public int revive_timer;
     public ArrayList<Shape> attack_shapes;
     protected lib.DIRS curdir;
     public int health;
