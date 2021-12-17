@@ -10,10 +10,14 @@ import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Vector;
+
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.awt.image.renderable.RenderableImage;
 import java.io.IOException;
 import java.util.*;
 
@@ -32,6 +36,9 @@ public class ClientPlayingState extends BasicGameState {
 
     Vector mp = new Vector(0,0);
     int lastMouseIdx = 0;
+    boolean controllerused = false;
+    Controller rightcontroller;
+    Controller leftcontroller;
 
 	@Override
 	public void init(GameContainer container, StateBasedGame game)
@@ -67,7 +74,7 @@ public class ClientPlayingState extends BasicGameState {
         egc.items.add(new Potion(5*32,25*32));
         egc.items.add(new Potion(15*32,32*32));
         egc.items.add(new Potion(31*32,5*32));
-        egc.character.setGamepos(new Vector(30*32,5*32));
+//        egc.character.setGamepos(new Vector(30*32,5*32));
 
 
 	}
@@ -159,6 +166,11 @@ public class ClientPlayingState extends BasicGameState {
 
 	}
 
+//    public void controllerButtonPressed(int controller, int button){
+//
+//    }
+
+
 	@Override
 	public void update(GameContainer container, StateBasedGame game,
 			int delta) throws SlickException {
@@ -170,6 +182,27 @@ public class ClientPlayingState extends BasicGameState {
             egc.grid = new TileMap(100,100);
         }
 
+
+        if(controllerused){
+            leftcontroller = Controllers.getController(5);
+            rightcontroller = Controllers.getController(6);
+        }
+
+        //System.out.println("xaxis : " + leftcontroller.getAxisValue(1));
+        //System.out.println("yaxis: " + leftcontroller.getXAxisValue());
+
+        /*
+         * 1 is down dpad for left controler
+         * 0 is left dpad for left controller
+         * 3 is right dpad for left controller
+         * 2 is up dpad for left controller
+         *
+         * 0 is a for right controller
+         * 2 is b for right controller
+         */
+
+
+
         if(egc.character == null)
             throw new IllegalStateException("character not initialized");
 
@@ -178,6 +211,10 @@ public class ClientPlayingState extends BasicGameState {
 
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
+        if(controllerused) {
+            inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)});
+        }
+
         var cMovDir = lib.wasd_to_dir(inp);
 
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
@@ -192,12 +229,16 @@ public class ClientPlayingState extends BasicGameState {
             var messages = new ArrayList<Message>();
 
             if(egc.character.getCurdir() != cMovDir){
-                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setDir(cMovDir));
+                messages.add(Message.builder(Message.MSG_TYPE.SET_DIR, egc.ID).setEtype(Message.ENTITY_TYPE.CHARACTER).setDir(cMovDir));
                 egc.character.setCurdir(cMovDir);
             }
 
 
-            if(input.isKeyPressed(Input.KEY_F)) {
+            if(controllerused){
+                if(rightcontroller.isButtonPressed(0)){
+                    messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
+                }
+            }else if(input.isKeyPressed(Input.KEY_F) ) {
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
 
@@ -275,7 +316,12 @@ public class ClientPlayingState extends BasicGameState {
                         });
 
                 //Kevin, primary attack
-                if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
+                if(controllerused){
+                    if(rightcontroller.isButtonPressed(0)){
+                        egc.character.primary().ifPresent(egc.projectiles::addAll);
+                    }
+
+                }else if (input.isKeyPressed(Input.KEY_F) || input.isMousePressed(0))
                     egc.character.primary().ifPresent(egc.projectiles::addAll);
             }
 
