@@ -50,9 +50,13 @@
 40 entity graphics
 45 server <-> client image messages
 48 do player death animation when their life reaches zero.
+50 Mage and Rogue attacks
 
 ## Open Issues ##
 23 projectile images
 49 win state
+
+
+
 
 

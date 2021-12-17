@@ -29,18 +29,6 @@ public class Projectile extends Entity {
         gamepos = gp;
         damage = 1;
         sender = this;
-
-        // add image with offset to it renders from top left corner
-        if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
-            addImage(ResourceManager.getImage(lib.UD));
-        } else if (d == lib.DIRS.SOUTHWEST || d == lib.DIRS.NORTHEAST) {
-            addImage(ResourceManager.getImage(lib.LR));
-        } else if (d == lib.DIRS.WEST || d == lib.DIRS.EAST) {
-            addImage(ResourceManager.getImage(lib.DR));
-        } else if (d == lib.DIRS.NORTH || d == lib.DIRS.SOUTH) {
-            addImage(ResourceManager.getImage(lib.UR));
-        }
-
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         id = _id;
         curdir = d;
@@ -53,6 +41,22 @@ public class Projectile extends Entity {
     public Projectile(Vector pos, Vector vel, lib.DIRS d, Object s){
         this(pos, vel, d);
         sender = s;
+        if (sender.getClass() == Archer.class || sender.getClass() == ShadowArcher.class) {
+            // add image with offset to it renders from top left corner
+            if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
+                addImage(ResourceManager.getImage(lib.UD));
+            } else if (d == lib.DIRS.SOUTHWEST || d == lib.DIRS.NORTHEAST) {
+                addImage(ResourceManager.getImage(lib.LR));
+            } else if (d == lib.DIRS.WEST || d == lib.DIRS.EAST) {
+                addImage(ResourceManager.getImage(lib.DR));
+            } else if (d == lib.DIRS.NORTH || d == lib.DIRS.SOUTH) {
+                addImage(ResourceManager.getImage(lib.UR));
+            }
+        } else if (sender.getClass() == Mage.class) {
+            addImage(ResourceManager.getImage(lib.MAGEFIREBALL));
+        } else if (sender.getClass() == Rogue.class) {
+            addImage(ResourceManager.getImage(lib.ROGUEBOMB));
+        }
     }
 
     // this shouldnt be needed?

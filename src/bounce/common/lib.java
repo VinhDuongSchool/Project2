@@ -46,6 +46,9 @@ public class lib {
 
     public static final String SpearManDeath = "bounce/resource/bSpearman/_death/bSpearman_Die_Down_strip8.png";
 
+    public static final String MAGEFIREBALL = "bounce/resource/Fireball.png";
+    public static final String ROGUEBOMB = "bounce/resource/RogueBomb.png";
+
 
     public static SpriteSheet game_sprites;
 
@@ -61,6 +64,8 @@ public class lib {
         ResourceManager.loadImage(LR);
         ResourceManager.loadImage(UR);
         ResourceManager.loadImage(DR);
+        ResourceManager.loadImage(MAGEFIREBALL);
+        ResourceManager.loadImage(ROGUEBOMB);
 
         ResourceManager.loadImage(POTION);
         ResourceManager.loadImage(PILEOFGOLD);

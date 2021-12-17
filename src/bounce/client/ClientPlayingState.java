@@ -66,7 +66,7 @@ public class ClientPlayingState extends BasicGameState {
         egc.items.add(new PileOfGold(15*32,5*32));
         egc.items.add(new Potion(5*32,25*32));
         egc.items.add(new Potion(15*32,32*32));
-        egc.items.add(new Potion(31*32,5*32));
+        egc.items.add(new Potion(28*32,5*32));
         egc.character.setGamepos(new Vector(30*32,5*32));
 
 
@@ -248,7 +248,12 @@ public class ClientPlayingState extends BasicGameState {
                     egc.character.gold += 50;
                 } else if (item instanceof Potion){
                     var ci = (Potion) item;
-                    egc.character.health += 50;
+                    if (egc.character.health + 50 > egc.character.maxHealth) { //Check how much health to restore.
+                        egc.character.health = egc.character.maxHealth;
+                    } else {
+                        egc.character.health += 50;
+                    }
+
                 } else {
                     throw new IllegalArgumentException("unknown item");
                 }
@@ -318,7 +323,7 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-                if(p.sender.getClass() == Archer.class) {
+                if(p.sender.getClass() == Archer.class || p.sender.getClass() == Mage.class || p.sender.getClass() == Rogue.class) {
                     for (Enemy e : egc.enemies) {
                         if (p.collides(e) != null) {
                             e.setHealth(e.getHealth() - p.damage);
