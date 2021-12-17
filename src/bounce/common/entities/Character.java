@@ -30,10 +30,7 @@ public abstract class Character extends Entity {
     public boolean doingAttackAnim;
     public boolean dead = false;
 
-
-    public Entity attack_collider;
     public boolean hit_in_this_attack;
-
 
     public Character(final float x, final float y, final float vx, final float vy, long id) {
         super(x,y);
@@ -82,10 +79,6 @@ public abstract class Character extends Entity {
         return velocity;
     } //Get the velocity
 
-    public boolean Hits(Enemy e){
-        //some characters dont implement an attack collider
-        return attack_collider != null && e.collides(attack_collider) != null;
-    }
 
     public abstract Optional<ArrayList<Projectile>> primary();
     public abstract void doAnim();
@@ -98,7 +91,6 @@ public abstract class Character extends Entity {
             gamepos = gamepos.add(velocity.scale(delta));
         }
 
-        attack_collider.setPosition(gamepos);
         setPosition(gamepos);
     }
 

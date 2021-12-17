@@ -198,27 +198,31 @@ public class ClientPlayingState extends BasicGameState {
                 egc.character.lookingDirIdx = lastMouseIdx;
             }
 
-            messages.stream().forEach(m -> {
-                try {
-                    egc.out_stream.writeObject(m);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            if(!egc.character.dead) {
+                messages.stream().forEach(m -> {
+                    try {
+                        egc.out_stream.writeObject(m);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
             for(var m = egc.in_messages.poll(); m != null; m = egc.in_messages.poll()){
                 egc.handle_message(m);
             }
 
-            egc.allies.values().forEach(Character::doAnim);
+            egc.allies.values().stream().filter(c -> !c.dead).forEach(Character::doAnim);
 
         } else {
             //Kevin, character array to imitate server so its easier to copy functionality
             var egs_characters = new Character[]{egc.character};
+
             if (input.isKeyPressed(Input.KEY_L)) { //If L key is pressed then game resumes as normal.
                 egc.character.dead = false;
             }
 
-            if (egc.character.dead == true) { //If character is dead then don't do anything.
+            if (egc.character.dead) { //If character is dead then don't do anything.
                 return;
             }
 
@@ -226,16 +230,6 @@ public class ClientPlayingState extends BasicGameState {
                 egc.character.dieScene();
             }
 
-            for (Enemy e: egc.enemies) { //If zombie enemy is attacking and collides with the character then decrease the character health by 4.
-                if (e.getClass() == Zombie.class) {
-                    if (e.attacking == true) {
-                        if (e.collides(egc.character) != null) {
-                            egc.character.health -= 4;
-                            e.attacking = false;
-                        }
-                    }
-                }
-            }
 
             egc.items.stream().filter(i -> egc.character.collides(i) != null).findAny().ifPresent(item -> {
                 //Kevin, for when items have more complex function we need to cast them
@@ -287,6 +281,17 @@ public class ClientPlayingState extends BasicGameState {
                     .map(Optional::get)
                     .forEach(egc.projectiles::addAll);
 
+            for (Enemy e: egc.enemies) { //If zombie enemy is attacking and collides with the character then decrease the character health by 4.
+                if (e.getClass() == Zombie.class) {
+                    if (e.attacking) {
+                        if (e.collides(egc.character) != null) {
+                            egc.character.health -= e.damage;
+                            e.attacking = false;
+                        }
+                    }
+                }
+            }
+
             //check player attacks, must be after both player and character are updated
             Arrays.stream(egs_characters).filter(c -> !c.hit_in_this_attack && c.attack_timer > 0).forEach(c -> {
                 for(var e : egc.enemies){
@@ -303,8 +308,7 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-                if(p.sender.getClass().getName().equals(Archer.class.getName())) {
-
+                if(p.sender.getClass() == Archer.class) {
                     for (Enemy e : egc.enemies) {
                         if (p.collides(e) != null) {
                             e.setHealth(e.getHealth() - p.damage);
@@ -313,9 +317,10 @@ public class ClientPlayingState extends BasicGameState {
                         }
                     }
                 } else { // must be an enemy projectile
-                    egc.character.health -= p.damage;
-                    p.setHit(true);
-                    break;
+                    if(egc.character.collides(p) != null){
+                        egc.character.health -= p.damage;
+                        p.setHit(true);
+                    }
                 }
 
                 bounce.common.level.Tile currentProjectileTile = egc.grid.getTile(p.getGamepos()); //Get the tile the projectile is at.

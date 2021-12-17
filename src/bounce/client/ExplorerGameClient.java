@@ -105,7 +105,8 @@ public class ExplorerGameClient extends StateBasedGame {
     }
 
     public void handle_message(Message m){
-        System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
+        if(m.type != Message.MSG_TYPE.NEW_POSITION)
+            System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
 
         switch (m.type){
             case INIT_CHARACTER:
@@ -157,7 +158,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new Zombie(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new Zombie(m.gamepos, m.velocity, lib.game_sprites.getSprite(0,9), m.id));
                         break;
                     }
                     case SHADOWARCHER:
@@ -165,7 +166,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, lib.game_sprites.getSprite(3,8), m.id));
                         break;
                     }
                     case PROJECTILE:
@@ -212,6 +213,10 @@ public class ExplorerGameClient extends StateBasedGame {
 //                                        () -> System.out.println("missed entity id"));
                                         // if this throws you can comment it out, but it shouldnt throw
                                         () -> {throw new RuntimeException("enemy id missing");});
+                        break;
+                    case CHARACTER:
+                        allies.get(m.id).health = m.HP;
+                        break;
                 }
                 break;
             }
@@ -223,6 +228,17 @@ public class ExplorerGameClient extends StateBasedGame {
             case COMPLETE_ROOM:
             {
                 grid.rooms.get((int) m.id).open();
+                break;
+            }
+            case CLOSE_ROOM:
+            {
+                grid.rooms.get((int) m.id).close();
+                break;
+            }
+            case DEAD:
+            {
+                allies.get(m.id).dead = true;
+                allies.get(m.id).dieScene();
                 break;
             }
 

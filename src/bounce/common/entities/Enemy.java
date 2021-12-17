@@ -27,6 +27,7 @@ public class Enemy extends Entity {
     public Vector dir;
     public ArrayList<Shape> attack_shapes;
     public lib.DIRS curdir;
+    public int damage;
 
     public Enemy(final float x, final float y, final float vx, final float vy, Image img, long _id) {
         super(x,y);
@@ -34,6 +35,7 @@ public class Enemy extends Entity {
         velocity = new Vector(vx, vy);
         health = 3;
         id = _id;
+        damage = 5;
         addImage(img);
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
         attack_shapes = new ArrayList<>();
@@ -63,7 +65,7 @@ public class Enemy extends Entity {
         throw new IllegalStateException("dont call base enemy attack");
     }
 
-    public Optional<ArrayList<Projectile>> update(final int delta, Character[] characterks, lib.DIRS td) {
+    public Optional<ArrayList<Projectile>> update(final int delta, Character[] characters, lib.DIRS td) {
         throw new IllegalStateException("dont call base enemy update");
 
         //Kevin, commented and not deleted for reference, yes i know git exists

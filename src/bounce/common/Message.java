@@ -18,7 +18,9 @@ public class Message implements Serializable {
         SET_HP,
         PRIMARY,
         SET_ATTACK_TIMER,
-        COMPLETE_ROOM
+        COMPLETE_ROOM,
+        DEAD,
+        CLOSE_ROOM
     }
 
     public enum ENTITY_TYPE{

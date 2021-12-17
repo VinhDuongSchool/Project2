@@ -87,7 +87,7 @@ public class Warrior extends Character {
             doingAttackAnim = true;
             removeAnimation(curanim);
             switch (lib.angle_index_to_dir[lookingDirIdx]) {
-                // GAME NORTH IS SCREEN NORTHWEST
+                // GAME NORTH IS SCREEN NORTHEAST
                 case NORTHEAST:
                     curanim = new Animation(attackEastSpriteSheet, 50);
                     break;
@@ -126,7 +126,7 @@ public class Warrior extends Character {
             doingAttackAnim = false;
             removeAnimation(curanim);
             switch (curdir){
-                // GAME NORTH IS SCREEN NORTHWEST
+                // GAME NORTH IS SCREEN NORTHEAST
                 case NORTHEAST:
                     curanim = new Animation(WalkingEastSpriteSheet, 50);
                     break;
