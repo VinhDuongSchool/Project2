@@ -70,7 +70,7 @@ public class ExplorerGameClient extends StateBasedGame {
 		ScreenHeight = height;
 		ScreenWidth = width;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
-        Entity.setDebug(true);
+        Entity.setDebug(false);
 		enemies = new ArrayList<>(10); // Initialize the arrayList
         projectiles = new ArrayList<>();
         screen_center = new Vector(ScreenWidth/2.0f,ScreenHeight/2.0f);
