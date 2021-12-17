@@ -87,7 +87,7 @@ public class ClientPlayingState extends BasicGameState {
 
         egc.grid.render(g,screen_offset, egc.character.getGamepos());
         g.setColor(Color.white);
-        g.drawString("Gold: " + egc.gold, 10, 50);
+        g.drawString("Gold: " + egc.character.gold, 10, 50);
         g.drawString("Health: " + egc.character.health, 10, 70);
         g.setColor(Color.gray);
 
@@ -240,7 +240,7 @@ public class ClientPlayingState extends BasicGameState {
                 //Kevin, for when items have more complex function we need to cast them
                 if(item instanceof PileOfGold){
                     var ci = (PileOfGold) item;
-                    egc.gold += 50;
+                    egc.character.gold += 50;
                 } else if (item instanceof Potion){
                     var ci = (Potion) item;
                     egc.character.health += 50;
