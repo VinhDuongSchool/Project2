@@ -2,6 +2,7 @@ package bounce.client;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -26,6 +27,7 @@ public class WinState extends BasicGameState {
                        Graphics g) throws SlickException {
 
         ExplorerGameClient bg = (ExplorerGameClient)game;
+        g.drawString("GAMEOVER\n you won and now you can go spend the gold\n press space",200,200);
 
 
     }
@@ -33,6 +35,13 @@ public class WinState extends BasicGameState {
     @Override
     public void update(GameContainer container, StateBasedGame game,
                        int delta) throws SlickException {
+
+
+        Input input = container.getInput();
+        ExplorerGameClient egc = (ExplorerGameClient) game;
+        if(input.isKeyPressed(Input.KEY_SPACE)){
+            egc.enterState(ExplorerGameClient.CHARACTERSELECTSTATE);
+        }
 
 
 

@@ -207,8 +207,12 @@ public class ClientPlayingState extends BasicGameState {
          * 2 is b for right controller
          */
 
-
-
+        if(input.isKeyPressed(Input.KEY_1)){
+            egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
+        }
+        if(input.isKeyPressed(Input.KEY_2)){
+            egc.enterState(ExplorerGameClient.WINSTATE);
+        }
         if(egc.character == null)
             throw new IllegalStateException("character not initialized");
 
