@@ -211,7 +211,7 @@ public class ClientPlayingState extends BasicGameState {
         //(Kevin) deal with user input
         var inp = List.of( new Boolean[]{input.isKeyDown(Input.KEY_W), input.isKeyDown(Input.KEY_A), input.isKeyDown(Input.KEY_S), input.isKeyDown(Input.KEY_D)});
         if(controllerused) {
-            inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)}); // todo controller scheme needs to be done
+            inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)});
         }
 
         var cMovDir = lib.wasd_to_dir(inp);
