@@ -32,6 +32,7 @@ import java.util.*;
  */
 public class ClientPlayingState extends BasicGameState {
 
+    lib.DIRS ldir;
     int lastMouseIdx = 0;
     Controller rightcontroller;
     Controller leftcontroller;
@@ -44,6 +45,9 @@ public class ClientPlayingState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
         ExplorerGameClient egc = (ExplorerGameClient)game;
+
+        if(egc.controllerused)
+            ldir = lib.DIRS.SOUTH;
 
         if(egc.is_connected)
             return;
@@ -217,13 +221,26 @@ public class ClientPlayingState extends BasicGameState {
             inp = List.of( new Boolean[]{leftcontroller.isButtonPressed(2), leftcontroller.isButtonPressed(0), leftcontroller.isButtonPressed(1), leftcontroller.isButtonPressed(3)});
         }
 
+
         var cMovDir = lib.wasd_to_dir(inp);
 
+        if ( cMovDir != null){
+            ldir = cMovDir;
+        }
         //Kevin, m is mouse cords on screen, character is always in the sceen center,
         //angleto gives the angle in degrees rotated by 180 for some reason,
         //divide by 45 to convert into 8 directions, then round to get the angle index,
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
         int cLookingDirIdx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
+        if(egc.controllerused){
+            for(int i = 0; i<lib.angle_index_to_dir.length ; i++ ){
+                if( lib.angle_index_to_dir[i] == ldir){
+                    cLookingDirIdx = i;
+                }
+
+
+            }
+        }
 
 
 
@@ -250,7 +267,6 @@ public class ClientPlayingState extends BasicGameState {
             }else if(input.isKeyPressed(Input.KEY_F) ) {
                 messages.add(Message.builder(Message.MSG_TYPE.PRIMARY, egc.ID));
             }
-
             if(cLookingDirIdx != lastMouseIdx){
                 messages.add(Message.builder(Message.MSG_TYPE.MOUSE_IDX, egc.ID).setIntData(cLookingDirIdx));
                 lastMouseIdx = cLookingDirIdx;
