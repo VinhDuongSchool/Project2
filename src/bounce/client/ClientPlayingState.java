@@ -235,6 +235,13 @@ public class ClientPlayingState extends BasicGameState {
                 egc.character.setCurdir(cMovDir);
             }
 
+            if (egc.character.dead) //If character is dead then don't do anything.
+                egc.enterState(ExplorerGameClient.GAMEOVERSTATE);
+
+            //win condition
+            if(egc.enemies.isEmpty() && egc.grid.rooms.stream().allMatch(r -> r.completed))
+                egc.enterState(ExplorerGameClient.WINSTATE);
+
 
             if(egc.controllerused){
                 if(rightcontroller.isButtonPressed(0)){
@@ -368,6 +375,8 @@ public class ClientPlayingState extends BasicGameState {
                         //player attack freeze is 500ms
                         e.attack_timer += 450;
                         c.hit_in_this_attack = true;
+                        if(e.getHealth() <= 0)
+                            c.gold += 5;
                         break;
                     }
                 }
@@ -380,6 +389,14 @@ public class ClientPlayingState extends BasicGameState {
                     for (Enemy e : egc.enemies) {
                         if (p.collides(e) != null) {
                             e.setHealth(e.getHealth() - p.damage);
+                            if(e.getHealth() <= 0) {
+                                try {
+                                    var c = (Character) p.sender;
+                                    c.gold += 5;
+                                } catch (ClassCastException ex){
+                                    ex.printStackTrace();
+                                }
+                            }
                             p.setHit(true);
                             break; // each projectile should only collide with a single entity
                         }

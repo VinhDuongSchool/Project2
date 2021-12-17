@@ -297,18 +297,15 @@ public class ExplorerGameClient extends StateBasedGame {
         //(Kevin) is_connected may be passed through program args
         boolean connected;
         boolean controllerused;
-        if (args.length > 0){
-            connected = Boolean.parseBoolean(args[0].toLowerCase());
-        } else {
+
+        if(args.length < 2){
+            System.out.println("use {true or false}: ./ExplorerGameClient {connected} {controllerused}");
             connected = false;
-        }
-
-        if(args.length > 1){
-            controllerused = Boolean.parseBoolean(args[1].toLowerCase());
-        } else {
             controllerused = false;
+        } else {
+            connected = Boolean.parseBoolean(args[0].toLowerCase());
+            controllerused = Boolean.parseBoolean(args[1].toLowerCase());
         }
-
 
 		try {
             System.out.println("making app");

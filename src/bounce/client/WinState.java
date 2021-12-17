@@ -26,7 +26,8 @@ public class WinState extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game,
                        Graphics g) throws SlickException {
 
-        ExplorerGameClient bg = (ExplorerGameClient)game;
+        ExplorerGameClient egc = (ExplorerGameClient)game;
+        g.drawString("Your Score: " + egc.character.gold,200,150);
         g.drawString("GAMEOVER\n you won and now you can go spend the gold\n press space",200,200);
 
 

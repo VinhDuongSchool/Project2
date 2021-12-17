@@ -127,11 +127,14 @@ public class ExplorerGameServer extends StateBasedGame {
             case INIT_CHARACTER:
             {
                 var ct = (Class<? extends Character>) m.data;
+                if(characters[(int) m.id] != null)
+                    m.gamepos = characters[(int) m.id].getGamepos();
 
                 characters[(int) m.id] = Character.dyn(ct, m.gamepos, m.velocity, m.id);
                 out_messages.add(m);
                 break;
             }
+
             case PRIMARY:
             {
                 characters[(int)m.id].primary().ifPresent(projs -> {

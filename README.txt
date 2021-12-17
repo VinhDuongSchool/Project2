@@ -1,11 +1,16 @@
 Controls: W,A,S,D controls to move the characters. Can hold more than 2 buttons to move diagonally. F or Left click mouse button to do primary attack
 
-Cheat codes: (single player only)
+Cheat codes:
+Press 1 to go to gameover state
+Press 2 to go to win state
+(single player only)
 Press K to kill the player manually without waiting for their health to get to zero.
 Press L to revive player and give them their max health
-Press O to clear the current room
+Press O to clear and complete the current room
 Press P to close all rooms (doesnt reset spawners)
 Press T to reload level (resets spawners) (untested and probably breaks stuff)
+
+you can rename room files to remove rooms. if you rename room2 > room10 the game will only load the first room
 
 Low bar goals
 

@@ -22,7 +22,8 @@ public class Message implements Serializable {
         COMPLETE_ROOM,
         DEAD,
         CLOSE_ROOM,
-        ADD_GOLD
+        ADD_GOLD,
+        REVIVE
     }
 
     public enum ENTITY_TYPE{

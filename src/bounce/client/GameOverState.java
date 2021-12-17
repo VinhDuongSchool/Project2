@@ -35,8 +35,9 @@ public class GameOverState extends BasicGameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game,
 			Graphics g) throws SlickException {
+        ExplorerGameClient egc = (ExplorerGameClient)game;
 
-		ExplorerGameClient bg = (ExplorerGameClient)game;
+        g.drawString("Your Score: " + egc.character.gold,200,150);
 		g.drawString("GAMEOVER\n you died but can still play again\n press space",200,200);
 
 

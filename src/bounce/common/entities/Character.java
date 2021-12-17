@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public abstract class Character extends Entity {
 
-    protected Vector velocity; //Velocity vectore.
+    protected Vector velocity;
     protected Vector gamepos;
     public final long client_id;
     public int attack_timer;
@@ -87,6 +87,8 @@ public abstract class Character extends Entity {
     public abstract void doAnim();
 
     public void update(final int delta) {
+        if(revive_timer > 0)
+            revive_timer -= delta;
 
         if(attack_timer > 0) {
             attack_timer -= delta;
@@ -108,7 +110,7 @@ public abstract class Character extends Entity {
 
     public void dieScene() {
         dead = true;
-
+        revive_timer = 5000;
     }
 }
 

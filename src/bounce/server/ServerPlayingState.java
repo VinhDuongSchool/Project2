@@ -104,7 +104,7 @@ public class ServerPlayingState extends BasicGameState {
             if (oldAT != c.attack_timer)
                 egs.out_messages.add(Message.builder(Message.MSG_TYPE.SET_ATTACK_TIMER, c.client_id).setIntData(c.attack_timer));
             if(c.health <= 0){
-                c.dead = true;
+                c.dieScene();
                 egs.out_messages.add(Message.builder(Message.MSG_TYPE.DEAD, c.client_id));
             }
         });
@@ -173,6 +173,10 @@ public class ServerPlayingState extends BasicGameState {
                     //player attack freeze is 500ms
                     e.attack_timer += 450;
                     c.hit_in_this_attack = true;
+                    if(e.getHealth() <= 0){
+                        c.gold += 5;
+                        egs.out_messages.add(Message.builder(Message.MSG_TYPE.ADD_GOLD, c.client_id).setIntData(c.gold));
+                    }
                     break;
                 }
             }
@@ -242,6 +246,15 @@ public class ServerPlayingState extends BasicGameState {
                     if (p.collides(e) != null) {
                         e.setHealth(e.getHealth() - p.damage);
                         p.setHit(true);
+                        if(e.getHealth() <= 0) {
+                            try {
+                                var c = (Character) p.sender;
+                                c.gold += 5;
+                                egs.out_messages.add(Message.builder(Message.MSG_TYPE.ADD_GOLD, c.client_id).setIntData(c.gold));
+                            } catch (ClassCastException ex){
+                                ex.printStackTrace();
+                            }
+                        }
                         break; // each projectile should only collide with a single entity
                     }
                 }
