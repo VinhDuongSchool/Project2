@@ -36,6 +36,7 @@ public class ExplorerGameClient extends StateBasedGame {
 	public static final int PLAYINGSTATE = 1;
 	public static final int GAMEOVERSTATE = 2;
     public static final int CHARACTERSELECTSTATE = 3;
+    public static final int WINSTATE = 4;
 
 	public final int ScreenWidth;
 	public final int ScreenHeight;
@@ -273,6 +274,7 @@ public class ExplorerGameClient extends StateBasedGame {
         addState(new ClientPlayingState());
 		addState(new StartUpState());
 		addState(new GameOverState());
+        addState(new WinState());
 
 
 		// the sound resource takes a particularly long time to load,
