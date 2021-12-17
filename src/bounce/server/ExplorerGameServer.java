@@ -4,6 +4,7 @@ import bounce.common.Message;
 import bounce.common.entities.Character;
 import bounce.common.entities.Enemy;
 import bounce.common.entities.Projectile;
+import bounce.common.items.BaseItem;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Entity;
@@ -47,6 +48,7 @@ public class ExplorerGameServer extends StateBasedGame {
     public ArrayList<Enemy> enemies; //Enemies
     public ArrayList<Projectile> projectiles;
     public TileMap grid;
+    public ArrayList<BaseItem> items;
 
     /**
      * Create the BounceGame frame, saving the width and height for later use.
@@ -68,6 +70,7 @@ public class ExplorerGameServer extends StateBasedGame {
         //(Kevin) initialize data structures
         enemies = new ArrayList<>();
         projectiles = new ArrayList<>();
+        items = new ArrayList<>();
         in_messages = new ConcurrentLinkedQueue<>();
         out_messages = new ConcurrentLinkedQueue<>();
         characters = new Character[n_players];

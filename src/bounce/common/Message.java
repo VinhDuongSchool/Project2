@@ -20,7 +20,8 @@ public class Message implements Serializable {
         SET_ATTACK_TIMER,
         COMPLETE_ROOM,
         DEAD,
-        CLOSE_ROOM
+        CLOSE_ROOM,
+        ADD_GOLD
     }
 
     public enum ENTITY_TYPE{
@@ -30,7 +31,9 @@ public class Message implements Serializable {
         ENEMY,
         PROJECTILE,
         SHADOWARCHER,
-        ZOMBIE
+        ZOMBIE,
+        GOLDPILE,
+        POTION
     }
     public final MSG_TYPE type;
     public ENTITY_TYPE etype;

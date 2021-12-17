@@ -4,6 +4,8 @@ import bounce.common.Message;
 import bounce.common.entities.Character;
 import bounce.common.entities.*;
 import bounce.common.items.BaseItem;
+import bounce.common.items.PileOfGold;
+import bounce.common.items.Potion;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Entity;
@@ -51,20 +53,6 @@ public class ExplorerGameClient extends StateBasedGame {
     public TileMap grid;
     public HashMap<Long, Character> allies;
     public ArrayList<BaseItem> items;
-    public int gold;
-
-
-
-	/**
-	 * Create the BounceGame frame, saving the width and height for later use.
-	 *
-	 * @param title
-	 *            the window's title
-	 * @param width
-	 *            the window's width
-	 * @param height
-	 *            the window's height
-	 */
 
 	public ExplorerGameClient(String title, int width, int height, boolean connected) throws IOException {
 		super(title);
@@ -75,6 +63,7 @@ public class ExplorerGameClient extends StateBasedGame {
         } else {
             ID = 0;
         }
+
 		ScreenHeight = height;
 		ScreenWidth = width;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
@@ -172,6 +161,12 @@ public class ExplorerGameClient extends StateBasedGame {
                     case PROJECTILE:
                         projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
                         break;
+                    case GOLDPILE:
+                        items.add(new PileOfGold(m.gamepos.getX(), m.gamepos.getY()));
+                        break;
+                    case POTION:
+                        items.add(new Potion(m.gamepos.getX(), m.gamepos.getY()));
+                        break;
                 }
                 break;
             }
@@ -183,6 +178,11 @@ public class ExplorerGameClient extends StateBasedGame {
                         break;
                     case PROJECTILE:
                         projectiles.remove(projectiles.stream().filter(p -> p.id == m.id).findFirst().get());
+                        break;
+
+                    case GOLDPILE:
+                    case POTION:
+                        items.remove(items.stream().filter(i -> i.id == m.id).findFirst().get());
                         break;
                 }
                 break;

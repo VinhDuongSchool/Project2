@@ -3,6 +3,8 @@ package bounce.server;
 import bounce.common.Message;
 import bounce.common.entities.Character;
 import bounce.common.entities.*;
+import bounce.common.items.PileOfGold;
+import bounce.common.items.Potion;
 import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import org.newdawn.slick.GameContainer;
@@ -36,6 +38,27 @@ public class ServerPlayingState extends BasicGameState {
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) {
+        ExplorerGameServer egs = (ExplorerGameServer) game;
+        egs.items.add(new PileOfGold(2*32,32)); //Add the potions
+        egs.items.add(new PileOfGold(15*32,5*32));
+        egs.items.add(new Potion(5*32,25*32));
+        egs.items.add(new Potion(15*32,32*32));
+        egs.items.add(new Potion(15*32,50*32));
+        egs.items.add(new Potion(31*32,5*32));
+
+        egs.items.forEach(item -> {
+            // only time the message builder has actually been useful
+            var m = Message.builder(Message.MSG_TYPE.ADD_ENTITY, item.id).setGamepos(item.getGamepos());
+                if(item instanceof PileOfGold) {
+                    m.setEtype(Message.ENTITY_TYPE.GOLDPILE);
+                } else if (item instanceof Potion) {
+                    m.setEtype(Message.ENTITY_TYPE.POTION);
+                } else {
+                    throw new IllegalArgumentException("unknown item");
+                }
+            egs.out_messages.add(m);
+        });
+
 
     }
 
@@ -180,6 +203,35 @@ public class ServerPlayingState extends BasicGameState {
             p.update(delta);
             egs.out_messages.add(new Message(Message.MSG_TYPE.NEW_POSITION, p.getGamepos(), p.id, Message.ENTITY_TYPE.PROJECTILE));
         });
+
+
+
+        for(var c : egs.characters){
+            egs.items.stream().filter(i -> i.collides(c) != null).findAny().ifPresent(item -> {
+                if(c.collides(item) != null){
+                    var m = Message.builder(Message.MSG_TYPE.REMOVE_ENTITY, item.id);
+                    if(item instanceof PileOfGold){
+                        var ci = (PileOfGold) item;
+                        c.gold += 50;
+                        m.setEtype(Message.ENTITY_TYPE.GOLDPILE);
+                        egs.out_messages.add(Message.builder(Message.MSG_TYPE.ADD_GOLD, c.client_id)
+                                .setHP(c.gold));
+                    } else if (item instanceof Potion){
+                        var ci = (Potion) item;
+                        c.health += 50;
+                        m.setEtype(Message.ENTITY_TYPE.POTION);
+                        egs.out_messages.add(Message.builder(Message.MSG_TYPE.SET_HP, c.client_id)
+                                .setEtype(Message.ENTITY_TYPE.CHARACTER)
+                                .setHP(c.health));
+                    } else {
+                        throw new IllegalArgumentException("unknown item");
+                    }
+                    egs.out_messages.add(m);
+                    egs.items.remove(item);
+                    System.out.println("remove item");
+                }
+            });
+        }
 
         //Kevin, check if projectiles collide with enemies
         for (Projectile p : egs.projectiles) {

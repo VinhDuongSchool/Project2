@@ -29,6 +29,7 @@ public abstract class Character extends Entity {
     public int lookingDirIdx;
     public boolean doingAttackAnim;
     public boolean dead = false;
+    public int gold;
 
     public boolean hit_in_this_attack;
 

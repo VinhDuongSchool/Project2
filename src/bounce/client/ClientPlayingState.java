@@ -60,11 +60,14 @@ public class ClientPlayingState extends BasicGameState {
 //        egc.enemies.add(new Enemy(32*3,32*5, 0, 0, egc.game_sprites.getSprite(0, 9)));
 //        egc.enemies.add(new Enemy(32,32, 0, 0, egc.game_sprites.getSprite(1, 8)));
 
-        egc.items.add(new PileOfGold(244,109)); //Add the potions
-        egc.items.add(new PileOfGold(348,394));
-        egc.items.add(new Potion(415,461));
-        egc.items.add(new Potion(81,265));
-//        egc.character.setGamepos(new Vector(32*6, 32*34));
+
+
+        egc.items.add(new PileOfGold(2*32,2*32)); //Add the potions
+        egc.items.add(new PileOfGold(15*32,5*32));
+        egc.items.add(new Potion(5*32,25*32));
+        egc.items.add(new Potion(15*32,32*32));
+        egc.items.add(new Potion(31*32,5*32));
+        egc.character.setGamepos(new Vector(30*32,5*32));
 
 
 	}
@@ -83,7 +86,7 @@ public class ClientPlayingState extends BasicGameState {
 
         egc.grid.render(g,screen_offset, egc.character.getGamepos());
         g.setColor(Color.white);
-        g.drawString("Gold: " + egc.gold, 10, 50);
+        g.drawString("Gold: " + egc.character.gold, 10, 50);
         g.drawString("Health: " + egc.character.health, 10, 70);
         g.setColor(Color.gray);
 
@@ -162,6 +165,11 @@ public class ClientPlayingState extends BasicGameState {
         Input input = container.getInput();
         ExplorerGameClient egc = (ExplorerGameClient) game;
 
+        if(input.isKeyPressed(Input.KEY_T)){
+            egc.grid = null;
+            egc.grid = new TileMap(100,100);
+        }
+
         if(egc.character == null)
             throw new IllegalStateException("character not initialized");
 
@@ -177,6 +185,7 @@ public class ClientPlayingState extends BasicGameState {
         //divide by 45 to convert into 8 directions, then round to get the angle index,
         var mousePos = new Vector(input.getMouseX(), input.getMouseY());
         int cLookingDirIdx = (int)Math.round((mousePos.angleTo(egc.screen_center)+180)/45);
+
 
 
         if(egc.is_connected){ //Kevin, run with a server
@@ -220,6 +229,7 @@ public class ClientPlayingState extends BasicGameState {
 
             if (input.isKeyPressed(Input.KEY_L)) { //If L key is pressed then game resumes as normal.
                 egc.character.dead = false;
+                egc.character.health = 100;
             }
 
             if (egc.character.dead) { //If character is dead then don't do anything.
@@ -235,7 +245,7 @@ public class ClientPlayingState extends BasicGameState {
                 //Kevin, for when items have more complex function we need to cast them
                 if(item instanceof PileOfGold){
                     var ci = (PileOfGold) item;
-                    egc.gold += 50;
+                    egc.character.gold += 50;
                 } else if (item instanceof Potion){
                     var ci = (Potion) item;
                     egc.character.health += 50;
