@@ -159,7 +159,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         break;
                     }
                     case PROJECTILE:
-                        projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
+                        projectiles.add(new Projectile(m.gamepos, lib.v0, m.dir, m.id, m.ctype, -1));
                         break;
                     case GOLDPILE:
                         items.add(new PileOfGold(m.gamepos.getX(), m.gamepos.getY()));

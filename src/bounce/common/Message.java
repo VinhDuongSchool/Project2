@@ -1,6 +1,7 @@
 package bounce.common;
 
 
+import jig.Entity;
 import jig.Vector;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ public class Message implements Serializable {
     public lib.DIRS dir;
     public int HP;
     public int intData;
+    public Class<? extends Entity> ctype;
 
     public Message(MSG_TYPE t, Object d, long _id) {
         type = t;
@@ -118,6 +120,11 @@ public class Message implements Serializable {
 
     public Message setIntData(int d) {
         this.intData = d;
+        return this;
+    }
+
+    public Message setCType(Class<? extends Entity> c) {
+        this.ctype = c;
         return this;
     }
 }

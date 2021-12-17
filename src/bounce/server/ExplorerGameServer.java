@@ -140,7 +140,7 @@ public class ExplorerGameServer extends StateBasedGame {
                                 .setEtype(Message.ENTITY_TYPE.PROJECTILE)
                                 .setGamepos(p.getGamepos())
                                 .setDir(p.curdir)
-                                .setVelocity(p.getVelocity())))
+                                .setCType(p.sender.getClass())))
                             .forEach(out_messages::add);
                 });
                 break;

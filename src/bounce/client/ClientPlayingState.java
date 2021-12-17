@@ -10,14 +10,12 @@ import bounce.common.level.Door;
 import bounce.common.level.TileMap;
 import bounce.common.lib;
 import jig.Vector;
-
 import org.lwjgl.input.Controller;
 import org.lwjgl.input.Controllers;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import java.awt.image.renderable.RenderableImage;
 import java.io.IOException;
 import java.util.*;
 
@@ -272,7 +270,7 @@ public class ClientPlayingState extends BasicGameState {
 
             if (input.isKeyPressed(Input.KEY_L)) { //If L key is pressed then game resumes as normal.
                 egc.character.dead = false;
-                egc.character.health = 100;
+                egc.character.health = egc.character.maxHealth;
             }
 
             if (egc.character.dead) { //If character is dead then don't do anything.
@@ -371,9 +369,7 @@ public class ClientPlayingState extends BasicGameState {
             //Kevin, check if projectiles collide with enemies
             for (Projectile p : egc.projectiles){
                 //Kevin, if projectile isnt sent by archer dont hit enemies
-
                 if(p.sender.getClass() == Archer.class || p.sender.getClass() == Mage.class || p.sender.getClass() == Rogue.class) {
-
                     for (Enemy e : egc.enemies) {
                         if (p.collides(e) != null) {
                             e.setHealth(e.getHealth() - p.damage);

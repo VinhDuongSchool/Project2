@@ -20,28 +20,30 @@ public class Projectile extends Entity {
     public int damage;
     protected Vector gamepos;
     public lib.DIRS curdir;
-    public Object sender;
+    public Entity sender;
 
 
-    public Projectile(Vector gp, Vector v, long _id, lib.DIRS d) {
+    public Projectile(Vector gp, Vector v, lib.DIRS d, Entity s, int dmg){
+        this(gp, v, d, ID_COUNTER.incrementAndGet(), s, dmg);
+    }
+
+    public Projectile(Vector gp, Vector v, lib.DIRS d, long _id, Entity s, int dmg){
+        this(gp, v, d, _id, s.getClass(), dmg);
+        sender = s;
+    }
+
+    //main constructor
+    public Projectile(Vector gp, Vector v, lib.DIRS d, long _id, Class<? extends Entity> sc, int dmg){
         super(gp);
         velocity = v;
         gamepos = gp;
-        damage = 1;
-        sender = this;
-        addShape(new ConvexPolygon(lib.sqr.getPoints()));
+        damage = dmg;
         id = _id;
         curdir = d;
-    }
 
-    public Projectile(Vector pos, Vector vel, final lib.DIRS d){
-        this(pos, vel,  ID_COUNTER.getAndIncrement(), d);
-    }
+        addShape(new ConvexPolygon(lib.sqr.getPoints()));
 
-    public Projectile(Vector pos, Vector vel, lib.DIRS d, Object s){
-        this(pos, vel, d);
-        sender = s;
-        if (sender.getClass() == Archer.class || sender.getClass() == ShadowArcher.class) {
+        if (sc == Archer.class || sc == ShadowArcher.class) {
             // add image with offset to it renders from top left corner
             if (d == lib.DIRS.NORTHWEST || d == lib.DIRS.SOUTHEAST) { //Check what direction the player is moving in a load the appropiate image.
                 addImage(ResourceManager.getImage(lib.UD));
@@ -52,20 +54,12 @@ public class Projectile extends Entity {
             } else if (d == lib.DIRS.NORTH || d == lib.DIRS.SOUTH) {
                 addImage(ResourceManager.getImage(lib.UR));
             }
-        } else if (sender.getClass() == Mage.class) {
+        } else if (sc == Mage.class) {
             addImage(ResourceManager.getImage(lib.MAGEFIREBALL));
-        } else if (sender.getClass() == Rogue.class) {
+        } else if (sc == Rogue.class) {
             addImage(ResourceManager.getImage(lib.ROGUEBOMB));
         }
     }
-
-    // this shouldnt be needed?
-    // id + sender means its for creating a projectile entity on the client which means it shouldnt need the sender information ever
-//    public Projectile(Vector pos, Vector vel, lib.DIRS d, long i,  Object s){
-//        this(pos, vel, i, d);
-//        sender = s;
-//    }
-
 
     public void setVelocity(final Vector v) {
         velocity = v;

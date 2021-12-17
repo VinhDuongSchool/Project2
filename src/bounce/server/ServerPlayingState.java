@@ -159,6 +159,7 @@ public class ServerPlayingState extends BasicGameState {
                                 .setEtype(Message.ENTITY_TYPE.PROJECTILE)
                                 .setGamepos(p.getGamepos())
                                 .setDir(p.curdir)
+                                .setCType(p.sender.getClass())
                                 .setVelocity(p.getVelocity()));
                     }));
             egs.out_messages.add(Message.builder(Message.MSG_TYPE.NEW_POSITION, e.id).setEtype(Message.ENTITY_TYPE.ENEMY).setGamepos(e.getGamepos()));
@@ -194,7 +195,7 @@ public class ServerPlayingState extends BasicGameState {
             var p = egs.projectiles.get(i);
             if (p.getHit()) {
                 egs.projectiles.remove(i);
-                egs.out_messages.add(new Message(Message.MSG_TYPE.REMOVE_ENTITY, null, p.id, Message.ENTITY_TYPE.PROJECTILE));
+                egs.out_messages.add(Message.builder(Message.MSG_TYPE.REMOVE_ENTITY, p.id).setEtype(Message.ENTITY_TYPE.PROJECTILE));
             }
         }
 
@@ -236,7 +237,7 @@ public class ServerPlayingState extends BasicGameState {
         //Kevin, check if projectiles collide with enemies
         for (Projectile p : egs.projectiles) {
             //Kevin, if projectile isnt sent by archer dont hit enemies
-            if(p.sender.getClass() == Archer.class) {
+            if(p.sender.getClass() == Archer.class || p.sender.getClass() == Mage.class || p.sender.getClass() == Rogue.class) {
                 for (Enemy e : egs.enemies) {
                     if (p.collides(e) != null) {
                         e.setHealth(e.getHealth() - p.damage);
