@@ -1,10 +1,13 @@
 package bounce.server;
 
-import bounce.common.Character;
-import bounce.common.*;
+import bounce.common.Message;
+import bounce.common.entities.Character;
+import bounce.common.entities.Enemy;
+import bounce.common.entities.Projectile;
+import bounce.common.items.BaseItem;
 import bounce.common.level.TileMap;
+import bounce.common.lib;
 import jig.Entity;
-import jig.ResourceManager;
 import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -30,13 +33,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ExplorerGameServer extends StateBasedGame {
 
-	public static final int STARTUPSTATE = 0;
-	public static final int PLAYINGSTATE = 1;
-	public static final int GAMEOVERSTATE = 2;
+	public static final int PLAYINGSTATE = 0;
 
 
-    public static final String SPRITES = "bounce/resource/sprites.png";
-    public static final String PROJECTILE = "bounce/resource/projectile.png";
     public final int ScreenWidth;
     public final int ScreenHeight;
 
@@ -49,6 +48,7 @@ public class ExplorerGameServer extends StateBasedGame {
     public ArrayList<Enemy> enemies; //Enemies
     public ArrayList<Projectile> projectiles;
     public TileMap grid;
+    public ArrayList<BaseItem> items;
 
     /**
      * Create the BounceGame frame, saving the width and height for later use.
@@ -70,6 +70,7 @@ public class ExplorerGameServer extends StateBasedGame {
         //(Kevin) initialize data structures
         enemies = new ArrayList<>();
         projectiles = new ArrayList<>();
+        items = new ArrayList<>();
         in_messages = new ConcurrentLinkedQueue<>();
         out_messages = new ConcurrentLinkedQueue<>();
         characters = new Character[n_players];
@@ -131,30 +132,6 @@ public class ExplorerGameServer extends StateBasedGame {
                 out_messages.add(m);
                 break;
             }
-            /* old, client shouldnt create stuff on server
-            case ADD_ENTITY:
-            {
-                assert false : "unreachable m = " + m.type;
-                var e_data_arr = (Object[]) m.data;
-                var spritex = (int) e_data_arr[0];
-                var spritey = (int) e_data_arr[1];
-                switch (m.etype){
-                    case ENEMY:
-                        enemies.add(new Enemy(m.gamepos, m.velocity, game_sprites.getSprite(spritex,spritey)));
-                        m.id = enemies.get(enemies.size() - 1).id;
-                        break;
-//                    case PROJECTILE:
-//                        projectiles.add(new Projectile(m.gamepos, m.velocity, ResourceManager.getImage(ExplorerGameServer.PROJECTILE), null));
-//                        m.id = projectiles.get(projectiles.size() - 1).id;
-//                        break;
-
-                }
-
-                out_messages.add(m);
-
-                break;
-            }
-             */
             case PRIMARY:
             {
                 characters[(int)m.id].primary().ifPresent(projs -> {
@@ -166,25 +143,20 @@ public class ExplorerGameServer extends StateBasedGame {
                                 .setVelocity(p.getVelocity())))
                             .forEach(out_messages::add);
                 });
-//                var p = new Projectile(c.getGamepos(), new Vector(0.1f, 0.1f), c.getCurdir());
-//                var nm = new Message(Message.MSG_TYPE.ADD_ENTITY, , p.id, Message.ENTITY_TYPE.PROJECTILE);
-//                nm.gamepos = p.getGamepos();
-//                nm.velocity = p.getVelocity();
-//                projectiles.add(p);
-//                out_messages.add(nm);
                 break;
             }
             case SET_DIR:
             {
-                if(m.etype == Message.ENTITY_TYPE.CHARACTER){
-                    characters[(int) m.id].setCurdir(m.dir);
-                }
+                assert m.etype == null;
+                characters[(int) m.id].setCurdir(m.dir);
                 out_messages.add(m);
                 break;
             }
             case MOUSE_IDX:
             {
                 characters[(int) m.id].lookingDirIdx = m.intData;
+                out_messages.add(m);
+                break;
             }
         }
     }
@@ -193,8 +165,6 @@ public class ExplorerGameServer extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new ServerPlayingState());
-        addState(new GameOverState());
-        addState(new StartUpState());
 
         // the sound resource takes a particularly long time to load,
         // we preload it here to (1) reduce latency when we first play it
@@ -202,9 +172,6 @@ public class ExplorerGameServer extends StateBasedGame {
         // unless that is done now, we can't *disable* sound as we
         // attempt to do in the startUp() method.
 
-        ResourceManager.loadImage(SPRITES);
-        ResourceManager.loadImage(PROJECTILE);
-        game_sprites = ResourceManager.getSpriteSheet(SPRITES, 64,64);
         lib.LOAD_SPRITES_ONCE();
         grid = new TileMap(100,100);
 

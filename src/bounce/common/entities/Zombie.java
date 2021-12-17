@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.ConvexPolygon;
 import jig.Vector;
 import org.newdawn.slick.Image;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class Zombie extends Enemy{
+    Image temp_im;
 
     public Zombie(Vector pos, Vector vel, Image img){
         super(pos, vel, img);
@@ -20,16 +22,20 @@ public class Zombie extends Enemy{
     @Override
     public Optional<ArrayList<Projectile>> attack(Character c){
         attack_timer = 3000; //Set a timer.
+        attacking = true;
 
         //Kevin, attack in the direction of the player
         //not using lib.dir_from_point_to_point incase we need to add multiple shapes depending on direction
 
         double ang = (c.getGamepos().angleTo(gamepos)+180 + 360 - 45)%360;
         int diridx = (int)Math.round((ang)/45);
-        var offsetdir = lib.dir_enum_to_dir_vector(lib.angle_index_to_dir[diridx]);
-        var s = new ConvexPolygon(lib.sqr.getPoints()); //Set a box to point right
+        var offsetdir = lib.dir_enum_to_dir_vector(lib.angle_index_to_dir[diridx]).scale(32f);
+        var s = new ConvexPolygon(25); //circle
         attack_shapes.add(s);
-        addShape(s, offsetdir.scale(32.0f));
+        addShape(s, offsetdir);
+        temp_im = lib.game_sprites.getSprite(0,11).getScaledCopy(0.35f); //Add an explosion image when attacking.
+        var visualoffset  = (diridx == 0 || diridx == 8) ? lib.DIRS.NORTHEAST : lib.angle_index_to_dir[diridx-1];
+        addImage(temp_im, lib.dir_enum_to_dir_vector(visualoffset).scale(32f));
 
         return Optional.empty();
     }
@@ -46,6 +52,8 @@ public class Zombie extends Enemy{
         if(attack_shapes.size() > 0){
             attack_shapes.stream().forEach(this::removeShape);
             attack_shapes.clear();
+            attacking = false;
+            removeImage(temp_im); //Remove the image when it can move again.
         }
 
         //Kevin, get character with minimum distance to enemy

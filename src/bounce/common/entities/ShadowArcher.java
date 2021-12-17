@@ -1,5 +1,6 @@
-package bounce.common;
+package bounce.common.entities;
 
+import bounce.common.lib;
 import jig.Vector;
 import org.newdawn.slick.Image;
 
@@ -25,6 +26,7 @@ public class ShadowArcher extends Enemy{
         var p = new Projectile(super.getGamepos(), lib.dir_enum_to_unit_vector(d).scale(0.05f), d, this);
         var ar = new ArrayList<Projectile>();
         ar.add(p);
+
         return Optional.of(ar);
     }
 
@@ -48,6 +50,7 @@ public class ShadowArcher extends Enemy{
 
         //Kevin, fire at the player if we are on line with the player
         if(td == null){
+
             return attack(c);
         } else {
             velocity = lib.dir_enum_to_unit_vector(td).scale(0.03f);

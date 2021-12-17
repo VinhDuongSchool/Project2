@@ -1,9 +1,13 @@
 package bounce.client;
 
-import bounce.common.Character;
-import bounce.common.*;
+import bounce.common.Message;
+import bounce.common.entities.Character;
+import bounce.common.entities.*;
 import bounce.common.items.BaseItem;
+import bounce.common.items.PileOfGold;
+import bounce.common.items.Potion;
 import bounce.common.level.TileMap;
+import bounce.common.lib;
 import jig.Entity;
 import jig.Vector;
 import org.newdawn.slick.AppGameContainer;
@@ -49,20 +53,6 @@ public class ExplorerGameClient extends StateBasedGame {
     public TileMap grid;
     public HashMap<Long, Character> allies;
     public ArrayList<BaseItem> items;
-    public int gold;
-
-
-
-	/**
-	 * Create the BounceGame frame, saving the width and height for later use.
-	 *
-	 * @param title
-	 *            the window's title
-	 * @param width
-	 *            the window's width
-	 * @param height
-	 *            the window's height
-	 */
 
 	public ExplorerGameClient(String title, int width, int height, boolean connected) throws IOException {
 		super(title);
@@ -73,6 +63,7 @@ public class ExplorerGameClient extends StateBasedGame {
         } else {
             ID = 0;
         }
+
 		ScreenHeight = height;
 		ScreenWidth = width;
 		Entity.setCoarseGrainedCollisionBoundary(Entity.CIRCLE);
@@ -103,7 +94,8 @@ public class ExplorerGameClient extends StateBasedGame {
     }
 
     public void handle_message(Message m){
-        System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
+        if(m.type != Message.MSG_TYPE.NEW_POSITION)
+            System.out.println("recieved " + m.type + " " +( m.etype == null ? "" : m.etype));
 
         switch (m.type){
             case INIT_CHARACTER:
@@ -155,7 +147,7 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new Zombie(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new Zombie(m.gamepos, m.velocity, lib.game_sprites.getSprite(0,9), m.id));
                         break;
                     }
                     case SHADOWARCHER:
@@ -163,11 +155,17 @@ public class ExplorerGameClient extends StateBasedGame {
                         var e_data_arr = (Object[]) m.data;
                         var spritex = (int) e_data_arr[0];
                         var spritey = (int) e_data_arr[1];
-                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, lib.game_sprites.getSprite(spritex,spritey), m.id));
+                        enemies.add(new ShadowArcher(m.gamepos, m.velocity, lib.game_sprites.getSprite(3,8), m.id));
                         break;
                     }
                     case PROJECTILE:
                         projectiles.add(new Projectile(m.gamepos, m.velocity,  m.id, m.dir));
+                        break;
+                    case GOLDPILE:
+                        items.add(new PileOfGold(m.gamepos.getX(), m.gamepos.getY()));
+                        break;
+                    case POTION:
+                        items.add(new Potion(m.gamepos.getX(), m.gamepos.getY()));
                         break;
                 }
                 break;
@@ -181,6 +179,11 @@ public class ExplorerGameClient extends StateBasedGame {
                     case PROJECTILE:
                         projectiles.remove(projectiles.stream().filter(p -> p.id == m.id).findFirst().get());
                         break;
+
+                    case GOLDPILE:
+                    case POTION:
+                        items.remove(items.stream().filter(i -> i.id == m.id).findFirst().get());
+                        break;
                 }
                 break;
             }
@@ -188,6 +191,13 @@ public class ExplorerGameClient extends StateBasedGame {
             {
                 if(m.etype == Message.ENTITY_TYPE.CHARACTER && m.id != ID){
                     allies.get(m.id).setCurdir(m.dir);
+                }
+                break;
+            }
+            case MOUSE_IDX:
+            {
+                if (m.id != ID) {
+                    allies.get(m.id).lookingDirIdx = m.intData;
                 }
                 break;
             }
@@ -200,8 +210,36 @@ public class ExplorerGameClient extends StateBasedGame {
                                 .findFirst()
                                 .ifPresentOrElse(
                                         e -> e.setHealth(m.HP),
-                                        () -> System.out.println("missed entity id"));
+//                                        () -> System.out.println("missed entity id"));
+                                        // if this throws you can comment it out, but it shouldnt throw
+                                        () -> {throw new RuntimeException("enemy id missing");});
+                        break;
+                    case CHARACTER:
+                        allies.get(m.id).health = m.HP;
+                        break;
                 }
+                break;
+            }
+            case SET_ATTACK_TIMER:
+            {
+                allies.get(m.id).attack_timer = m.intData;
+                break;
+            }
+            case COMPLETE_ROOM:
+            {
+                grid.rooms.get((int) m.id).open();
+                break;
+            }
+            case CLOSE_ROOM:
+            {
+                grid.rooms.get((int) m.id).close();
+                break;
+            }
+            case DEAD:
+            {
+                allies.get(m.id).dead = true;
+                allies.get(m.id).dieScene();
+                break;
             }
 
         }
@@ -216,6 +254,7 @@ public class ExplorerGameClient extends StateBasedGame {
             allies.put(ID, character);
             try {
                 out_stream.writeObject(Message.builder(Message.MSG_TYPE.INIT_CHARACTER, ID)
+
                         .setGamepos(character.getGamepos())
                         .setVelocity(character.getVelocity())
                         .setData(ct));

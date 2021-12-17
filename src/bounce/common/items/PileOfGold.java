@@ -9,12 +9,17 @@ import jig.Vector;
 public class PileOfGold extends BaseItem {
     public int amt;
 
-    public PileOfGold(final float x, final float y) {
-        super(x,y);
+    public PileOfGold(final float x, final float y, long i) {
+        super(x,y, i);
         gamepos = new Vector(x,y);
         addImage(ResourceManager.getImage(lib.PILEOFGOLD)); //Add the image.
         addShape(new ConvexPolygon(lib.sqr.getPoints()));
     }
+
+    public PileOfGold(final float x, final float y){
+        this(x,y,ID_COUNTER.getAndIncrement());
+    }
+
 
     public Vector getGamepos() {
         return gamepos;

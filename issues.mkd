@@ -43,14 +43,16 @@
 41 server stuff again
 43 condense projectile constructors from 6 to like 2 lol
 42 potions
-
-## Open Issues ##
+47 player collision with enemies and damages.
 7 projectiles should collide with walls
 15 make image loading the same for client and server (they should have the same images without manual adding to each class)
-23 projectile images
-28 use dir and speed for enemies
 32 add dir to projectile message
 40 entity graphics
 45 server <-> client image messages
+48 do player death animation when their life reaches zero.
+
+## Open Issues ##
+23 projectile images
+49 win state
 
 
