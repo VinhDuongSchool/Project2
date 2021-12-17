@@ -1,5 +1,11 @@
 Controls: W,A,S,D controls to move the characters. Can hold more than 2 buttons to move diagonally. F or Left click mouse button to do primary attack
 
+using controller: left joycon uses the dpads as movement and right joycon uses a for attack. the last way you walked will be the attack direction
+setting up controllers: this game is setup as using two joycons and you must configure them differently depending on your machines connected inputs for me, I
+had 4 inputs from my computers keyboard and other inputs. the controller input is changed by selecting a different index at lines 189 - 191. also to make it to actually use the joycons as input you have to put true for the controller input in the startup arguments
+ex (false/true) true (false/true is for if it's using a server or not).
+
+
 Cheat codes:
 Press 1 to go to gameover state
 Press 2 to go to win state
@@ -50,5 +56,6 @@ Multiple character select
 Licensing terms:
 Creative Commons
 
+https://opengameart.org/content/spearman-bleeds-game-art //free to share and adapt
 https://opengameart.org/content/64x64-isometric-roguelike-tiles
  "Part of (or All) the graphic tiles used in this program is the public domain roguelike tileset 'RLTiles'.
